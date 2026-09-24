@@ -29,6 +29,9 @@ button{font-family:inherit;cursor:pointer}input,select{font-family:inherit}
 .login-card label{display:block;text-align:right;font-size:12px;font-weight:700;color:#475569;margin:8px 0 4px}
 .login-card input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;font-size:14px;transition:.2s}
 .login-card input:focus{outline:none;border-color:var(--tl);box-shadow:0 0 0 4px rgba(27,47,110,.12)}
+.remember{display:flex;align-items:center;gap:8px;text-align:right;margin:10px 0 4px;cursor:pointer}
+.remember input{width:18px;height:18px;accent-color:#E8112D;cursor:pointer}
+.remember span{font-size:12.5px;font-weight:700;color:#475569}
 .otpbox{display:flex;gap:8px;justify-content:center;direction:ltr;margin:6px 0}
 .otpbox input{width:44px;height:52px;text-align:center;font-size:22px;font-weight:900;border:1.5px solid var(--line);border-radius:12px}
 .otpbox input:focus{outline:none;border-color:var(--tl);box-shadow:0 0 0 4px rgba(27,47,110,.12)}
@@ -242,25 +245,52 @@ tr.click{cursor:pointer}
     <h1>E-Collect Pro</h1>
     <div class="sub" id="lgSub">نظام إدارة التحصيل والفواتير</div>
 
-    <div id="stEmail">
+    <!-- ============ شاشة 1: دخول سريع (اسم + باسورد) ============ -->
+    <div id="stQuick">
+      <label>اسم المستخدم</label>
+      <input id="q_user" placeholder="مثال: Hamouda" onkeydown="if(event.key==='Enter')$('q_pass').focus()">
+      <label>كلمة المرور</label>
+      <input id="q_pass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')quickLogin()">
+      <label class="remember"><input type="checkbox" id="q_rem" checked><span>تذكرني — دخول تلقائيًا في المرات الجاية</span></label>
+      <button id="q_btn" class="btn-primary" style="width:100%;margin-top:8px" onclick="quickLogin()">دخول النظام</button>
+      <button class="btn-ghost" style="width:100%;margin-top:6px" onclick="loginState('email')">🔐 أول مرة؟ تسجيل بالبريد الإلكتروني</button>
+    </div>
+
+    <!-- ============ شاشة 2: إيميل + OTP ============ -->
+    <div id="stEmail" style="display:none">
       <label>البريد الإلكتروني الوظيفي</label>
       <input id="lu" type="email" placeholder="name@company.com" onkeydown="if(event.key==='Enter')startLogin()">
-      <button id="loginBtn" class="btn-primary" style="width:100%;margin-top:14px" onclick="startLogin()">متابعة ←</button>
+      <button id="loginBtn" class="btn-primary" style="width:100%;margin-top:14px" onclick="startLogin()">إرسال كود التحقق ←</button>
+      <button class="btn-ghost" style="width:100%;margin-top:6px" onclick="loginState('quick')">رجوع للدخول السريع</button>
     </div>
 
     <div id="stOtp" style="display:none">
       <div class="stateicon">📩</div>
       <p class="small mut" style="margin-bottom:8px">اكتب كود التحقق المرسل إلى<br><b id="otpMail" style="direction:ltr"></b></p>
       <div class="otpbox" id="otpBox"></div>
-      <button id="otpBtn" class="btn-primary" style="width:100%" onclick="verifyOtp()">تحقق ودخول</button>
-      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="resendOtp()">إعادة إرسال الكود</button>
+      <button id="otpBtn" class="btn-primary" style="width:100%" onclick="verifyOtp()">تحقق ←</button>
+      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="beginOtp(loginEmail)">إعادة إرسال الكود</button>
       <button class="btn-ghost" style="width:100%;margin-top:6px" onclick="loginState('email')">تغيير البريد</button>
+    </div>
+
+    <!-- ============ شاشة 3: إنشاء الحساب (اسم سهل + باسورد) ============ -->
+    <div id="stCreate" style="display:none">
+      <div class="stateicon">✨</div>
+      <p class="small mut" style="margin-bottom:8px">تم التحقق من <b id="cEmail" style="direction:ltr"></b><br>أنشئ اسم مستخدم سهل وكلمة مرور للدخول السريع</p>
+      <label>اسم المستخدم (سهل ومختصر)</label>
+      <input id="n_user" placeholder="مثال: Hamouda" onkeydown="if(event.key==='Enter')$('n_pass').focus()">
+      <label>كلمة المرور</label>
+      <input id="n_pass" type="password" placeholder="4 أحرف على الأقل" onkeydown="if(event.key==='Enter')$('n_pass2').focus()">
+      <label>تأكيد كلمة المرور</label>
+      <input id="n_pass2" type="password" placeholder="أعد كتابة كلمة المرور" onkeydown="if(event.key==='Enter')createAccount()">
+      <label class="remember"><input type="checkbox" id="n_rem" checked><span>تذكرني على هذا الجهاز</span></label>
+      <button id="n_btn" class="btn-primary" style="width:100%;margin-top:8px" onclick="createAccount()">إنشاء الحساب والدخول</button>
     </div>
 
     <div id="stPending" style="display:none">
       <div class="stateicon">⏳</div>
       <h3 style="margin-bottom:6px">بانتظار موافقة الإدارة</h3>
-      <p class="small mut" style="line-height:1.9">تم التحقق من بريدك بنجاح، لكن هذا الجهاز جديد.<br>سيتمكن من الدخول أول ما توافق الإدارة على الجهاز من لوحة التحكم.</p>
+      <p class="small mut" style="line-height:1.9">تم التحقق من بريدك وإنشاء حسابك، لكن هذا الجهاز جديد.<br>سيتمكن من الدخول أول ما توافق الإدارة على الجهاز من لوحة التحكم.</p>
       <button class="btn-primary" style="width:100%;margin-top:14px" onclick="recheckDevice()">🔄 تحديث الحالة</button>
       <button class="btn-ghost" style="width:100%;margin-top:6px" onclick="doLogout()">تغيير الحساب</button>
     </div>
@@ -437,11 +467,11 @@ firebase.auth().signInAnonymously().catch(e=>console.log(e));
 const TX_TYPES=['دفعة','خصم ضريبة خصم منبع (WHT)','تأمينات اجتماعية','عمالة غير منتظمة','خصم آخر / تسوية'];
 const BUCKETS=['لم تستحق','0-30','31-60','61-90','91-180','181-360','أكثر من سنة'];
 const TXM={'دفعة':{ic:'💵',c:'#166534',bg:'#dcfce7'},'خصم ضريبة خصم منبع (WHT)':{ic:'🏛️',c:'#6d28d9',bg:'#ede9fe'},'تأمينات اجتماعية':{ic:'🛡️',c:'#1e40af',bg:'#dbeafe'},'عمالة غير منتظمة':{ic:'👷',c:'#c2410c',bg:'#ffedd5'},'خصم آخر / تسوية':{ic:'⚙️',c:'#44506e',bg:'#eef1f8'}};
-let D={invoices:[],customers:[],logs:[],types:TX_TYPES,company:{},role:'user'};
+let D={invoices:[],customers:[],logs:[],types:TX_TYPES,company:{}};
 let RAW={inv:{},tx:{},cust:{},logs:{}};
 let ME={email:'',name:'',role:'user',avatarId:''},FP='';
 let VIEW='dash',curInv=null,curCust='',editInv=false,confCb=null,confReq='',BUSY=false;
-let invCidV='',txCidV='',picked=[],loginEmail='',chA=null,chM=null,chT=null,chD=null,LIVE=false;
+let invCidV='',txCidV='',picked=[],loginEmail='',chA=null,chM=null,chT=null,chD=null,LIVE=false,OTP_OK_EMAIL='';
 const F={inv:{q:'',cust:'',st:'',bk:''},tx:{q:'',type:'',from:'',to:''},log:{q:''},cust:{q:''},stmt:{year:''}};
 const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -458,8 +488,19 @@ function busyRel(){BUSY=false;}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsDel(k){try{localStorage.removeItem(k);}catch(e){}}
-function doLogout(){lsDel('ec_email');location.reload();}
 function clr(id){$(id).value='';}
+/* تذكرني: نحفظ بس لو علّم "تذكرني" */
+function rememberMe(){
+  const rem=$('n_rem')&&$('n_rem').checked;
+  if(rem){lsSet('ec_remember','1');lsSet('ec_name',ME.name);lsSet('ec_pass_b64',btoa(unescape(encodeURIComponent(ME.pass||''))));lsSet('ec_email',ME.email);}
+  else{lsDel('ec_remember');lsDel('ec_name');lsDel('ec_pass_b64');lsDel('ec_email');}
+}
+function doLogout(keep){
+  if(!keep){lsDel('ec_remember');lsDel('ec_name');lsDel('ec_pass_b64');lsDel('ec_email');}
+  location.reload();
+}
+function askLogout(){askConfirm('تسجيل الخروج','هل تريد تسجيل الخروج من النظام؟','نعم، خروج',true,()=>doLogout(false));}
+function clr(id){}
 
 /* أصوات + توست */
 let audioCtx=null,soundOn=true;
@@ -493,13 +534,48 @@ function compressImage(file,sz){return new Promise(res=>{if(!/^image\//.test(fil
 function saveCache(){try{localStorage.setItem('ec_cache',JSON.stringify({invoices:D.invoices,customers:D.customers,logs:D.logs,company:D.company}));}catch(e){}}
 function readCache(){try{const s=localStorage.getItem('ec_cache');return s?JSON.parse(s):null;}catch(e){return null;}}
 
-/* شاشات الدخول */
+/* ===== شاشات الدخول ===== */
 function loginState(st,msg){
-  ['stEmail','stOtp','stPending','stBlocked'].forEach(id=>$(id).style.display='none');
+  ['stQuick','stEmail','stOtp','stCreate','stPending','stBlocked'].forEach(id=>$(id).style.display='none');
   $('lerr').textContent='';
   if(msg)$('lerr').textContent=msg;
   if(st)$('st'+st.charAt(0).toUpperCase()+st.slice(1)).style.display='block';
 }
+/* دخول سريع: اسم + باسورد (محفوظ عند المستخدمين المسجلين في Firestore) */
+async function quickLogin(){
+  const uname=$('q_user').value.trim();
+  const pass=$('q_pass').value;
+  if(!uname||!pass){$('lerr').textContent='اكتب اسم المستخدم وكلمة المرور';return;}
+  showLoading(true);
+  try{
+    if(!FP)FP=await deviceFp();
+    /* نلاقي المستخدم بالاسم في Firestore */
+    const snap=await db.collection('users').where('username','==',uname).limit(2).get();
+    if(snap.empty){showLoading(false);$('lerr').textContent='اسم المستخدم غير موجود — سجل أول مرة بالبريد الإلكتروني';playSound('err');return;}
+    const udoc=snap.docs[0];const u=udoc.data();
+    if(u.status==='blocked'){showLoading(false);$('lerr').textContent='هذا الحساب موقوف — تواصل مع الإدارة';playSound('err');return;}
+    if(u.passHash!==await hashPass_(uname,pass)){showLoading(false);$('lerr').textContent='كلمة المرور غير صحيحة';playSound('err');return;}
+    /* نتحقق من جهاز المستخدم ده */
+    const doc=await db.collection('devices').doc(FP).get();
+    if(!doc.exists||doc.data().email!==u.email||doc.data().status!=='approved'){
+      showLoading(false);
+      loginEmail=u.email;OTP_OK_EMAIL='';
+      toast('جهاز جديد — يلزم تحقق بالبريد','info');
+      beginOtp(u.email);
+      return;
+    }
+    await db.collection('devices').doc(FP).update({lastUsed:new Date()});
+    ME={email:u.email,name:u.name||uname,role:u.role||'user',avatarId:u.avatarId||'',pass:pass};
+    rememberMe();
+    showLoading(false);
+    await enterApp(ME);
+  }catch(e){showLoading(false);$('lerr').textContent=e.message;playSound('err');}
+}
+async function hashPass_(u,p){
+  const raw=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(u)+'::'+String(p)+'::ECollect'));
+  return Array.from(new Uint8Array(raw)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+/* أول مرة: إيميل + OTP */
 async function startLogin(){
   const email=$('lu').value.trim().toLowerCase();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$('lerr').textContent='اكتب بريدًا إلكترونيًا صحيحًا';return;}
@@ -510,7 +586,7 @@ async function startLogin(){
     if(doc.exists){
       const d=doc.data();
       if(d.email!==email){showLoading(false);loginState('email','هذا الجهاز مسجل بالفعل لمستخدم آخر ('+(d.email||'')+') — استخدم جهازك المعتاد أو تواصل مع الإدارة.');playSound('err');return;}
-      if(d.status==='approved'){const u=await ensureUser_(email);await enterApp(u);return;}
+      if(d.status==='approved'){showLoading(false);loginState('quick','جهازك معتمد — سجّل باسم المستخدم وكلمة المرور');return;}
       if(d.status==='pending'){showLoading(false);loginState('pending');return;}
       showLoading(false);loginState('blocked');return;
     }
@@ -529,7 +605,7 @@ async function beginOtp(email){
     for(let i=0;i<6;i++){const inp=document.createElement('input');inp.maxLength=1;inp.inputMode='numeric';inp.oninput=function(){this.value=this.value.replace(/\D/g,'');if(this.value&&this.nextElementSibling)this.nextElementSibling.focus();};inp.onkeydown=function(e){if(e.key==='Backspace'&&!this.value&&this.previousElementSibling)this.previousElementSibling.focus();if(e.key==='Enter')verifyOtp();};box.appendChild(inp);}
     setTimeout(()=>box.firstChild.focus(),100);
     let left=60;const rb=$('otpBtn');clearInterval(otpTimer);rb.disabled=true;
-    otpTimer=setInterval(()=>{left--;rb.textContent='تحقق ودخول'+(left>0?' ('+left+')':'');if(left<=0){clearInterval(otpTimer);rb.disabled=false;rb.textContent='تحقق ودخول';}},1000);
+    otpTimer=setInterval(()=>{left--;rb.textContent='تحقق'+(left>0?' ('+left+')':'');if(left<=0){clearInterval(otpTimer);rb.disabled=false;rb.textContent='تحقق ←';}},1000);
   }catch(e){showLoading(false);loginState('email',e.message);playSound('err');}
 }
 function resendOtp(){beginOtp(loginEmail);}
@@ -539,20 +615,43 @@ async function verifyOtp(){
   showLoading(true);
   try{
     await svc('verifyOtp',{email:loginEmail,code:code});
-    const udoc=await db.collection('users').doc(loginEmail).get();
-    const usersSnap=await db.collection('users').limit(2).get();
-    const isFirst=usersSnap.empty;
-    const isAdmin=isFirst||(ADMIN_EMAIL&&loginEmail===ADMIN_EMAIL.toLowerCase());
-    const name=loginEmail.split('@')[0];
-    if(!udoc.exists){
-      await db.collection('users').doc(loginEmail).set({email:loginEmail,name:name,role:isAdmin?'admin':'user',status:'active',createdAt:new Date()});
-    }
-    const status=isAdmin?'approved':'pending';
-    await db.collection('devices').doc(FP).set({fp:FP,email:loginEmail,name:navigator.userAgent.slice(0,90),status:status,requestedAt:new Date(),approvedAt:isAdmin?new Date():null,approvedBy:isAdmin?'auto (مالك النظام)':null,lastUsed:new Date()});
-    log_(name,isFirst?'إنشاء النظام (Admin)':'تسجيل جهاز جديد',loginEmail+(status==='approved'?' — تمت الموافقة تلقائيًا':' — بانتظار موافقة الإدارة'),'');
+    OTP_OK_EMAIL=loginEmail;
+    const isAdmin=(ADMIN_EMAIL&&loginEmail===ADMIN_EMAIL.toLowerCase());
     showLoading(false);
-    if(status==='approved'){const u=await ensureUser_(loginEmail);await enterApp(u);}
-    else loginState('pending');
+    $('cEmail').textContent=loginEmail;
+    loginState('create');
+    if(isAdmin)toast('مرحبًا مالك النظام ⭐','ok');
+  }catch(e){showLoading(false);$('lerr').textContent=e.message;playSound('err');}
+}
+async function createAccount(){
+  const uname=$('n_user').value.trim();
+  const pass=$('n_pass').value;
+  const pass2=$('n_pass2').value;
+  if(!uname){$('lerr').textContent='اكتب اسم مستخدم';return;}
+  if(pass.length<4){$('lerr').textContent='كلمة المرور 4 أحرف على الأقل';return;}
+  if(pass!==pass2){$('lerr').textContent='كلمتا المرور غير متطابقتين';return;}
+  showLoading(true);
+  try{
+    const email=OTP_OK_EMAIL;
+    if(!email)throw new Error('انتهت الجلسة — سجل بالبريد من جديد');
+    const snap=await db.collection('users').where('username','==',uname).limit(2).get();
+    if(!snap.empty){showLoading(false);$('lerr').textContent='اسم المستخدم مستخدم — اختار اسمًا آخر';return;}
+    const isAdmin=(ADMIN_EMAIL&&email===ADMIN_EMAIL.toLowerCase());
+    const name=uname;
+    const passHash=await hashPass_(uname,pass);
+    await db.collection('users').doc(email).set({email:email,username:uname,name:name,role:isAdmin?'admin':'user',status:'active',passHash:passHash,avatarId:'',createdAt:new Date()});
+    const status=isAdmin?'approved':'pending';
+    await db.collection('devices').doc(FP).set({fp:FP,email:email,name:navigator.userAgent.slice(0,90),status:status,requestedAt:new Date(),approvedAt:isAdmin?new Date():null,approvedBy:isAdmin?'auto (مالك النظام)':null,lastUsed:new Date()});
+    log_(name,isAdmin?'إنشاء النظام (Admin)':'تسجيل مستخدم جديد',email+(status==='approved'?' — تمت الموافقة تلقائيًا':' — بانتظار موافقة الإدارة'),'');
+    ME={email:email,name:name,role:isAdmin?'admin':'user',avatarId:'',pass:pass};
+    if(status==='approved'){
+      rememberMe();
+      showLoading(false);
+      await enterApp(ME);
+    }else{
+      showLoading(false);
+      loginState('pending');
+    }
   }catch(e){showLoading(false);$('lerr').textContent=e.message;playSound('err');}
 }
 async function recheckDevice(){
@@ -560,13 +659,15 @@ async function recheckDevice(){
   try{
     const doc=await db.collection('devices').doc(FP).get();
     showLoading(false);
-    if(doc.exists&&doc.data().status==='approved'&&doc.data().email===loginEmail){const u=await ensureUser_(loginEmail);await enterApp(u);}
-    else{loginState('pending');toast('لسه في انتظار موافقة الإدارة','info');}
+    if(doc.exists&&doc.data().status==='approved'){
+      const u=await ensureUser_(doc.data().email);
+      await enterApp(u);
+    }else{loginState('pending');toast('لسه في انتظار موافقة الإدارة','info');}
   }catch(e){showLoading(false);toast(e.message,'err');}
 }
 async function ensureUser_(email){
   const doc=await db.collection('users').doc(email).get();
-  const d=doc.exists?doc.data():{email:email,name:email.split('@')[0],role:'user',avatarId:''};
+  const d=doc.exists?doc.data():{};
   if(d.status==='blocked')throw new Error('هذا الحساب موقوف — تواصل مع الإدارة');
   ME={email:email,name:d.name||email.split('@')[0],role:d.role||'user',avatarId:d.avatarId||''};
   return ME;
@@ -574,7 +675,6 @@ async function ensureUser_(email){
 
 /* تشغيل التطبيق */
 async function enterApp(u){
-  lsSet('ec_email',u.email);
   $('login').style.display='none';$('topbar').style.display='flex';
   applyMe();startLive();
   const c=readCache();
@@ -582,21 +682,35 @@ async function enterApp(u){
   toast('أهلاً بيك يا '+u.name+' 👋','ok');
 }
 async function boot(){
-  const saved=lsGet('ec_email');
-  if(!saved)return;
-  showLoading(true);
-  try{
-    FP=await deviceFp();
-    const doc=await db.collection('devices').doc(FP).get();
-    if(doc.exists&&doc.data().status==='approved'&&doc.data().email===saved){
-      const u=await ensureUser_(saved);
-      await db.collection('devices').doc(FP).update({lastUsed:new Date()});
-      showLoading(false);await enterApp(u);
-    }else{showLoading(false);lsDel('ec_email');}
-  }catch(e){showLoading(false);lsDel('ec_email');}
+  /* تذكرني: فتح تلقائي بدون كتابة */
+  const rem=lsGet('ec_remember');
+  if(rem==='1'){
+    const nm=lsGet('ec_name'),pb=lsGet('ec_pass_b64');
+    if(nm&&pb){
+      showLoading(true);
+      try{
+        const pass=decodeURIComponent(escape(atob(pb)));
+        if(!FP)FP=await deviceFp();
+        const snap=await db.collection('users').where('username','==',nm).limit(2).get();
+        if(!snap.empty){
+          const u=snap.docs[0].data();
+          const doc=await db.collection('devices').doc(FP).get();
+          if(doc.exists&&doc.data().email===u.email&&doc.data().status==='approved'){
+            await db.collection('devices').doc(FP).update({lastUsed:new Date()});
+            ME={email:u.email,name:u.name||nm,role:u.role||'user',avatarId:u.avatarId||'',pass:pass};
+            showLoading(false);
+            await enterApp(ME);
+            return;
+          }
+        }
+      }catch(e){}
+      showLoading(false);
+    }
+  }
 }
+/* دخول الادمن المباشر (لأول مرة): لو الايميل = ADMIN_EMAIL يتم الموافقة فورًا بعد ال OTP وتخطي شاشة الإنشاء اختياريًا */
 
-/* المستمعون الحيون */
+/* مستمعون حيون */
 function startLive(){
   if(LIVE)return;LIVE=true;
   db.collection('invoices').onSnapshot(s=>{s.docChanges().forEach(ch=>{if(ch.type==='removed')delete RAW.inv[ch.doc.id];else RAW.inv[ch.doc.id]=ch.doc.data();});rebuild();});
@@ -679,7 +793,6 @@ function delAvatar(){
     busyRel();
   });
 }
-function askLogout(){askConfirm('تسجيل الخروج','هل تريد تسجيل الخروج من النظام؟','نعم، خروج',true,()=>doLogout());}
 function toggleAvMenu(force){const m=$('avMenu');const open=(force===false)?false:(force===true?true:!m.classList.contains('open'));m.classList.toggle('open',open);}
 document.addEventListener('click',e=>{if(!e.target.closest('.avwrap'))$('avMenu').classList.remove('open');});
 
@@ -1341,6 +1454,7 @@ document.addEventListener('click',e=>{
 (function(){
   $('sndBtn').textContent=soundOn?'🔊':'🔇';
   try{const sv=lsGet('ec_view');if(sv&&VIEWS[sv])VIEW=sv;}catch(e){}
+  loginState('quick');
   boot();
 })();
 </script>
