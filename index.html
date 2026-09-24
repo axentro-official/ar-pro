@@ -553,13 +553,14 @@ async function load(silent,cb){
 }
 function roleLabel(r){return r==='admin'?'Admin':'Employee';}
 function applyData(){
+  if(!D)return;
   $('uname').textContent=U;$('drName').textContent=U;
   const rl=roleLabel(D.role);
   $('urole').textContent=rl;$('drRole').textContent=rl;
   $('avTxt').textContent=U.charAt(0);$('avInit').textContent=U.charAt(0);$('drAvInit').textContent=U.charAt(0);
   if(D.company)$('coName').textContent=D.company;
   setLogos();applyAvatars();
-  const openC=d.invoices.filter(v=>v.remaining>0.005).length;
+  const openC=D.invoices.filter(v=>v.remaining>0.005).length;  
   const bd=$('tabs').querySelector('[data-v="inv"] .bdg');
   document.querySelectorAll('[data-v="inv"]').forEach(b=>{let x=b.querySelector('.bdg');if(!x){x=document.createElement('span');x.className='bdg';b.appendChild(x);}x.textContent=openC||'';});
   $('vdate').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
