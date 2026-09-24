@@ -143,11 +143,12 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 firebase.auth().signInAnonymously().catch(()=>{});
 let ME=null,TAB='pend',DEVS={},USRS={},FP='',EMAIL='';
+const ADMIN=(typeof ADMIN_EMAIL==='string')?ADMIN_EMAIL.trim().toLowerCase():'';
 function toast(m){const el=document.createElement('div');el.className='tst';el.innerHTML='<div class="tic">ℹ</div><div class="tmsg">'+m+'</div>';$('toasts').appendChild(el);setTimeout(()=>el.remove(),3500);}
 const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 async function fpHash(){
-  const p=[navigator.userAgent,navigator.language,screen.width+'x'+screen.height,String(new Date().getTimezoneOffset())];
+  const p=[navigator.userAgent,navigator.language,screen.width+'x'+screen.height,String(new Date().getTimezoneOffset()),String(navigator.hardwareConcurrency||0)];
   const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p.join('|')));
   return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
 }
@@ -155,15 +156,33 @@ async function call(action,payload){
   const r=await fetch(SVC_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:action},payload||{}))});
   const d=await r.json();if(!d.ok)throw new Error(d.error||'خطأ');return d.data;
 }
+/* ⭐ لو الإيميل = إيميل مالك النظام → يتأكد من وجود حسابه بصلاحية Admin ويعتمد الجهاز فورًا */
+async function ensureAdminUser_(email){
+  const ref=db.collection('users').doc(email);
+  const doc=await ref.get();
+  if(!doc.exists){
+    await ref.set({email:email,username:email.split('@')[0],name:email.split('@')[0],role:'admin',status:'active',avatarId:'',createdAt:new Date(),createdVia:'admin-panel'});
+    return {email:email,name:email.split('@')[0],role:'admin'};
+  }
+  const d=doc.data();
+  if(d.role!=='admin'){ await ref.update({role:'admin'}); d.role='admin'; }
+  if(d.status==='blocked'){ await ref.update({status:'active'}); d.status='active'; }
+  return {email:email,name:d.name||email.split('@')[0],role:'admin'};
+}
 async function go(){
   const em=$('em').value.trim().toLowerCase();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){$('er').textContent='اكتب بريدًا صحيحًا';return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){$('er').className='err';$('er').textContent='اكتب بريدًا صحيحًا';return;}
   EMAIL=em;$('er').textContent='';$('er').className='err';
   try{
     FP=await fpHash();
+    const isAdminMail=(ADMIN&&em===ADMIN);
     const dev=await db.collection('devices').doc(FP).get();
     if(dev.exists&&dev.data().status==='approved'&&dev.data().email===em){
       const u=await db.collection('users').doc(em).get();
+      if(isAdminMail){
+        await ensureAdminUser_(em);
+        ME={email:em,name:(u.exists?u.data().name:'')||em.split('@')[0]};openApp();return;
+      }
       if(!u.exists||u.data().role!=='admin'){$('er').textContent='هذه اللوحة للـ Admin فقط';return;}
       ME={email:em,name:u.data().name||'Admin'};openApp();return;
     }
@@ -181,14 +200,23 @@ async function goVerify(){
   if(code.length!==6){$('er').className='err';$('er').textContent='اكتب الكود كاملًا';return;}
   try{
     await call('verifyOtp',{email:EMAIL,code:code});
-    const u=await db.collection('users').doc(EMAIL).get();
-    if(!u.exists||u.data().role!=='admin'){$('er').className='err';$('er').textContent='هذه اللوحة للـ Admin فقط';return;}
+    const isAdminMail=(ADMIN&&EMAIL===ADMIN);
+    if(!isAdminMail){
+      const u=await db.collection('users').doc(EMAIL).get();
+      if(!u.exists||u.data().role!=='admin'){$('er').className='err';$('er').textContent='هذه اللوحة للـ Admin فقط';return;}
+    }
+    /* ⭐ الأدمن: حسابه يتعمل لو مش موجود + جهازه يتعتمد فورًا */
+    if(isAdminMail){
+      const au=await ensureAdminUser_(EMAIL);
+      await db.collection('devices').doc(FP).set({fp:FP,email:EMAIL,name:navigator.userAgent.slice(0,90),status:'approved',requestedAt:new Date(),approvedAt:new Date(),approvedBy:'auto (مالك النظام)',lastUsed:new Date()},{merge:true});
+      ME={email:EMAIL,name:au.name};openApp();return;
+    }
     const dev=await db.collection('devices').doc(FP).get();
+    const u=await db.collection('users').doc(EMAIL).get();
     if(dev.exists&&dev.data().email===EMAIL&&dev.data().status==='approved'){
       ME={email:EMAIL,name:u.data().name||'Admin'};openApp();return;
     }
-    if(dev.exists&&!dev.data().email){/* جهاز مش مسجل لمحد */}
-    /* سجل الجهاز معلق — لازم يعتمده admin من جهاز معتمد، لكن لو مفيش أجهزة معتمدة أصلاً اعتمده (حالة أول مرة للوحة) */
+    /* حالة أول جهاز للوحة إطلاقًا */
     const anyApproved=await db.collection('devices').where('status','==','approved').limit(1).get();
     const auto=anyApproved.empty;
     await db.collection('devices').doc(FP).set({fp:FP,email:EMAIL,name:navigator.userAgent.slice(0,90),status:auto?'approved':'pending',requestedAt:new Date(),approvedAt:auto?new Date():null,approvedBy:auto?'auto (أول جهاز للوحة)':null,lastUsed:new Date()},{merge:true});
@@ -214,15 +242,17 @@ function draw(){
   }else{
     const all=Object.values(USRS);
     $('list').innerHTML='<h2>المستخدمون ('+all.length+')</h2>'+all.map(u=>
-      '<div class="card"><div class="dev"><div class="ic">👤</div><div class="inf"><b>'+esc(u.name||u.email)+'</b><span>'+esc(u.email)+' · '+fmtD(u.createdAt)+'</span></div>'+
+      '<div class="card"><div class="dev"><div class="ic">👤</div><div class="inf"><b>'+esc((u.username?u.username+' — ':'')+(u.name||u.email))+'</b><span>'+esc(u.email)+' · '+fmtD(u.createdAt)+'</span></div>'+
       '<span class="chip '+(u.role==='admin'?'c-app':(u.status==='blocked'?'c-blk':'c-pend'))+'">'+(u.role==='admin'?'Admin':(u.status==='blocked'?'محظور':'Employee'))+'</span>'+
       '<div class="acts">'+(u.status==='blocked'?'<button class="b b-ok" onclick="unblockUser(\''+esc(u.email)+'\')">رفع الحجب</button>':'<button class="b b-no" onclick="blockUser(\''+esc(u.email)+'\')">🚫 حجب الحساب</button>')+'</div></div></div>').join('');
   }
 }
 function card(d){
+  const usr=USRS[d.email];
+  const nm=(usr&&usr.username)?(usr.username+' — '+d.email):d.email;
   const st=d.status==='approved'?'<span class="chip c-app">معتمد ✅</span>':(d.status==='pending'?'<span class="chip c-pend">معلق ⏳</span>':'<span class="chip c-blk">محظور ⛔</span>');
   return '<div class="card"><div class="dev"><div class="ic">'+(d.status==='approved'?'💻':(d.status==='pending'?'⏳':'⛔'))+'</div>'+
-  '<div class="inf"><b>'+esc(d.email||'—')+'</b><span>'+esc(d.name||'')+'</span><span class="tiny">الطلب: '+fmtD(d.requestedAt)+' · آخر استخدام: '+fmtD(d.lastUsed)+(d.approvedBy?(' · اعتمده: '+esc(d.approvedBy)):'')+'</span></div>'+st+
+  '<div class="inf"><b>'+esc(nm||'—')+'</b><span>'+esc(d.name||'')+'</span><span class="tiny">الطلب: '+fmtD(d.requestedAt)+' · آخر استخدام: '+fmtD(d.lastUsed)+(d.approvedBy?(' · اعتمده: '+esc(d.approvedBy)):'')+'</span></div>'+st+
   '<div class="acts">'+(d.status!=='approved'?'<button class="b b-ok" onclick="devAct(\''+d.fp+'\',\'approved\')">✅ موافقة</button>':'')+
   (d.status!=='blocked'?'<button class="b b-no" onclick="devAct(\''+d.fp+'\',\'blocked\')">🚫 حظر</button>':'<button class="b b-ok" onclick="devAct(\''+d.fp+'\',\'approved\')">رفع الحجب</button>')+
   '<button class="b b-gr" onclick="devDel(\''+d.fp+'\')">🗑️ حذف</button></div></div></div>';
@@ -230,7 +260,7 @@ function card(d){
 function fmtD(ts){if(!ts)return'—';try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString('ar-EG',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return'—';}}
 async function devAct(fp,status){await db.collection('devices').doc(fp).update({status:status,approvedAt:new Date(),approvedBy:ME.email});toast(status==='approved'?'تم اعتماد الجهاز ✅':'تم حظر الجهاز');}
 async function devDel(fp){if(confirm('حذف هذا الجهاز نهائيًا؟ سيلزمه تسجيل دخول جديد.'))await db.collection('devices').doc(fp).delete();}
-async function blockUser(em){if(confirm('حجب هذا الحساب؟ لن يستطيع الدخول من أي جهاز.'))await db.collection('users').doc(em).update({status:'blocked'});}
+async function blockUser(em){if(em===ADMIN){toast('مينفعش تحجب مالك النظام ⭐');return;}if(confirm('حجب هذا الحساب؟ لن يستطيع الدخول من أي جهاز.'))await db.collection('users').doc(em).update({status:'blocked'});}
 async function unblockUser(em){await db.collection('users').doc(em).update({status:'active'});}
 </script>
 </body>
