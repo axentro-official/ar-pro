@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E-Collect Admin — إدارة الأجهزة والمستخدمين</title>
+<link rel="icon" href="enovate.png">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Cairo',sans-serif}
+:root{--tl:#1B2F6E;--tl2:#2E4A9E;--acc:#E8112D;--bg:#f0f2f8;--line:#e3e7f2;--mut:#64748b;--dark:#101B3E}
+body{background:var(--bg);color:#0f172a;font-size:14px;padding-bottom:96px}
+button{font-family:inherit;cursor:pointer}input,select{font-family:inherit}
+#login{position:fixed;inset:0;background:linear-gradient(135deg,#0d1638,#1B2F6E 55%,#31437f);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.4;animation:float 9s ease-in-out infinite}
+.orb.a{width:340px;height:340px;background:#E8112D;top:-90px;right:-70px;opacity:.25}
+.orb.b{width:280px;height:280px;background:#2E4A9E;bottom:-70px;left:-60px;animation-delay:-4s}
+.orb.c{width:200px;height:200px;background:#E8112D;bottom:15%;right:12%;animation-delay:-7s;opacity:.2}
+@keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-26px) scale(1.07)}}
+@keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+.login-card{background:#fff;border-radius:22px;padding:30px 32px 18px;width:100%;max-width:400px;box-shadow:0 25px 60px rgba(0,0,0,.35);text-align:center;animation:pop .5s;position:relative;z-index:2}
+.co-logo{height:60px;margin:0 auto 6px;display:block;max-width:200px;object-fit:contain}
+.login-card h1{font-size:22px;font-weight:900;margin-top:4px;color:var(--dark)}
+.login-card .sub{color:var(--mut);font-size:13px;margin:4px 0 16px}
+.login-card label{display:block;text-align:right;font-size:12px;font-weight:700;color:#475569;margin:8px 0 4px}
+.login-card input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;font-size:14px;transition:.2s}
+.login-card input:focus{outline:none;border-color:var(--tl);box-shadow:0 0 0 4px rgba(27,47,110,.12)}
+.otpbox{display:flex;gap:8px;justify-content:center;direction:ltr;margin:6px 0}
+.otpbox input{width:44px;height:52px;text-align:center;font-size:22px;font-weight:900;border:1.5px solid var(--line);border-radius:12px}
+.err{color:#dc2626;font-size:12.5px;font-weight:700;margin-top:10px;min-height:18px}
+.okmsg{color:#16a34a;font-size:12.5px;font-weight:700;margin-top:10px;min-height:18px}
+.btn-primary{background:linear-gradient(135deg,#2E4A9E,#1B2F6E);color:#fff;border:none;border-radius:11px;padding:11px;font-weight:800;font-size:13.5px;width:100%;margin-top:12px}
+.btn-ghost{background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:9px;font-weight:700;font-size:12.5px;color:#334155;width:100%;margin-top:8px}
+.login-foot{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:14px}
+.lf-qr{display:flex;flex-direction:column;align-items:center;gap:1px;text-decoration:none}
+.lf-qr img{width:44px;height:44px;border-radius:8px;background:#fff;border:1px solid var(--line);padding:2px}
+.lf-qr span{font-size:7.5px;color:var(--acc);font-weight:800;white-space:nowrap}
+.lf-txt{text-align:right;line-height:1.6}
+.lf-txt b{font-size:11px;color:#334155}.lf-txt span{display:block;font-size:10px;color:#94a3b8;font-weight:700}
+#topbar{position:fixed;top:0;right:0;left:0;height:60px;background:linear-gradient(90deg,#101B3E,#1B2F6E);display:flex;align-items:center;gap:14px;padding:0 16px;z-index:50;box-shadow:0 2px 14px rgba(16,27,62,.35)}
+.tb-brand{display:flex;gap:10px;align-items:center}
+.lgbox{background:#fff;border-radius:10px;padding:4px 8px;display:flex;align-items:center}
+.lgbox img{height:28px;max-width:86px;object-fit:contain;display:block}
+.tb-brand b{color:#fff;font-size:14.5px;display:block;line-height:1.25}
+.tb-brand span{font-size:10px;color:#9fb0d8;display:block}
+.tb-badge{margin-right:auto;background:linear-gradient(135deg,#E8112D,#a30c1f);color:#fff;border-radius:99px;padding:6px 16px;font-size:11.5px;font-weight:800}
+.wrap{max-width:1100px;margin:0 auto;padding:84px 20px 20px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:9px 18px;border-radius:11px;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:13px;color:#334155;transition:.15s}
+.tab:hover{border-color:var(--tl);color:var(--tl)}
+.tab.active{background:var(--tl);color:#fff;border-color:var(--tl)}
+.card{background:#fff;border-radius:16px;padding:16px;border:1px solid var(--line);margin-bottom:12px;box-shadow:0 1px 3px rgba(16,27,62,.06)}
+.card:hover{box-shadow:0 8px 22px rgba(16,27,62,.1)}
+.dev{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dev .ic{width:44px;height:44px;border-radius:12px;background:#e8edf9;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.dev .inf{flex:1;min-width:200px}
+.dev .inf b{display:block;font-size:13.5px;direction:ltr;text-align:right}
+.dev .inf span{font-size:11px;color:var(--mut);display:block;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
+.chip{padding:3px 11px;border-radius:99px;font-size:11px;font-weight:800;display:inline-block}
+.c-pend{background:#fef3c7;color:#92400e}.c-app{background:#dcfce7;color:#166534}.c-blk{background:#fee2e2;color:#991b1b}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.b{border:none;border-radius:9px;padding:7px 14px;font-size:12px;font-weight:800;transition:.15s}
+.b:hover{filter:brightness(1.1)}
+.b-ok{background:#16a34a;color:#fff}.b-no{background:#E8112D;color:#fff}.b-gr{background:#eef1f8;color:#334155}
+.mut{color:var(--mut)}.tiny{font-size:11px;color:var(--mut)}
+.empty{text-align:center;padding:40px;color:var(--mut);background:#fff;border-radius:16px;border:1px dashed var(--line)}
+h2{font-size:16px;margin:4px 0 14px;color:var(--dark)}
+#toasts{position:fixed;top:74px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none;width:min(94vw,430px)}
+.tst{pointer-events:auto;display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 12px 34px rgba(2,8,20,.22);border:1px solid var(--line);width:100%;position:relative;overflow:hidden;animation:pop .35s;cursor:pointer}
+.tic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0;color:#fff;background:linear-gradient(135deg,#2E4A9E,#1B2F6E)}
+.tmsg{font-size:13px;font-weight:700;line-height:1.5;flex:1}
+#foot{position:fixed;bottom:0;right:0;left:0;background:linear-gradient(180deg,rgba(16,27,62,.97),rgba(27,47,110,.98));color:#9fb0d8;display:flex;align-items:center;justify-content:center;gap:22px;padding:8px 18px;z-index:30;border-top:1px solid rgba(255,255,255,.06)}
+.ftr-txt{display:flex;flex-direction:column;align-items:center;line-height:1.5}
+.ftr-txt b{color:#e6eaf6;font-size:12px;font-weight:800}.ftr-txt span{font-size:10.5px}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none}
+.qr-wrap img{width:56px;height:56px;border-radius:10px;background:#fff;padding:3px;box-shadow:0 0 0 2px rgba(232,17,45,.35)}
+.qr-wrap span{font-size:8.5px;color:#ff8fa0;font-weight:800;letter-spacing:.4px;white-space:nowrap}
+@media(max-width:920px){.tb-badge{display:none}.ftr-txt b{font-size:10px}.qr-wrap img{width:46px;height:46px}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+  <div class="login-card">
+    <img class="co-logo" src="enovate.png" alt="logo" onerror="this.style.display='none'">
+    <h1>E-Collect Admin</h1>
+    <div class="sub">لوحة إدارة الأجهزة والمستخدمين — للـ Admin فقط</div>
+    <div id="aEmail">
+      <label>البريد الإلكتروني الإداري</label>
+      <input id="em" type="email" placeholder="admin@company.com" onkeydown="if(event.key==='Enter')go()">
+      <button class="btn-primary" id="b1" onclick="go()">دخول اللوحة ←</button>
+    </div>
+    <div id="aOtp" style="display:none">
+      <label>كود التحقق المرسل إلى <b id="otpM" style="direction:ltr"></b></label>
+      <div class="otpbox" id="otpBox"></div>
+      <button class="btn-primary" onclick="goVerify()">تحقق</button>
+      <button class="btn-ghost" onclick="location.reload()">تغيير البريد</button>
+    </div>
+    <div class="err" id="er"></div>
+    <div class="login-foot">
+      <a class="lf-qr" href="https://axentro.site/links.html" target="_blank" rel="noopener">
+        <img src="qr.png" alt="QR" onerror="this.style.display='none'"><span>Scan Me ▸ Click On Me</span>
+      </a>
+      <div class="lf-txt"><b>Powered by Axentro</b><span>© 2024 All Rights Reserved</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header id="topbar">
+    <div class="tb-brand">
+      <div class="lgbox"><img src="enovate.png" alt="logo" onerror="this.style.display='none'"></div>
+      <div><b>E-Collect Admin</b><span id="who"></span></div>
+    </div>
+    <span class="tb-badge">🛡️ لوحة الإدارة</span>
+  </header>
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab active" data-t="pend" onclick="tab('pend')">⏳ طلبات معلقة <span id="cnt"></span></button>
+      <button class="tab" data-t="devs" onclick="tab('devs')">💻 كل الأجهزة</button>
+      <button class="tab" data-t="usrs" onclick="tab('usrs')">👤 المستخدمون</button>
+    </div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<footer id="foot">
+  <a class="qr-wrap" href="https://axentro.site/links.html" target="_blank" rel="noopener">
+    <img src="qr.png" alt="QR Axentro" onerror="this.style.display='none'"><span>Scan Me ▸ Click On Me</span>
+  </a>
+  <div class="ftr-txt"><b>© 2024 Axentro – All Rights Reserved</b><span>By Axentro Team</span></div>
+</footer>
+
+<script src="firebase-config.js"></script>
+<script>
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+firebase.auth().signInAnonymously().catch(()=>{});
+let ME=null,TAB='pend',DEVS={},USRS={},FP='',EMAIL='';
+function toast(m){const el=document.createElement('div');el.className='tst';el.innerHTML='<div class="tic">ℹ</div><div class="tmsg">'+m+'</div>';$('toasts').appendChild(el);setTimeout(()=>el.remove(),3500);}
+const $=i=>document.getElementById(i);
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+async function fpHash(){
+  const p=[navigator.userAgent,navigator.language,screen.width+'x'+screen.height,String(new Date().getTimezoneOffset())];
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p.join('|')));
+  return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+async function call(action,payload){
+  const r=await fetch(SVC_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:action},payload||{}))});
+  const d=await r.json();if(!d.ok)throw new Error(d.error||'خطأ');return d.data;
+}
+async function go(){
+  const em=$('em').value.trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){$('er').textContent='اكتب بريدًا صحيحًا';return;}
+  EMAIL=em;$('er').textContent='';$('er').className='err';
+  try{
+    FP=await fpHash();
+    const dev=await db.collection('devices').doc(FP).get();
+    if(dev.exists&&dev.data().status==='approved'&&dev.data().email===em){
+      const u=await db.collection('users').doc(em).get();
+      if(!u.exists||u.data().role!=='admin'){$('er').textContent='هذه اللوحة للـ Admin فقط';return;}
+      ME={email:em,name:u.data().name||'Admin'};openApp();return;
+    }
+    await call('sendOtp',{email:em});
+    $('aEmail').style.display='none';$('aOtp').style.display='block';
+    $('otpM').textContent=em;
+    const box=$('otpBox');box.innerHTML='';
+    for(let i=0;i<6;i++){const inp=document.createElement('input');inp.maxLength=1;inp.inputMode='numeric';inp.oninput=function(){this.value=this.value.replace(/\D/g,'');if(this.value&&this.nextElementSibling)this.nextElementSibling.focus();};box.appendChild(inp);}
+    setTimeout(()=>box.firstChild.focus(),100);
+    $('er').className='okmsg';$('er').textContent='تم إرسال كود التحقق إلى بريدك ✅';
+  }catch(e){$('er').className='err';$('er').textContent=e.message;}
+}
+async function goVerify(){
+  const code=[...$('otpBox').children].map(i=>i.value).join('');
+  if(code.length!==6){$('er').className='err';$('er').textContent='اكتب الكود كاملًا';return;}
+  try{
+    await call('verifyOtp',{email:EMAIL,code:code});
+    const u=await db.collection('users').doc(EMAIL).get();
+    if(!u.exists||u.data().role!=='admin'){$('er').className='err';$('er').textContent='هذه اللوحة للـ Admin فقط';return;}
+    const dev=await db.collection('devices').doc(FP).get();
+    if(dev.exists&&dev.data().email===EMAIL&&dev.data().status==='approved'){
+      ME={email:EMAIL,name:u.data().name||'Admin'};openApp();return;
+    }
+    if(dev.exists&&!dev.data().email){/* جهاز مش مسجل لمحد */}
+    /* سجل الجهاز معلق — لازم يعتمده admin من جهاز معتمد، لكن لو مفيش أجهزة معتمدة أصلاً اعتمده (حالة أول مرة للوحة) */
+    const anyApproved=await db.collection('devices').where('status','==','approved').limit(1).get();
+    const auto=anyApproved.empty;
+    await db.collection('devices').doc(FP).set({fp:FP,email:EMAIL,name:navigator.userAgent.slice(0,90),status:auto?'approved':'pending',requestedAt:new Date(),approvedAt:auto?new Date():null,approvedBy:auto?'auto (أول جهاز للوحة)':null,lastUsed:new Date()},{merge:true});
+    if(auto){ME={email:EMAIL,name:u.data().name||'Admin'};openApp();}
+    else{$('er').className='err';$('er').textContent='جهازك الحالي معلق — اعتمده من طلبات معلقة باستخدام جهاز Admin المعتمد';}
+  }catch(e){$('er').className='err';$('er').textContent=e.message;}
+}
+function openApp(){
+  $('login').style.display='none';$('app').style.display='block';
+  $('who').textContent=ME.name+' · '+ME.email;
+  db.collection('devices').onSnapshot(s=>{DEVS={};s.forEach(d=>DEVS[d.id]=d.data());draw();});
+  db.collection('users').onSnapshot(s=>{USRS={};s.forEach(d=>USRS[d.id]=d.data());draw();});
+}
+function tab(t){TAB=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));draw();}
+function draw(){
+  if(TAB==='pend'){
+    const pend=Object.values(DEVS).filter(d=>d.status==='pending');
+    $('cnt').textContent=pend.length?'('+pend.length+')':'';
+    $('list').innerHTML='<h2>طلبات أجهزة بانتظار الموافقة</h2>'+(pend.length?pend.map(d=>card(d)).join(''):'<div class="empty">✅ لا توجد طلبات معلقة — كل الأجهزة تمت مراجعتها</div>');
+  }else if(TAB==='devs'){
+    const all=Object.values(DEVS).sort((a,b)=>((b.requestedAt&&b.requestedAt.seconds)||0)-((a.requestedAt&&a.requestedAt.seconds)||0));
+    $('list').innerHTML='<h2>كل الأجهزة المسجلة ('+all.length+')</h2>'+(all.length?all.map(d=>card(d)).join(''):'<div class="empty">لا توجد أجهزة بعد</div>');
+  }else{
+    const all=Object.values(USRS);
+    $('list').innerHTML='<h2>المستخدمون ('+all.length+')</h2>'+all.map(u=>
+      '<div class="card"><div class="dev"><div class="ic">👤</div><div class="inf"><b>'+esc(u.name||u.email)+'</b><span>'+esc(u.email)+' · '+fmtD(u.createdAt)+'</span></div>'+
+      '<span class="chip '+(u.role==='admin'?'c-app':(u.status==='blocked'?'c-blk':'c-pend'))+'">'+(u.role==='admin'?'Admin':(u.status==='blocked'?'محظور':'Employee'))+'</span>'+
+      '<div class="acts">'+(u.status==='blocked'?'<button class="b b-ok" onclick="unblockUser(\''+esc(u.email)+'\')">رفع الحجب</button>':'<button class="b b-no" onclick="blockUser(\''+esc(u.email)+'\')">🚫 حجب الحساب</button>')+'</div></div></div>').join('');
+  }
+}
+function card(d){
+  const st=d.status==='approved'?'<span class="chip c-app">معتمد ✅</span>':(d.status==='pending'?'<span class="chip c-pend">معلق ⏳</span>':'<span class="chip c-blk">محظور ⛔</span>');
+  return '<div class="card"><div class="dev"><div class="ic">'+(d.status==='approved'?'💻':(d.status==='pending'?'⏳':'⛔'))+'</div>'+
+  '<div class="inf"><b>'+esc(d.email||'—')+'</b><span>'+esc(d.name||'')+'</span><span class="tiny">الطلب: '+fmtD(d.requestedAt)+' · آخر استخدام: '+fmtD(d.lastUsed)+(d.approvedBy?(' · اعتمده: '+esc(d.approvedBy)):'')+'</span></div>'+st+
+  '<div class="acts">'+(d.status!=='approved'?'<button class="b b-ok" onclick="devAct(\''+d.fp+'\',\'approved\')">✅ موافقة</button>':'')+
+  (d.status!=='blocked'?'<button class="b b-no" onclick="devAct(\''+d.fp+'\',\'blocked\')">🚫 حظر</button>':'<button class="b b-ok" onclick="devAct(\''+d.fp+'\',\'approved\')">رفع الحجب</button>')+
+  '<button class="b b-gr" onclick="devDel(\''+d.fp+'\')">🗑️ حذف</button></div></div></div>';
+}
+function fmtD(ts){if(!ts)return'—';try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString('ar-EG',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return'—';}}
+async function devAct(fp,status){await db.collection('devices').doc(fp).update({status:status,approvedAt:new Date(),approvedBy:ME.email});toast(status==='approved'?'تم اعتماد الجهاز ✅':'تم حظر الجهاز');}
+async function devDel(fp){if(confirm('حذف هذا الجهاز نهائيًا؟ سيلزمه تسجيل دخول جديد.'))await db.collection('devices').doc(fp).delete();}
+async function blockUser(em){if(confirm('حجب هذا الحساب؟ لن يستطيع الدخول من أي جهاز.'))await db.collection('users').doc(em).update({status:'blocked'});}
+async function unblockUser(em){await db.collection('users').doc(em).update({status:'active'});}
+</script>
+</body>
+</html>
