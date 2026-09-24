@@ -31,6 +31,10 @@ button{font-family:inherit;cursor:pointer}input,select{font-family:inherit}
 .otpbox{display:flex;gap:8px;justify-content:center;direction:ltr;margin:6px 0}
 .otpbox input{width:44px;height:52px;text-align:center;font-size:22px;font-weight:900;border:1.5px solid var(--line);border-radius:12px;transition:.15s}
 .otpbox input:focus{outline:none;border-color:var(--tl);box-shadow:0 0 0 4px rgba(27,47,110,.15)}
+.pw{position:relative}
+.pw input{padding-left:42px}
+.eye{position:absolute;left:8px;top:50%;transform:translateY(-50%);border:none;background:none;color:#64748b;padding:2px;opacity:.7}
+.eye:hover{opacity:1;color:var(--tl)}
 .err{color:#dc2626;font-size:12.5px;font-weight:700;margin-top:10px;min-height:18px}
 .okmsg{color:#16a34a;font-size:12.5px;font-weight:700;margin-top:10px;min-height:18px}
 .btn-primary{background:linear-gradient(135deg,#2E4A9E,#1B2F6E);color:#fff;border:none;border-radius:11px;padding:11px;font-weight:800;font-size:13.5px;width:100%;margin-top:12px;position:relative;overflow:hidden;transition:.15s;box-shadow:0 4px 12px rgba(27,47,110,.35)}
@@ -57,7 +61,7 @@ button{font-family:inherit;cursor:pointer}input,select{font-family:inherit}
 .tb-badge .bdg{background:linear-gradient(135deg,#E8112D,#a30c1f);color:#fff;border-radius:99px;padding:6px 16px;font-size:11.5px;font-weight:800}
 .tb-out{background:rgba(232,17,45,.22);border:1px solid rgba(232,17,45,.55);border-radius:10px;width:36px;height:36px;font-size:15px;color:#ff9aa8;transition:.15s}
 .tb-out:hover{background:#E8112D;color:#fff}
-.wrap{max-width:1100px;margin:0 auto;padding:84px 20px 20px}
+.wrap{max-width:1150px;margin:0 auto;padding:84px 20px 20px}
 .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .tab{padding:9px 18px;border-radius:11px;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:13px;color:#334155;transition:.15s}
 .tab:hover{border-color:var(--tl);color:var(--tl)}
@@ -67,11 +71,11 @@ button{font-family:inherit;cursor:pointer}input,select{font-family:inherit}
 .dev{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .dev .ic{width:48px;height:48px;border-radius:13px;background:#e8edf9;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .dev .inf{flex:1;min-width:220px}
-.dev .inf .nm{font-size:14.5px;font-weight:900;color:var(--dark)}
-.dev .inf .em{font-size:12px;color:var(--tl);font-weight:700;direction:ltr;text-align:right}
-.dev .inf .meta{font-size:11px;color:var(--mut);margin-top:4px}
+.nm{font-size:14.5px;font-weight:900;color:var(--dark)}
+.em{font-size:12px;color:var(--tl);font-weight:700;direction:ltr;text-align:right}
+.meta{font-size:11px;color:var(--mut);margin-top:4px}
+.strow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
 .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:12px;padding:10px;background:#f6f8fd;border-radius:12px;border:1px solid var(--line)}
-.g4{min-width:0}
 .g4 .l{font-size:9.5px;color:var(--mut);font-weight:800;display:flex;align-items:center;gap:4px}
 .g4 .v{font-size:11.5px;font-weight:800;color:var(--dark);margin-top:2px;direction:ltr;text-align:right;word-break:break-all;white-space:normal;line-height:1.4}
 .chip{padding:3px 11px;border-radius:99px;font-size:11px;font-weight:800;display:inline-block}
@@ -83,7 +87,6 @@ button{font-family:inherit;cursor:pointer}input,select{font-family:inherit}
 .mut{color:var(--mut)}.tiny{font-size:11px;color:var(--mut)}
 .empty{text-align:center;padding:40px;color:var(--mut);background:#fff;border-radius:16px;border:1px dashed var(--line)}
 h2{font-size:16px;margin:4px 0 14px;color:var(--dark)}
-.strow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
 #toasts{position:fixed;top:74px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none;width:min(94vw,430px)}
 .tst{pointer-events:auto;display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 12px 34px rgba(2,8,20,.22);border:1px solid var(--line);width:100%;position:relative;overflow:hidden;animation:tstIn .35s cubic-bezier(.2,.9,.3,1.2);cursor:pointer}
 .tst.out{animation:tstOut .3s forwards}
@@ -102,7 +105,19 @@ h2{font-size:16px;margin:4px 0 14px;color:var(--dark)}
 #loading{position:fixed;inset:0;background:rgba(255,255,255,.8);backdrop-filter:blur(3px);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-weight:700;color:var(--tl)}
 .spin{width:42px;height:42px;border:4px solid #e3e7f2;border-top-color:var(--tl);border-radius:50%;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-#foot{position:fixed;bottom:0;right:0;left:0;background:linear-gradient(180deg,rgba(16,27,62,.97),rgba(27,47,110,.98));color:#9fb0d8;display:flex;align-items:center;justify-content:center;gap:22px;padding:8px 18px;z-index:30;border-top:1px solid rgba(255,255,255,.06);backdrop-filter:blur(8px)}
+.ov{position:fixed;inset:0;background:rgba(13,22,56,.55);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;z-index:95;padding:30px 12px;overflow:auto}
+.ov.show{display:flex}
+.box{background:#fff;border-radius:20px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);animation:pop .25s;max-width:430px}
+.box-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+.box-h b{font-size:15px;color:var(--dark)}
+.box-b{padding:20px}
+.x{border:none;background:#f0f3fb;width:32px;height:32px;border-radius:9px;font-size:14px;transition:.15s;color:#334155}
+.x:hover{background:#fee2e2;color:var(--red);transform:rotate(90deg)}
+.field{margin-bottom:11px}
+.field label{display:block;font-size:12px;font-weight:800;color:#44506e;margin-bottom:4px}
+.field input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:11px;font-size:13.5px;transition:.2s}
+.field input:focus{outline:none;border-color:var(--tl);box-shadow:0 0 0 3px rgba(27,47,110,.1)}
+#foot{position:fixed;bottom:0;right:0;left:0;background:linear-gradient(180deg,rgba(16,27,62,.97),rgba(27,47,110,.98));color:#9fb0d8;display:flex;align-items:center;justify-content:center;gap:22px;padding:8px 18px;z-index:30;border-top:1px solid rgba(255,255,255,.06)}
 .ftr-txt{display:flex;flex-direction:column;align-items:center;line-height:1.5}
 .ftr-txt b{color:#e6eaf6;font-size:12px;font-weight:800}.ftr-txt span{font-size:10.5px}
 .qr-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;transition:.25s}
@@ -164,6 +179,17 @@ h2{font-size:16px;margin:4px 0 14px;color:var(--dark)}
   </div>
 </div>
 
+<div class="ov" id="m_ask"><div class="box">
+  <div class="box-h"><b id="ak_title">تأكيد</b><button class="x" onclick="closeOv('m_ask')">✕</button></div>
+  <div class="box-b"><div id="ak_msg" style="font-size:13.5px;line-height:1.8"></div>
+  <div style="display:flex;gap:8px;margin-top:14px"><button class="btn-primary" id="ak_ok" style="flex:1" onclick="askOk()">تأكيد</button><button class="btn-ghost" onclick="closeOv('m_ask')">إلغاء</button></div></div>
+</div></div>
+
+<div class="ov" id="m_edit"><div class="box">
+  <div class="box-h"><b id="ed_title">تعديل</b><button class="x" onclick="closeOv('ed_done();')">✕</button></div>
+  <div class="box-b" id="ed_body"></div>
+</div></div>
+
 <footer id="foot">
   <a class="qr-wrap" href="https://axentro.site/links.html" target="_blank" rel="noopener">
     <img src="qr.png" alt="QR Axentro" onerror="this.style.display='none'"><span>Scan Me ▸ Click On Me</span>
@@ -176,7 +202,7 @@ h2{font-size:16px;margin:4px 0 14px;color:var(--dark)}
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 firebase.auth().signInAnonymously().catch(()=>{});
-let ME=null,TAB='pend',DEVS={},USRS={},FP='',EMAIL='',audioCtx=null,SESS=false;
+let ME=null,TAB='pend',DEVS={},USRS={},DID='',EMAIL='',audioCtx=null,BUSY=false;
 const ADMIN=(typeof ADMIN_EMAIL==='string')?ADMIN_EMAIL.trim().toLowerCase():'';
 const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -184,149 +210,66 @@ function showLoading(b){$('loading').style.display=b?'flex':'none';}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsDel(k){try{localStorage.removeItem(k);}catch(e){}}
+function openOv(id){$(id).classList.add('show');}
+function closeOv(id){$(id).classList.remove('show');}
+function ed_done(){closeOv('m_edit');}
 
 /* ===== أصوات + توستات (نفس نظام الموقع) ===== */
 function tone(f,t0,dur,type,vol){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.015);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g);g.connect(audioCtx.destination);o.start(t0);o.stop(t0+dur+.05);}
 function playSound(k){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const t=audioCtx.currentTime;if(k==='ok'){tone(523.25,t,.22,'sine',.16);tone(659.25,t+.09,.22,'sine',.16);tone(783.99,t+.18,.3,'sine',.18);}else if(k==='err'){tone(196,t,.18,'sawtooth',.08);tone(155.56,t+.12,.28,'sawtooth',.09);}else{tone(880,t,.1,'sine',.07);}}catch(e){}}
 function toast(m,t){t=t==='ok'?'ok':(t==='err'?'err':'info');playSound(t);const el=document.createElement('div');el.className='tst '+t;el.innerHTML='<div class="tic">'+(t==='ok'?'✓':(t==='err'?'✕':'ℹ'))+'</div><div class="tmsg">'+esc(m)+'</div><i class="tbar"></i>';el.onclick=()=>{el.classList.add('out');setTimeout(()=>el.remove(),300);};$('toasts').appendChild(el);setTimeout(()=>{if(el.parentNode){el.classList.add('out');setTimeout(()=>el.remove(),300);}},3800);}
-document.addEventListener('click',e=>{
-  const b=e.target.closest('.btn-primary');if(!b)return;
-  const r=document.createElement('span');r.className='ripple';
-  const rect=b.getBoundingClientRect();
-  r.style.left=(e.clientX-rect.left)+'px';r.style.top=(e.clientY-rect.top)+'px';
-  b.appendChild(r);setTimeout(()=>r.remove(),650);
-});
+document.addEventListener('click',e=>{const b=e.target.closest('.btn-primary');if(!b)return;const r=document.createElement('span');r.className='ripple';const rc=b.getBoundingClientRect();r.style.left=(e.clientX-rc.left)+'px';r.style.top=(e.clientY-rc.top)+'px';b.appendChild(r);setTimeout(()=>r.remove(),650);});
 
-/* ===== بصمة الجهاز (نفس دقة الموقع عشان تتطابق) ===== */
-async function fpHash(){
-  const parts=[navigator.userAgent,navigator.language,screen.width+'x'+screen.height+'x'+screen.colorDepth,String(new Date().getTimezoneOffset()),String(navigator.hardwareConcurrency||0),String(navigator.maxTouchPoints||0)];
-  try{const c=document.createElement('canvas');c.width=220;c.height=50;const g=c.getContext('2d');g.textBaseline='top';g.font='15px Arial';g.fillStyle='#f60';g.fillRect(0,0,90,20);g.fillStyle='#069';g.fillText('ECollect-fp',2,17);g.fillStyle='rgba(102,204,0,0.7)';g.fillText('ECollect-fp',4,19);parts.push(c.toDataURL());}catch(e){}
-  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(parts.join('|')));
-  return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
+/* ===== هوية الجهاز الموحدة — نفس مفتاح الموقع (ec_did) ===== */
+function getDeviceId(){
+  let did=lsGet('ec_did');
+  if(!did){did='D'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);lsSet('ec_did',did);}
+  return did;
 }
-
-/* ===== جمع بيانات الجهاز الحقيقية ===== */
-async function collectDeviceInfo(){
-  const d={};
-  /* نوع الجهاز والنظام */
-  const ua=navigator.userAgent;
-  let dtype='💻 كمبيوتر';
-  if(/Android/i.test(ua))dtype='📱 Android';
-  else if(/iPhone|iPad|iPod/i.test(ua))dtype='📱 iPhone/iPad';
-  else if(/Mac/i.test(ua))dtype='💻 Mac';
-  else if(/Linux/i.test(ua))dtype='💻 Linux';
-  d.deviceType=dtype;
-  let br='غير معروف';
-  if(/Edg\//.test(ua))br='Microsoft Edge';
-  else if(/Chrome\//.test(ua)&&!/Chromium/.test(ua))br='Google Chrome';
-  else if(/Firefox\//.test(ua))br='Firefox';
-  else if(/Safari\//.test(ua)&&!/Chrome/.test(ua))br='Safari';
-  d.browser=br;
-  let os='غير معروف';
-  if(/Windows NT 10/.test(ua))os='Windows 10/11';
-  else if(/Windows/.test(ua))os='Windows';
-  else if(/Android/.test(ua)){const m=ua.match(/Android (\d+)/);os='Android '+(m?m[1]:'');}
-  else if(/iPhone OS (\d+_\d+)/.test(ua))os='iOS '+ua.match(/iPhone OS (\d+_\d+)/)[1].replace('_','.');
-  else if(/Mac OS X/.test(ua))os='macOS';
-  else if(/Linux/.test(ua))os='Linux';
-  d.os=os;
-  d.screen=screen.width+'×'+screen.height+' @'+(window.devicePixelRatio||1)+'x';
-  d.lang=navigator.language;
-  d.tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'—';
-  d.cores=(navigator.hardwareConcurrency||0)+' نواة';
-  d.ram=navigator.deviceMemory?(navigator.deviceMemory+' GB'):'—';
-  /* IP + الموقع التقريبي من خدمة مجانية */
-  try{
-    const r=await fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(5000)});
-    const j=await r.json();
-    d.ip=j.ip||'—';
-    d.loc=(j.city?j.city+', ':'')+(j.country_name||'');
-    d.isp=j.org||'—';
-  }catch(e){d.ip='—';d.loc='—';d.isp='—';}
-  return d;
-}
-
-async function call(action,payload){
-  const r=await fetch(SVC_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:action},payload||{}))});
-  const d=await r.json();if(!d.ok)throw new Error(d.error||'خطأ');return d.data;
-}
-/* ⭐ لو الإيميل = إيميل مالك النظام → يتأكد من وجود حسابه بصلاحية Admin ويعتمد الجهاز فورًا */
+/* ===== عين إظهار/إخفاء ===== */
+const SVG_EYE='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const SVG_EYEOFF='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function eye(id,btn){const el=$(id);const show=el.type==='password';el.type=show?'text':'password';btn.innerHTML=show?SVG_EYE:SVG_EYEOFF;}
+async function hashPass_(u,p){const raw=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(u)+'::'+String(p)+'::ECollect'));return Array.from(new Uint8Array(raw)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function call(action,payload){const r=await fetch(SVC_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:action},payload||{}))});const d=await r.json();if(!d.ok)throw new Error(d.error||'خطأ');return d.data;}
 async function ensureAdminUser_(email){
-  const ref=db.collection('users').doc(email);
-  const doc=await ref.get();
-  if(!doc.exists){
-    await ref.set({email:email,username:email.split('@')[0],name:email.split('@')[0],role:'admin',status:'active',avatarId:'',createdAt:new Date(),createdVia:'admin-panel'});
-    return {email:email,name:email.split('@')[0],role:'admin'};
-  }
+  const ref=db.collection('users').doc(email);const doc=await ref.get();
+  if(!doc.exists){await ref.set({email:email,username:email.split('@')[0],name:email.split('@')[0],role:'admin',status:'active',passEnc:'',avatarId:'',createdAt:new Date(),createdVia:'admin-panel'});return {email:email,name:email.split('@')[0],role:'admin'};}
   const d=doc.data();
-  if(d.role!=='admin'){ await ref.update({role:'admin'}); d.role='admin'; }
-  if(d.status==='blocked'){ await ref.update({status:'active'}); d.status='active'; }
+  if(d.role!=='admin'){await ref.update({role:'admin'});d.role='admin';}
+  if(d.status==='blocked'){await ref.update({status:'active'});d.status='active';}
   return {email:email,name:d.name||email.split('@')[0],role:'admin'};
 }
 /* ===== OTP سلس ===== */
 function buildOtp(){
   const box=$('otpBox');box.innerHTML='';
-  for(let i=0;i<6;i++){
-    const inp=document.createElement('input');
-    inp.maxLength=1;inp.inputMode='numeric';inp.autocomplete='one-time-code';
+  for(let i=0;i<6;i++){const inp=document.createElement('input');inp.maxLength=1;inp.inputMode='numeric';inp.autocomplete='one-time-code';
     inp.oninput=function(){this.value=this.value.replace(/\D/g,'');if(this.value&&this.nextElementSibling)this.nextElementSibling.focus();};
     inp.onkeydown=function(e){if(e.key==='Backspace'&&!this.value&&this.previousElementSibling){this.previousElementSibling.focus();this.previousElementSibling.value='';e.preventDefault();}if(e.key==='Enter')goVerify();};
-    inp.onpaste=function(e){e.preventDefault();const txt=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);if(!txt)return;const boxes=[...$('otpBox').children];boxes.forEach((b,idx)=>b.value=txt[idx]||'');(boxes[Math.min(txt.length,5)]).focus();};
-    box.appendChild(inp);
-  }
+    inp.onpaste=function(e){e.preventDefault();const txt=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);if(!txt)return;const bx=[...$('otpBox').children];bx.forEach((b,idx)=>b.value=txt[idx]||'');(bx[Math.min(txt.length,5)]).focus();};
+    box.appendChild(inp);}
   setTimeout(()=>box.firstChild.focus(),100);
 }
 async function go(){
   const em=$('em').value.trim().toLowerCase();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){$('er').className='err';$('er').textContent='اكتب بريدًا صحيحًا';playSound('err');return;}
-  EMAIL=em;$('er').textContent='';$('er').className='err';
-  showLoading(true);
+  EMAIL=em;$('er').textContent='';$('er').className='err';showLoading(true);
   try{
-    FP=await fpHash();
-    /* جلسة محفوظة؟ دخول مباشر */
-    if(lsGet('ad_sess')==='1'&&lsGet('ad_email')===em){
-      const isAdminMail=(ADMIN&&em===ADMIN);
-      const dev=await db.collection('devices').doc(FP).get();
-      const okDev=dev.exists&&dev.data().status==='approved'&&dev.data().email===em;
-      if(okDev||(isAdminMail)){
-        if(isAdminMail)await ensureAdminUser_(em);
-        const u=await db.collection('users').doc(em).get();
-        if(!u.exists||u.data().role!=='admin'){lsDel('ad_sess');lsDel('ad_email');showLoading(false);$('er').className='err';$('er').textContent='هذه اللوحة للـ Admin فقط';return;}
-        ME={email:em,name:u.data().name||em.split('@')[0]};
-        showLoading(false);openApp();return;
-      }
-      lsDel('ad_sess');lsDel('ad_email');
-    }
+    DID=getDeviceId();
     const isAdminMail=(ADMIN&&em===ADMIN);
-    const dev=await db.collection('devices').doc(FP).get();
+    const dev=await db.collection('devices').doc(DID).get();
     if(dev.exists&&dev.data().status==='approved'&&dev.data().email===em){
+      if(isAdminMail)await ensureAdminUser_(em);
       const u=await db.collection('users').doc(em).get();
-      if(isAdminMail){await ensureAdminUser_(em);ME={email:em,name:(u.exists?u.data().name:'')||em.split('@')[0]};lsSet('ad_sess','1');lsSet('ad_email',em);showLoading(false);openApp();return;}
       if(!u.exists||u.data().role!=='admin'){showLoading(false);$('er').className='err';$('er').textContent='هذه اللوحة للـ Admin فقط';playSound('err');return;}
-      ME={email:em,name:u.data().name||'Admin'};
-      lsSet('ad_sess','1');lsSet('ad_email',em);
+      ME={email:em,name:u.data().name||em.split('@')[0]};
       showLoading(false);openApp();return;
     }
     await call('sendOtp',{email:em});
-    $('aEmail').style.display='none';$('aOtp').style.display='block';
-    $('otpM').textContent=em;
-    buildOtp();
-    showLoading(false);
-    $('er').className='okmsg';$('er').textContent='تم إرسال كود التحقق إلى بريدك ✅';
-    playSound('info');
+    $('aEmail').style.display='none';$('aOtp').style.display='block';$('otpM').textContent=em;
+    buildOtp();showLoading(false);
+    $('er').className='okmsg';$('er').textContent='تم إرسال كود التحقق إلى بريدك ✅';playSound('info');
   }catch(e){showLoading(false);$('er').className='err';$('er').textContent=e.message;playSound('err');}
-}
-function buildOtp(){
-  const box=$('otpBox');box.innerHTML='';
-  for(let i=0;i<6;i++){
-    const inp=document.createElement('input');
-    inp.maxLength=1;inp.inputMode='numeric';inp.autocomplete='one-time-code';
-    inp.oninput=function(){this.value=this.value.replace(/\D/g,'');if(this.value&&this.nextElementSibling)this.nextElementSibling.focus();};
-    inp.onkeydown=function(e){if(e.key==='Backspace'&&!this.value&&this.previousElementSibling){this.previousElementSibling.focus();this.previousElementSibling.value='';e.preventDefault();}if(e.key==='Enter')goVerify();};
-    inp.onpaste=function(e){e.preventDefault();const txt=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);if(!txt)return;const boxes=[...$('otpBox').children];boxes.forEach((b,idx)=>b.value=txt[idx]||'');(boxes[Math.min(txt.length,5)]).focus();};
-    box.appendChild(inp);
-  }
-  setTimeout(()=>box.firstChild.focus(),100);
 }
 function resendOtp(){go();}
 async function goVerify(){
@@ -342,37 +285,22 @@ async function goVerify(){
     }
     if(isAdminMail){
       const au=await ensureAdminUser_(EMAIL);
-      /* ⭐ نجمع بيانات الجهاز الحقيقية أول اعتماد */
-      const info=await collectDeviceInfo();
-      await db.collection('devices').doc(FP).set({fp:FP,email:EMAIL,name:navigator.userAgent.slice(0,90),info:info,status:'approved',requestedAt:new Date(),approvedAt:new Date(),approvedBy:'auto (مالك النظام)',lastUsed:new Date()},{merge:true});
-      ME={email:EMAIL,name:au.name};
-      lsSet('ad_sess','1');lsSet('ad_email',EMAIL);
+      const info=await deviceInfo();
+      await db.collection('devices').doc(DID).set({did:DID,email:EMAIL,name:navigator.userAgent.slice(0,90),info:info,status:'approved',requestedAt:new Date(),approvedAt:new Date(),approvedBy:'auto (مالك النظام)',lastUsed:new Date()},{merge:true});
+      ME={email:EMAIL,name:au.name};lsSet('ad_sess','1');lsSet('ad_email',EMAIL);
       showLoading(false);openApp();return;
     }
-    const dev=await db.collection('devices').doc(FP).get();
+    const dev=await db.collection('devices').doc(DID).get();
     const u=await db.collection('users').doc(EMAIL).get();
     if(dev.exists&&dev.data().email===EMAIL&&dev.data().status==='approved'){
-      ME={email:EMAIL,name:u.data().name||'Admin'};
-      lsSet('ad_sess','1');lsSet('ad_email',EMAIL);
-      showLoading(false);openApp();return;
+      ME={email:EMAIL,name:u.data().name||'Admin'};lsSet('ad_sess','1');lsSet('ad_email',EMAIL);showLoading(false);openApp();return;
     }
-    const anyApproved=await db.collection('devices').where('status','==','approved').limit(1).get();
-    const auto=anyApproved.empty;
-    const info=await collectDeviceInfo();
-    await db.collection('devices').doc(FP).set({fp:FP,email:EMAIL,name:navigator.userAgent.slice(0,90),info:info,status:auto?'approved':'pending',requestedAt:new Date(),approvedAt:auto?new Date():null,approvedBy:auto?'auto (أول جهاز للوحة)':null,lastUsed:new Date()},{merge:true});
-    if(auto){ME={email:EMAIL,name:u.data().name||'Admin'};lsSet('ad_sess','1');lsSet('ad_email',EMAIL);showLoading(false);openApp();}
-    else{showLoading(false);$('er').className='err';$('er').textContent='جهازك الحالي معلق — اعتمده من طلبات معلقة باستخدام جهاز Admin المعتمد';playSound('err');}
+    const info=await deviceInfo();
+    await db.collection('devices').doc(DID).set({did:DID,email:EMAIL,name:navigator.userAgent.slice(0,90),info:info,status:'pending',requestedAt:new Date(),lastUsed:new Date()},{merge:true});
+    showLoading(false);$('er').className='err';$('er').textContent='جهازك الحالي معلق — اعتمده من طلبات معلقة باستخدام جهاز Admin معتمد';playSound('err');
   }catch(e){showLoading(false);$('er').className='err';$('er').textContent=e.message;playSound('err');}
 }
-function askLogout(){
-  toast('هل تريد تسجيل الخروج من اللوحة؟','info');
-  askConfirm2('تسجيل الخروج','هل تريد تسجيل الخروج؟ سيلزمك تسجيل الدخول من جديد.',()=>{
-    lsDel('ad_sess');lsDel('ad_email');location.reload();
-  });
-}
-function askConfirm2(title,msg,cb){
-  if(confirm(msg.replace(/<[^>]*>/g,'')))cb();
-}
+function askLogout(){askConfirm('تسجيل الخروج','هل تريد تسجيل الخروج من اللوحة؟ سيلزمك تسجيل الدخول من جديد.',()=>{lsDel('ad_sess');lsDel('ad_email');location.reload();});}
 function openApp(){
   $('login').style.display='none';$('app').style.display='block';
   $('who').textContent=ME.name+' · '+ME.email;
@@ -390,10 +318,7 @@ function draw(){
     $('list').innerHTML='<h2>كل الأجهزة المسجلة ('+all.length+')</h2>'+(all.length?all.map(d=>card(d)).join(''):'<div class="empty">لا توجد أجهزة بعد</div>');
   }else{
     const all=Object.values(USRS);
-    $('list').innerHTML='<h2>المستخدمون ('+all.length+')</h2>'+all.map(u=>
-      '<div class="card"><div class="dev"><div class="ic">👤</div><div class="inf"><div class="nm">'+esc((u.username||'')+(u.name&&u.username?' — ':'')+(u.name||''))+'</div><div class="em">'+esc(u.email)+'</div><div class="meta">📅 انضم: '+fmtD(u.createdAt)+' · آخر دخول: '+fmtD(u.lastLogin||u.createdAt)+'</div></div>'+
-      '<div style="margin-right:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="chip '+(u.role==='admin'?'c-app':(u.status==='blocked'?'c-blk':'c-pend'))+'">'+(u.role==='admin'?'⭐ Admin':(u.status==='blocked'?'⛔ محظور':'👤 Employee'))+'</span>'+
-      '<div class="acts">'+(u.status==='blocked'?'<button class="b b-ok" onclick="unblockUser(\''+esc(u.email)+'\')">رفع الحجب</button>':(u.email!==ADMIN?'<button class="b b-no" onclick="blockUser(\''+esc(u.email)+'\')">🚫 حجب الحساب</button>':''))+'</div></div></div></div>').join('');
+    $('list').innerHTML='<h2>المستخدمون ('+all.length+')</h2>'+all.map(u=>userCard(u)).join('')||'<div class="empty">لا يوجد مستخدمون</div>';
   }
 }
 function card(d){
@@ -402,57 +327,142 @@ function card(d){
   const st=d.status==='approved'?'<span class="chip c-app">معتمد ✅</span>':(d.status==='pending'?'<span class="chip c-pend">معلق ⏳</span>':'<span class="chip c-blk">محظور ⛔</span>');
   const i=d.info||{};
   return '<div class="card"><div class="dev"><div class="ic">'+(d.status==='approved'?'💻':(d.status==='pending'?'⏳':'⛔'))+'</div>'+
-  '<div class="inf"><div class="nm">'+esc(nm||'—')+'</div><div class="em">'+esc(d.email||'')+'</div>'+
-  '<div class="strow">'+st+(i.deviceType?'<span class="chip st-due">'+esc(i.deviceType)+'</span>':'')+(i.os?'<span class="chip st-due">'+esc(i.os)+'</span>':'')+(i.browser?'<span class="chip st-due">'+esc(i.browser)+'</span>':'')+'</div>'+
+  '<div class="inf"><div class="nm">'+esc(nm||'—')+'</div>'+
+  '<div class="strow">'+st+(i.deviceType?'<span class="chip c-pend">'+esc(i.deviceType)+'</span>':'')+(i.os?'<span class="chip c-pend">'+esc(i.os)+'</span>':'')+(i.browser?'<span class="chip c-pend">'+esc(i.browser)+'</span>':'')+'</div>'+
   '<div class="meta">🕐 الطلب: '+fmtD(d.requestedAt)+' · آخر استخدام: '+fmtD(d.lastUsed)+(d.approvedBy?(' · اعتمده: '+esc(d.approvedBy)):'')+'</div>'+
-  '<div class="grid-4">'+
-  g4('🌐 عنوان IP',i.ip||'—')+
-  g4('📍 الموقع التقريبي',i.loc||'—')+
-  g4('🏢 مزود الخدمة',i.isp||'—')+
-  g4('🖥️ الشاشة',i.screen||'—')+
-  g4('🌍 اللغة / المنطقة',i.lang||'—')+
-  g4('⚙️ المعالج',i.cores||'—')+
-  '</div></div>'+
-  '<div class="acts">'+(d.status!=='approved'?'<button class="b b-ok" onclick="devAct(\''+d.fp+'\',\'approved\')">✅ موافقة</button>':'')+
-  (d.status!=='blocked'?'<button class="b b-no" onclick="devAct(\''+d.fp+'\',\'blocked\')">🚫 حظر</button>':'<button class="b b-ok" onclick="devAct(\''+d.fp+'\',\'approved\')">رفع الحجب</button>')+
-  '<button class="b b-gr" onclick="devDel(\''+d.fp+'\')">🗑️ حذف</button></div></div></div>';
+  '<div class="grid-4">'+g4('🌐 IP',i.ip||'—')+g4('📍 الموقع',i.loc||'—')+g4('🏢 مزود الخدمة',i.isp||'—')+g4('🖥️ الشاشة',i.screen||'—')+g4('🌍 اللغة/المنطقة',(i.lang||'—')+' / '+(i.tz||'—'))+g4('⚙️ المعالج',i.cores||'—')+'</div></div>'+
+  '<div class="acts">'+(d.status!=='approved'?'<button class="b b-ok" onclick="devAct(\''+d.did+'\',\'approved\')">✅ موافقة</button>':'')+
+  (d.status!=='blocked'?'<button class="b b-no" onclick="devAct(\''+d.did+'\',\'blocked\')">🚫 حظر</button>':'<button class="b b-ok" onclick="devAct(\''+d.did+'\',\'approved\')">رفع الحجب</button>')+
+  '<button class="b b-gr" onclick="devDel(\''+d.did+'\')">🗑️ حذف الجهاز</button></div></div></div>';
 }
+function userCard(u){
+  const isAdm=u.role==='admin';
+  const isMe=u.email===ME.email;
+  const pw=u.passEnc?decodeURIComponent(escape(atob(u.passEnc))):'';
+  return '<div class="card"><div class="dev"><div class="ic">'+(isAdm?'⭐':'👤')+'</div>'+
+  '<div class="inf"><div class="nm">'+esc(u.username||u.name||'')+'</div><div class="em">'+esc(u.email)+'</div>'+
+  '<div class="strow"><span class="chip '+(isAdm?'c-app':(u.status==='blocked'?'c-blk':'c-pend'))+'">'+(isAdm?'⭐ Admin':(u.status==='blocked'?'⛔ محظور':'👤 Employee'))+'</span></div>'+
+  '<div class="meta">📅 انضم: '+fmtD(u.createdAt)+' · آخر دخول: '+fmtD(u.lastLogin||u.createdAt)+'</div>'+
+  '<div class="grid-4">'+
+  g4('👤 اسم المستخدم',u.username||'—')+
+  '<div class="g4"><div class="l">🔑 كلمة المرور</div><div class="v" style="display:flex;align-items:center;gap:6px"><span id="pw_'+sl(u.email)+'">'+(pw?'•'.repeat(Math.min(pw.length,12)):'—')+'</span><button class="b b-gr" style="padding:3px 8px" onclick="togglePw(\''+sl(u.email)+'\',\''+esc(pw)+'\',this)">👁</button></div></div>'+
+  '</div></div>'+
+  '<div class="acts">'+(isAdm?'<span class="tiny mut">⭐ مالك النظام — لا يمكن تعديله</span>':
+  '<button class="b b-gr" onclick="editUser(\''+sl(u.email)+'\')">✏️ تعديل الاسم/اليوزر</button>'+
+  '<button class="b b-gr" onclick="resetPw(\''+sl(u.email)+'\')">🔑 إعادة تعيين كلمة المرور</button>'+
+  (u.status==='blocked'?'<button class="b b-ok" onclick="unblockUser(\''+esc(u.email)+'\')">رفع الحجب</button>':'<button class="b b-no" onclick="blockUser(\''+esc(u.email)+'\')">🚫 حجب الحساب</button>')+
+  '<button class="b b-no" onclick="delUser(\''+esc(u.email)+'\')">🗑️ حذف المستخدم</button>')+'</div></div></div>';
+}
+function sl(s){return s.replace(/[^a-zA-Z0-9]/g,'');}
+function togglePw(id,pw,btn){const el=$(id);const show=el.textContent.indexOf('•')>-1;el.textContent=show?pw:'•'.repeat(Math.min(pw.length,12));btn.textContent=show?'🙈':'👁';}
 function g4(l,v){return '<div class="g4"><div class="l">'+l+'</div><div class="v">'+esc(v)+'</div></div>';}
 function fmtD(ts){if(!ts)return'—';try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString('ar-EG',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return'—';}}
-let BUSY=false;
-function busyGate(){if(BUSY)return false;BUSY=true;return true;}
-function busyRel(){BUSY=false;}
-async function devAct(fp,status){
+/* ===== تأكيد أنيق بدل confirm() ===== */
+let askCb=null;
+function askConfirm(title,msg,cb){$('ak_title').textContent=title;$('ak_msg').innerHTML=msg;askCb=cb;openOv('m_ask');}
+function askOk(){closeOv('m_ask');if(askCb)askCb();}
+/* ===== تعديل مستخدم ===== */
+let editTarget='';
+function editUser(sl){
+  const u=Object.values(USRS).find(x=>sl(x.email)===sl);if(!u)return;
+  editTarget=u.email;
+  $('ed_title').textContent='تعديل — '+esc(u.username||'');
+  $('ed_body').innerHTML=
+  '<div class="field"><label>اسم المستخدم (للدخول السريع)</label><input id="eu_user" value="'+esc(u.username||'')+'"></div>'+
+  '<div class="field"><label>الاسم المعروض</label><input id="eu_name" value="'+esc(u.name||'')+'"></div>'+
+  '<div class="msg" id="eu_err"></div>'+
+  '<button class="btn-primary" onclick="saveUser()">حفظ التعديلات</button>';
+  openOv('m_edit');
+}
+async function saveUser(){
   if(!busyGate())return;
   try{
-    await db.collection('devices').doc(fp).update({status:status,approvedAt:new Date(),approvedBy:ME.email});
-    playSound(status==='approved'?'ok':'err');
-    toast(status==='approved'?'تم اعتماد الجهاز ✅':'تم حظر الجهاز',status==='approved'?'ok':'err');
-  }catch(e){toast(e.message,'err');}
+    const uu=$('eu_user').value.trim(),nn=$('eu_name').value.trim();
+    if(!uu){$('eu_err').textContent='اسم المستخدم مطلوب';return;}
+    const dup=await db.collection('users').where('username','==',uu).get();
+    let taken=false;dup.forEach(d=>{if(d.id!==editTarget)taken=true;});
+    if(taken){$('eu_err').textContent='اسم المستخدم مستخدم بالفعل';return;}
+    await db.collection('users').doc(editTarget).update({username:uu,name:nn||uu});
+    log_('تعديل مستخدم',editTarget+' → '+uu);
+    ed_done();toast('تم حفظ التعديلات ✅','ok');
+  }catch(e){$('eu_err').textContent=e.message;}
   busyRel();
 }
-async function devDel(fp){if(confirm('حذف هذا الجهاز نهائيًا؟ سيلزمه تسجيل دخول جديد.'))await db.collection('devices').doc(fp).delete();}
-async function blockUser(em){if(em===ADMIN){toast('مينفعش تحجب مالك النظام ⭐','err');return;}if(confirm('حجب هذا الحساب؟ لن يستطيع الدخول من أي جهاز.'))await db.collection('users').doc(em).update({status:'blocked'});}
-async function unblockUser(em){await db.collection('users').doc(em).update({status:'active'});}
-/* إقلاع: جلسة محفوظة؟ */
+/* ===== إعادة تعيين كلمة المرور ===== */
+let pwTarget='';
+function resetPw(sl){
+  const u=Object.values(USRS).find(x=>sl(x.email)===sl);if(!u)return;
+  pwTarget=u.email;
+  $('ed_title').textContent='إعادة تعيين كلمة المرور — '+esc(u.username||'');
+  $('ed_body').innerHTML=
+  '<div class="field"><label>كلمة المرور الجديدة (4 أحرف على الأقل)</label><div class="pw"><input id="ep_pass" type="password" placeholder="••••••"><button type="button" class="eye" onclick="eye(\'ep_pass\',this)">'+SVG_EYEOFF+'</button></div></div>'+
+  '<div class="field"><label>تأكيد كلمة المرور</label><input id="ep_pass2" type="password"></div>'+
+  '<div class="msg" id="ep_err"></div>'+
+  '<button class="btn-primary" onclick="saveNewPw()">حفظ كلمة المرور الجديدة</button>';
+  openOv('m_edit');
+}
+async function saveNewPw(){
+  if(!busyGate())return;
+  try{
+    const u=Object.values(USRS).find(x=>x.email===pwTarget);
+    const p=$('ep_pass').value;
+    if(p.length<4){$('ep_err').textContent='4 أحرف على الأقل';return;}
+    if(p!==$('ep_pass2').value){$('ep_err').textContent='غير متطابقتين';return;}
+    const ph=await hashPass_(u.username||u.email.split('@')[0],p);
+    await db.collection('users').doc(pwTarget).update({passHash:ph,passEnc:btoa(unescape(encodeURIComponent(p)))});
+    log_('إعادة تعيين كلمة مرور',pwTarget);
+    ed_done();toast('تم تحديث كلمة المرور ✅','ok');
+  }catch(e){$('ep_err').textContent=e.message;}
+  busyRel();
+}
+async function delUser(em){
+  if(em===ADMIN){toast('مينفعش تحذف مالك النظام ⭐','err');return;}
+  askConfirm('حذف المستخدم','سيتم حذف حساب <b>'+esc(em)+'</b> نهائيًا. سيحتاج للتسجيل من جديد بالبريد.',async()=>{
+    if(!busyGate())return;
+    try{await db.collection('users').doc(em).delete();log_('حذف مستخدم',em);toast('تم حذف المستخدم','ok');}catch(e){toast(e.message,'err');}
+    busyRel();
+  });
+}
+async function blockUser(em){
+  if(em===ADMIN){toast('مينفعش تحجب مالك النظام ⭐','err');return;}
+  askConfirm('حجب الحساب','لن يستطيع <b>'+esc(em)+'</b> الدخول من أي جهاز. متأكد؟',async()=>{await db.collection('users').doc(em).update({status:'blocked'});toast('تم حجب الحساب','ok');});
+}
+async function unblockUser(em){await db.collection('users').doc(em).update({status:'active'});toast('تم رفع الحجب ✅','ok');}
+async function devAct(did,status){
+  if(!busyGate())return;
+  try{await db.collection('devices').doc(did).update({status:status,approvedAt:new Date(),approvedBy:ME.email});playSound(status==='approved'?'ok':'err');toast(status==='approved'?'تم اعتماد الجهاز ✅':'تم حظر الجهاز',status==='approved'?'ok':'err');}catch(e){toast(e.message,'err');}
+  busyRel();
+}
+function devDel(did){askConfirm('حذف الجهاز','سيحذف الجهاز نهائيًا وسيحتاج صاحبه لتحقق OTP من جديد.',async()=>{await db.collection('devices').doc(did).delete();toast('تم حذف الجهاز','ok');});}
+function log_(action,detail){db.collection('logs').add({ts:new Date(),user:ME.name||'—',action:action||'',detail:detail||'',invNo:''});}
+/* ===== جمع بيانات الجهاز ===== */
+async function deviceInfo(){
+  const ua=navigator.userAgent;let dtype='💻 كمبيوتر';
+  if(/Android/i.test(ua))dtype='📱 Android';else if(/iPhone|iPad|iPod/i.test(ua))dtype='📱 iPhone/iPad';else if(/Mac/i.test(ua))dtype='💻 Mac';else if(/Linux/i.test(ua))dtype='💻 Linux';
+  let br='متصفح آخر';if(/Edg\//.test(ua))br='Microsoft Edge';else if(/OPR\//.test(ua))br='Opera';else if(/Chrome\//.test(ua))br='Google Chrome';else if(/Firefox\//.test(ua))br='Firefox';else if(/Safari\//.test(ua))br='Safari';
+  let os='غير معروف';if(/Windows NT 10/.test(ua))os='Windows 10/11';else if(/Windows/.test(ua))os='Windows';else if(/Android/.test(ua)){const m=ua.match(/Android (\d+)/);os='Android '+(m?m[1]:'');}else if(/iPhone OS (\d+_\d+)/.test(ua))os='iOS '+ua.match(/iPhone OS (\d+_\d+)/)[1].replace('_','.');else if(/Mac OS X/.test(ua))os='macOS';else if(/Linux/.test(ua))os='Linux';
+  const d={deviceType:dtype,browser:br,os:os,screen:screen.width+'×'+screen.height,lang:navigator.language,tz:Intl.DateTimeFormat().resolvedOptions().timeZone||'',cores:(navigator.hardwareConcurrency||0)+' نواة'};
+  try{const r=await fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(5000)});const j=await r.json();d.ip=j.ip||'—';d.loc=(j.city?j.city+', ':'')+(j.country_name||'');d.isp=j.org||'—';}catch(e){d.ip='—';d.loc='—';d.isp='—';}
+  return d;
+}
+/* ===== إقلاع: جلسة محفوظة ===== */
 (async function(){
   const s=lsGet('ad_sess'),e=lsGet('ad_email');
   if(s==='1'&&e){
     showLoading(true);
     try{
-      FP=await fpHash();
-      const dev=await db.collection('devices').doc(FP).get();
+      DID=getDeviceId();
+      const dev=await db.collection('devices').doc(DID).get();
       if(dev.exists&&dev.data().status==='approved'&&dev.data().email===e){
         const u=await db.collection('users').doc(e).get();
         if(u.exists&&u.data().role==='admin'){
           ME={email:e,name:u.data().name||e.split('@')[0]};
-          await db.collection('devices').doc(FP).update({lastUsed:new Date()});
+          await db.collection('devices').doc(DID).update({lastUsed:new Date()});
           showLoading(false);openApp();return;
         }
       }
     }catch(err){}
-    lsDel('ad_sess');lsDel('ad_email');
-    showLoading(false);
+    lsDel('ad_sess');lsDel('ad_email');showLoading(false);
   }
 })();
 </script>
