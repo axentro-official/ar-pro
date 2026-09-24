@@ -14,7 +14,6 @@
 body{background:var(--bg);color:#0f172a;font-size:14px;padding-bottom:96px}
 button{font-family:inherit;cursor:pointer}
 input,select{font-family:inherit}
-/* ===== LOGIN ===== */
 #login{position:fixed;inset:0;background:linear-gradient(135deg,#0b1526,#0e3a4d 60%,#0e7490);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;overflow:hidden}
 .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.45;animation:float 9s ease-in-out infinite}
 .orb.a{width:340px;height:340px;background:#06b6d4;top:-90px;right:-70px}
@@ -41,7 +40,6 @@ input,select{font-family:inherit}
 .lf-txt{text-align:right;line-height:1.6}
 .lf-txt b{font-size:11px;color:#334155}
 .lf-txt span{display:block;font-size:10px;color:#94a3b8;font-weight:700}
-/* ===== HEADER (شريط علوي موحد) ===== */
 #topbar{position:fixed;top:0;right:0;left:0;height:60px;background:linear-gradient(90deg,#122240,#0b1526);display:flex;align-items:center;gap:14px;padding:0 16px;z-index:50;box-shadow:0 2px 14px rgba(2,8,20,.25)}
 .tb-brand{display:flex;gap:10px;align-items:center;flex-shrink:0}
 .lgbox{background:#fff;border-radius:10px;padding:4px 8px;display:flex;align-items:center}
@@ -74,7 +72,6 @@ input,select{font-family:inherit}
 .avmenu .btn-ghost,.avmenu .btn-danger{width:100%;margin-top:8px}
 .btn-danger{background:var(--red);color:#fff;border:none;border-radius:11px;padding:10px 18px;font-weight:800;font-size:13px;transition:.15s}
 .btn-danger:hover{filter:brightness(1.1)}
-/* ===== DRAWER (موبايل) ===== */
 #drawer{position:fixed;top:0;bottom:0;right:0;width:265px;background:linear-gradient(180deg,#0b1526,#122240);z-index:80;transform:translateX(100%);transition:.28s;display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.4)}
 #drawer.open{transform:none}
 .dr-head{display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid rgba(255,255,255,.08)}
@@ -223,7 +220,6 @@ tr.click{cursor:pointer}
   .view{display:none!important}#v-stmt{display:block!important}
   .card{box-shadow:none;border:1px solid #ddd;border-radius:8px}
 }
-/* ===== موبايل/تابلت ===== */
 .burger{display:none;background:rgba(255,255,255,.07);border:none;border-radius:10px;width:36px;height:36px;font-size:17px;color:#cbd5e1}
 @media(max-width:1080px){.nitem{padding:8px 9px;font-size:12px}}
 @media(max-width:920px){
@@ -356,8 +352,8 @@ tr.click{cursor:pointer}
     </div>
     <div class="field"><label>وصف الخدمة (الخدمة / الشهر)</label><input id="i_desc" placeholder="مثال: رسوم إدارة كروت — شهر يناير 2026"></div>
     <div class="row2">
-      <div class="field"><label>تاريخ الفاتورة *</label><input id="i_idate" type="date"></div>
-      <div class="field"><label>تاريخ الاستحقاق</label><input id="i_ddate" type="date"></div>
+      <div class="field"><label>تاريخ الفاتورة (اختياري)</label><div style="display:flex;gap:6px"><input id="i_idate" type="date" style="flex:1"><button type="button" class="tb-act" onclick="clr('i_idate')" title="مسح التاريخ">✕</button></div></div>
+      <div class="field"><label>تاريخ الاستحقاق (اختياري)</label><div style="display:flex;gap:6px"><input id="i_ddate" type="date" style="flex:1"><button type="button" class="tb-act" onclick="clr('i_ddate')" title="مسح التاريخ">✕</button></div></div>
     </div>
     <div class="row2">
       <div class="field"><label>القيمة قبل الضريبة *</label><input id="i_before" type="number" step="0.01" oninput="calcTotal()"></div>
@@ -456,7 +452,7 @@ function toggleSound(){soundOn=!soundOn;try{localStorage.setItem('ec_snd',soundO
 /* ===== TOASTS ===== */
 function toast(m,t){t=t==='ok'?'ok':(t==='err'?'err':'info');playSound(t);const el=document.createElement('div');el.className='tst '+t;el.innerHTML='<div class="tic">'+(t==='ok'?'✓':(t==='err'?'✕':'ℹ'))+'</div><div class="tmsg">'+esc(m)+'</div><i class="tbar"></i>';el.onclick=()=>{el.classList.add('out');setTimeout(()=>el.remove(),300);};$('toasts').appendChild(el);setTimeout(()=>{if(el.parentNode){el.classList.add('out');setTimeout(()=>el.remove(),300);}},3800);}
 
-/* ===== الاتصال: GET أولًا + Timeout صارم + POST احتياطي ===== */
+/* ===== الاتصال ===== */
 async function fetchTO(url,opts,ms){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);try{return await fetch(url,Object.assign({},opts,{signal:c.signal}));}finally{clearTimeout(t);}}
 function finalize(d){if(!d||typeof d.ok==='undefined')throw new Error('رد غير صالح من الخادم');if(!d.ok)throw new Error(d.error||'خطأ غير معروف');return d.data;}
 async function api(action,payload,auth,noFallback){
@@ -492,7 +488,7 @@ function setConn(ok){
 window.addEventListener('online',()=>setConn(true));
 window.addEventListener('offline',()=>setConn(false));
 
-/* ===== الدخول والتسجيل ===== */
+/* ===== الدخول ===== */
 async function enter(showWelcome){
   $('login').style.display='none';$('topbar').style.display='flex';
   const ok=await load();
@@ -560,8 +556,7 @@ function applyData(){
   $('avTxt').textContent=U.charAt(0);$('avInit').textContent=U.charAt(0);$('drAvInit').textContent=U.charAt(0);
   if(D.company)$('coName').textContent=D.company;
   setLogos();applyAvatars();
-  const openC=D.invoices.filter(v=>v.remaining>0.005).length;  
-  const bd=$('tabs').querySelector('[data-v="inv"] .bdg');
+  const openC=D.invoices.filter(v=>v.remaining>0.005).length;
   document.querySelectorAll('[data-v="inv"]').forEach(b=>{let x=b.querySelector('.bdg');if(!x){x=document.createElement('span');x.className='bdg';b.appendChild(x);}x.textContent=openC||'';});
   $('vdate').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
@@ -646,7 +641,7 @@ function renderDash(){
    '<div class="grid-2"><div class="card"><h3>📅 التقادم (Aging) للمتبقي</h3><div class="chbox"><canvas id="chAging"></canvas></div></div>'+
    '<div class="card"><h3>📈 الفواتير مقابل التحصيل — آخر 6 شهور</h3><div class="chbox"><canvas id="chMonth"></canvas></div></div></div>'+
    '<div class="grid-2" style="grid-template-columns:1.5fr 1fr"><div class="card"><h3>🔥 أعلى الفواتير المتأخرة</h3><div class="tbl"><table><thead><tr><th>الفاتورة</th><th>العميل</th><th>الاستحقاق</th><th>أيام التأخير</th><th>المتبقي</th></tr></thead><tbody>'+
-   (late.length?late.map(v=>'<tr class="click" onclick="openDetail(\''+esc(v.invNo)+'\')"><td><b>'+esc(v.invNo)+'</b></td><td>'+esc(v.customer)+'</td><td>'+v.dueDate+'</td><td><span class="chip st-late">'+v.overdue+' يوم</span></td><td class="num bad">'+fmt(v.remaining)+'</td></tr>').join(''):'<tr><td colspan="5" class="mut small">لا توجد متأخرات 🎉</td></tr>')+
+   (late.length?late.map(v=>'<tr class="click" onclick="openDetail(\''+esc(v.invNo)+'\')"><td><b>'+esc(v.invNo)+'</b></td><td>'+esc(v.customer)+'</td><td>'+(v.dueDate||'—')+'</td><td><span class="chip st-late">'+v.overdue+' يوم</span></td><td class="num bad">'+fmt(v.remaining)+'</td></tr>').join(''):'<tr><td colspan="5" class="mut small">لا توجد متأخرات 🎉</td></tr>')+
    '</tbody></table></div></div>'+
    '<div class="card"><h3>🕘 آخر الأنشطة</h3><div class="feed">'+feed(D.logs.slice(0,10))+'</div></div></div>';
   drawAging(invs,'chAging');drawMonth(invs,'chMonth');
@@ -696,7 +691,7 @@ function renderInvTbl(){
   $('invTbl').innerHTML='<table><thead><tr><th>رقم الفاتورة</th><th>العميل</th><th>المشروع</th><th>تاريخ الفاتورة</th><th>الاستحقاق</th><th>الإجمالي</th><th>ضريبة%</th><th>المحصل</th><th>المتبقي</th><th>التحصيل</th><th>الحالة</th><th>التأخير</th><th></th></tr></thead><tbody>'+
   (rows.length?rows.map(v=>{
     const od=(v.overdue!=null&&v.overdue>0)?v.overdue:'—';
-    return '<tr class="click" onclick="openDetail(\''+esc(v.invNo)+'\')"><td><b>'+esc(v.invNo)+'</b></td><td>'+esc(v.customer)+'</td><td>'+esc(v.project||'—')+'</td><td>'+v.invDate+'</td><td>'+v.dueDate+'</td><td class="num">'+fmt(v.amount)+'</td><td>'+(v.taxRate?v.taxRate+'%':'—')+'</td><td class="num ok">'+fmt(v.collected)+'</td><td class="num '+(v.remaining>0.005?'bad':'ok')+'">'+fmt(v.remaining)+'</td><td style="min-width:110px"><div class="pbar"><i style="width:'+v.pct+'%"></i></div><span class="tiny mut">'+v.pct.toFixed(0)+'%</span></td><td>'+chipStatus(v)+'</td><td>'+od+'</td><td class="noprint"><button class="btn-sm" onclick="event.stopPropagation();openDetail(\''+esc(v.invNo)+'\')">تفاصيل</button></td></tr>';}).join('')
+    return '<tr class="click" onclick="openDetail(\''+esc(v.invNo)+'\')"><td><b>'+esc(v.invNo)+'</b></td><td>'+esc(v.customer)+'</td><td>'+esc(v.project||'—')+'</td><td>'+(v.invDate||'—')+'</td><td>'+(v.dueDate||'—')+'</td><td class="num">'+fmt(v.amount)+'</td><td>'+(v.taxRate?v.taxRate+'%':'—')+'</td><td class="num ok">'+fmt(v.collected)+'</td><td class="num '+(v.remaining>0.005?'bad':'ok')+'">'+fmt(v.remaining)+'</td><td style="min-width:110px"><div class="pbar"><i style="width:'+v.pct+'%"></i></div><span class="tiny mut">'+v.pct.toFixed(0)+'%</span></td><td>'+chipStatus(v)+'</td><td>'+od+'</td><td class="noprint"><button class="btn-sm" onclick="event.stopPropagation();openDetail(\''+esc(v.invNo)+'\')">تفاصيل</button></td></tr>';}).join('')
   :'<tr><td colspan="13" style="text-align:center;padding:30px" class="mut">لا توجد فواتير مطابقة</td></tr>')+
   '<tr class="tot"><td colspan="5">الإجمالي — '+rows.length+' فاتورة</td><td class="num">'+fmt(sA)+'</td><td></td><td class="num">'+fmt(sC)+'</td><td class="num">'+fmt(sR)+'</td><td colspan="4"></td></tr>'+
   '</tbody></table>';
@@ -704,14 +699,14 @@ function renderInvTbl(){
 function exportInvCSV(){
   const rows=invFiltered();
   dlCSV('invoices.csv',[['رقم الفاتورة','العميل','المشروع','الوصف','تاريخ الفاتورة','الاستحقاق','قبل الضريبة','نسبة الضريبة%','الإجمالي','المحصل','المتبقي','الحالة','التأخير']]
-    .concat(rows.map(v=>[v.invNo,v.customer,v.project||'',v.desc||'',v.invDate,v.dueDate,v.beforeTax||'',v.taxRate||'',v.amount,v.collected,v.remaining,statusOf(v).t,v.overdue!=null?v.overdue:''])));
+    .concat(rows.map(v=>[v.invNo,v.customer,v.project||'',v.desc||'',v.invDate||'',v.dueDate||'',v.beforeTax||'',v.taxRate||'',v.amount,v.collected,v.remaining,statusOf(v).t,v.overdue!=null?v.overdue:''])));
 }
 function dlCSV(name,rows){
   const csv='\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=name;a.click();
 }
-
 /* ===== نموذج الفاتورة ===== */
+function clr(id){$(id).value='';}
 function openInvForm(invNo){
   editInv=!!invNo;$('i_err').textContent='';
   $('i_title').textContent=editInv?'تعديل الفاتورة '+invNo:'فاتورة جديدة';
@@ -721,8 +716,8 @@ function openInvForm(invNo){
   $('i_cust').value=v?v.customer:'';
   $('i_project').value=v?(v.project||''):'';
   $('i_desc').value=v?(v.desc||''):'';
-  $('i_idate').value=v?v.invDate:todayStr();
-  $('i_ddate').value=v?v.dueDate:'';
+  $('i_idate').value=v?(v.invDate||''):todayStr();
+  $('i_ddate').value=v?(v.dueDate||''):'';
   $('i_before').value=v?(v.beforeTax||''):'';
   $('i_rate').value=v?(v.taxRate||''):'';
   $('i_total').value=v?fmt(v.amount):'';
@@ -760,7 +755,7 @@ function openDetail(invNo){
   '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b style="font-size:17px">🧾 '+esc(v.invNo)+'</b><span style="font-weight:700">'+esc(v.customer)+'</span>'+chipStatus(v)+'</div>'+
   '<div class="d-grid">'+
   dcell('المشروع',esc(v.project||'—'))+dcell('وصف الخدمة',esc(v.desc||'—'))+
-  dcell('تاريخ الفاتورة',v.invDate)+dcell('تاريخ الاستحقاق',v.dueDate)+
+  dcell('تاريخ الفاتورة',v.invDate||'—')+dcell('تاريخ الاستحقاق',v.dueDate||'—')+
   dcell('أيام التأخير',(v.overdue!=null&&v.overdue>0)?v.overdue+' يوم':'—')+
   dcell('أُضيفت بواسطة',(v.createdBy||'—')+' · '+(v.createdAt||''))+
   '</div>'+
@@ -845,7 +840,7 @@ async function submitTx(){
   btn.disabled=false;busyRel();
 }
 
-/* ===== تفاصيل الحركة + معاينة المرفقات ===== */
+/* ===== تفاصيل الحركة ===== */
 function findTx(id){for(const v of D.invoices){for(const t of v.txs){if(t.id===id)return{t:t,v:v};}}return null;}
 function txDetail(id){
   const f=findTx(id);if(!f)return;
@@ -967,8 +962,8 @@ function renderStmt(){
   }
   const ySel=stmtYears();
   const yr=F.stmt.year||'';
-  const all=D.invoices.filter(v=>v.customer===curCust).sort((a,b)=>a.invDate<b.invDate?1:-1);
-  const invs=yr?all.filter(v=>v.invDate.indexOf(yr)===0):all;
+  const all=D.invoices.filter(v=>v.customer===curCust).sort((a,b)=>(a.invDate||'9999')<(b.invDate||'9999')?1:-1);
+  const invs=yr?all.filter(v=>(v.invDate||'').indexOf(yr)===0):all;
   let sA=0,sC=0,sR=0,sL=0,sB=0;
   invs.forEach(v=>{sA+=v.amount;sC+=v.collected;if(v.remaining>0)sR+=v.remaining;if(v.remaining>0&&v.overdue>0)sL+=v.remaining;if(v.beforeTax>0)sB+=v.beforeTax;});
   const txs=[];invs.forEach(v=>v.txs.forEach(t=>txs.push({t:t,invNo:v.invNo})));
@@ -976,14 +971,14 @@ function renderStmt(){
   $('v-stmt').innerHTML=
   '<div class="toolbar noprint"><button class="btn-ghost" onclick="curCust=\'\';navTo(\'cust\')">← رجوع للعملاء</button>'+
   '<select class="inp" onchange="F.stmt.year=this.value;renderStmt()">'+ySel.map(y=>'<option value="'+y.v+'"'+((F.stmt.year||'')===y.v?' selected':'')+'>'+y.t+'</option>').join('')+'</select>'+
-  '<div class="grow"></div><button class="btn-primary" onclick="window.print()">🖨️ طباعة / حفظ PDF</button></div>'+
+  '<div class="grow"></div><button class="btn-primary" onclick="printStmt(\'ar\')">📄 PDF عربي</button><button class="btn-primary" onclick="printStmt(\'en\')">📄 PDF English</button></div>'+
   '<div class="card" style="margin-bottom:14px">'+
   '<div class="stmt-head"><div><img id="stmtLogo" src="'+logoSrc()+'" alt="logo" onerror="this.style.display=\'none\'"><div class="t1">'+esc(D.company||'شركة')+'</div><div class="t2">كشف حساب عميل — مطابقة أرصدة</div></div>'+
   '<div class="stmt-meta"><b>العميل:</b> '+esc(curCust)+'<br><b>تاريخ الإصدار:</b> '+todayStr()+'<br><b>الفترة:</b> '+(yr?yr:'كل الفترات')+'<br><b>أُعد بواسطة:</b> '+esc(U)+'</div></div>'+
   '<div class="stats3" style="margin:0 0 4px"><div>إجمالي الفواتير<b>'+fmt(sA)+'</b><span class="tiny mut">قبل الضريبة: '+fmt(sB)+'</span></div><div>المحصل<b class="ok">'+fmt(sC)+'</b><span class="tiny mut">عدد الحركات: '+txs.length+'</span></div><div>الصافي المتبقي<b class="'+(sR>0?'bad':'ok')+'">'+fmt(sR)+'</b><span class="tiny mut">منها متأخر: '+fmt(sL)+'</span></div></div>'+
   '</div>'+
   '<div class="card" style="margin-bottom:14px"><h3>أولًا: الفواتير ('+invs.length+')</h3><div class="tbl"><table><thead><tr><th>م</th><th>الفاتورة</th><th>المشروع / الخدمة</th><th>التاريخ</th><th>الاستحقاق</th><th>الإجمالي</th><th>المحصل</th><th>المتبقي</th><th>الحالة</th></tr></thead><tbody>'+
-  (invs.length?invs.map((v,i)=>'<tr class="click" onclick="openDetail(\''+esc(v.invNo)+'\')"><td>'+(i+1)+'</td><td><b>'+esc(v.invNo)+'</b></td><td>'+esc((v.project?v.project:'')+(v.desc?(' — '+v.desc):'')||'—')+'</td><td>'+v.invDate+'</td><td>'+v.dueDate+'</td><td class="num">'+fmt(v.amount)+'</td><td class="num ok">'+fmt(v.collected)+'</td><td class="num '+(v.remaining>0.005?'bad':'ok')+'">'+fmt(v.remaining)+'</td><td>'+chipStatus(v)+'</td></tr>').join('')
+  (invs.length?invs.map((v,i)=>'<tr class="click" onclick="openDetail(\''+esc(v.invNo)+'\')"><td>'+(i+1)+'</td><td><b>'+esc(v.invNo)+'</b></td><td>'+esc((v.project?v.project:'')+(v.desc?(' — '+v.desc):'')||'—')+'</td><td>'+(v.invDate||'—')+'</td><td>'+(v.dueDate||'—')+'</td><td class="num">'+fmt(v.amount)+'</td><td class="num ok">'+fmt(v.collected)+'</td><td class="num '+(v.remaining>0.005?'bad':'ok')+'">'+fmt(v.remaining)+'</td><td>'+chipStatus(v)+'</td></tr>').join('')
   :'<tr><td colspan="9" class="mut" style="text-align:center;padding:20px">لا توجد فواتير في هذه الفترة</td></tr>')+
   '<tr class="tot"><td colspan="5">الإجمالي</td><td class="num">'+fmt(sA)+'</td><td class="num">'+fmt(sC)+'</td><td class="num">'+fmt(sR)+'</td><td></td></tr></tbody></table></div></div>'+
   '<div class="card" style="margin-bottom:14px"><h3>ثانيًا: سجل المدفوعات والخصومات ('+txs.length+')</h3><div class="tbl"><table><thead><tr><th>م</th><th>التاريخ</th><th>الفاتورة</th><th>البيان</th><th>الطريقة</th><th>المرجع</th><th>المبلغ</th></tr></thead><tbody>'+
@@ -1037,13 +1032,16 @@ function renderSet(){
   $('v-set').innerHTML=
   '<div class="grid-2">'+
   '<div class="card"><h3>🏢 هوية الشركة</h3>'+
-  '<div class="field"><label>اسم الشركة (يظهر في كشوف الحساب)</label><input id="co_inp" value="'+esc(D.company)+'"></div>'+
+  '<div class="field"><label>اسم الشركة — عربي (يظهر في الخطاب العربي وكشوف الحساب)</label><input id="co_inp" value="'+esc(D.company)+'"></div>'+
+  '<div class="field"><label>Company Name — English (يظهر في الخطاب الإنجليزي)</label><input id="co_en" value="'+esc(D.companyEn||'')+'" placeholder="e.g. E-Novate Group"></div>'+
+  '<div class="field"><label>عنوان الشركة — عربي (رأس الخطاب العربي)</label><input id="co_addr_ar" value="'+esc(D.addrAr||'')+'" placeholder="مثال: القاهرة — مصر"></div>'+
+  '<div class="field"><label>Company Address — English (رأس الخطاب الإنجليزي)</label><input id="co_addr_en" value="'+esc(D.addrEn||'')+'" placeholder="e.g. Smart Village, Building B - Cairo-Alex Desert Road - 12577/Egypt"></div>'+
   '<div class="field"><label>شعار الشركة</label><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">'+
   '<img id="co_logo_prev" src="'+logoSrc()+'" style="height:54px;max-width:180px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:10px;padding:5px">'+
   '<div style="display:flex;flex-direction:column;gap:6px"><input type="file" id="co_logo_file" accept="image/*" style="display:none" onchange="uploadLogoFile(this)">'+
   '<button class="btn-ghost" onclick="document.getElementById(\'co_logo_file\').click()">📤 رفع شعار جديد</button>'+
   (D.logo?'<button class="btn-ghost" onclick="removeLogoNow()">إزالة الشعار</button>':'')+'</div></div>'+
-  '<p class="hint">يدعم PNG / JPG / SVG — يظهر تلقائيًا في شاشة الدخول والشريط العلوي وكشوف الحساب وأيقونة المتصفح.</p></div>'+
+  '<p class="hint">يدعم PNG / JPG / SVG — يظهر تلقائيًا في شاشة الدخول والشريط العلوي والخطابات وأيقونة المتصفح.</p></div>'+
   '<button class="btn-primary" onclick="saveCo()">حفظ هوية الشركة</button></div>'+
   '<div class="card"><h3>🔐 الأمان</h3>'+
   '<div class="field"><label>كلمة المرور الحالية</label><div class="pw"><input id="pw_old" type="password"><button type="button" class="eye" onclick="eye(\'pw_old\',this)">'+SVG_EYEOFF+'</button></div></div>'+
@@ -1077,7 +1075,7 @@ function removeLogoNow(){
 }
 async function saveCo(){
   if(!busyGate())return;
-  try{await api('saveCompany',{name:$('co_inp').value});toast('تم الحفظ ✅','ok');await load(true);}catch(e){toast(e.message,'err');}
+  try{await api('saveCompany',{name:$('co_inp').value,nameEn:$('co_en').value,addrAr:$('co_addr_ar').value,addrEn:$('co_addr_en').value});toast('تم الحفظ ✅','ok');await load(true);}catch(e){toast(e.message,'err');}
   busyRel();
 }
 async function setPw(){
@@ -1091,6 +1089,80 @@ async function setPw(){
 function askWipe(){
   askConfirm('إعادة تهيئة قاعدة البيانات','سيتم مسح <b>كل</b> الفواتير والحركات والعملاء والسجل نهائيًا ولا يمكن التراجع عن هذا الإجراء بأي شكل.<br><br>للتأكيد اكتب بالحرف: <b>مسح نهائي</b>','تنفيذ المسح',true,async()=>{
     try{await api('wipeAll',{});toast('تمت إعادة تهيئة قاعدة البيانات','ok');await load(true);}catch(e){toast(e.message,'err');}},'مسح نهائي');
+}
+
+/* ===== خطاب تأكيد الرصيد — PDF عربي/إنجليزي ===== */
+function logoAbs(){const s=logoSrc();return s.indexOf('http')===0?s:new URL('enovate.png',location.href).href;}
+function stmtData(){
+  const yr=F.stmt.year||'';
+  const all=D.invoices.filter(v=>v.customer===curCust);
+  const invs=yr?all.filter(v=>(v.invDate||'').indexOf(yr)===0):all;
+  let rem=0;invs.forEach(v=>{if(v.remaining>0)rem+=v.remaining;});
+  return {rem:Math.round(rem*100)/100,asOf:todayStr()};
+}
+function tafqitAr(n){
+  n=Math.abs(Number(n)||0);n=Math.round(n*100)/100;
+  const whole=Math.floor(n),frac=Math.round((n-whole)*100);
+  const ones=['','واحد','اثنان','ثلاثة','أربعة','خمسة','ستة','سبعة','ثمانية','تسعة','عشرة','أحد عشر','اثنا عشر','ثلاثة عشر','أربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+  const tens=['','','عشرون','ثلاثون','أربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+  const hund=['','مائة','مائتان','ثلاثمائة','أربعمائة','خمسمائة','ستمائة','سبعمائة','ثمانمائة','تسعمائة'];
+  function u100(x){if(x<20)return ones[x];const t=Math.floor(x/10),o=x%10;return o?ones[o]+' و'+tens[t]:tens[t];}
+  function u1000(x){const h=Math.floor(x/100),r=x%100;let s='';if(h)s=hund[h];if(r)s+=(s?' و':'')+u100(r);return s;}
+  function grp(x,one,two,pl){if(!x)return'';if(x===1)return one;if(x===2)return two;if(x<=10)return u1000(x)+' '+pl;return u1000(x)+' '+one;}
+  const b=Math.floor(whole/1e9),m=Math.floor(whole/1e6)%1000,th=Math.floor(whole/1e3)%1000,u=whole%1000;
+  const parts=[];
+  if(b)parts.push(grp(b,'مليار','ملياران','مليارات'));
+  if(m)parts.push(grp(m,'مليون','مليونان','ملايين'));
+  if(th)parts.push(grp(th,'ألف','ألفان','آلاف'));
+  if(u)parts.push(u1000(u));
+  const txt=parts.length?parts.join(' و'):'صفر';
+  let out='فقط '+txt+' جنيه مصري';
+  if(frac>0)out+=' و'+u100(frac)+' قرشًا';
+  return out+' لا غير.';
+}
+function numWordsEn(n){
+  n=Math.abs(Number(n)||0);n=Math.round(n*100)/100;
+  const whole=Math.floor(n),frac=Math.round((n-whole)*100);
+  const o=['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+  const t=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+  function u100(x){if(x<20)return o[x];const tn=Math.floor(x/10),un=x%10;return un?o[un]+'-'+t[tn]:t[tn];}
+  function u1000(x){const h=Math.floor(x/100),r=x%100;let s='';if(h)s=o[h]+' hundred';if(r)s+=(s?' and ':'')+u100(r);return s;}
+  const bi=Math.floor(whole/1e9),mi=Math.floor(whole/1e6)%1000,th=Math.floor(whole/1e3)%1000,u=whole%1000;
+  const parts=[];
+  if(bi)parts.push(u1000(bi)+' billion');
+  if(mi)parts.push(u1000(mi)+' million');
+  if(th)parts.push(u1000(th)+' thousand');
+  if(u)parts.push(u1000(u));
+  let s=parts.length?parts.join(' '):'zero';s=s.charAt(0).toUpperCase()+s.slice(1);
+  let out='Only '+s+' Egyptian Pounds';
+  if(frac>0)out+=' and '+u100(frac)+' Piasters';
+  return out+'.';
+}
+function printStmt(lang){
+  const s=stmtData();const ar=(lang==='ar');
+  const coName=ar?(D.company||D.companyEn||''):(D.companyEn||D.company||'');
+  const addr=ar?(D.addrAr||''):(D.addrEn||'');
+  const num=fmt(s.rem);
+  const words=ar?tafqitAr(s.rem):numWordsEn(s.rem);
+  const T=function(a,e){return ar?a:e;};
+  let h='<!DOCTYPE html><html dir="'+(ar?'rtl':'ltr')+'" lang="'+(ar?'ar':'en')+'"><head><meta charset="utf-8"><title>'+T('تأكيد رصيد — '+curCust,'Balance Confirmation — '+curCust)+'</title>';
+  h+='<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">';
+  h+='<style>@page{size:A4;margin:16mm}body{font-family:Cairo,Arial,sans-serif;color:#141414;font-size:13.5px;line-height:2}.lh{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #111;padding-bottom:10px;gap:10px}.lh .co{font-weight:900;font-size:17px;line-height:1.5}.lh .addr{font-size:9.5px;color:#555;font-weight:700;max-width:200px}.lh img{height:64px;max-width:190px;object-fit:contain}.lh .en{font-weight:900;font-size:15px;text-align:'+(ar?'left':'right')+'}.lh .en2{font-size:9.5px;color:#555;font-weight:700;text-align:'+(ar?'left':'right')+'}h2{text-align:center;font-size:15.5px;margin:14px 0 4px;text-decoration:underline}.meta{font-size:13px;line-height:2.1}.red{color:#c1121f;font-weight:900}.amt{text-align:center;margin:12px 0}.amt .n{font-size:18px}.box{border:1.5px solid #333;border-radius:4px;padding:10px 16px;margin:12px 0;font-size:12.5px;line-height:2.2}.sig{display:flex;gap:60px;margin-top:34px}.sig>div{flex:1;text-align:center}.sig .l{border-top:1.2px solid #333;margin-top:46px;padding-top:6px;font-size:12px;font-weight:800}.sig .s{font-size:10px;color:#666}.foot{margin-top:22px;text-align:center;font-size:9.5px;color:#888;border-top:1px dashed #bbb;padding-top:7px}</style></head><body>';
+  h+='<div class="lh"><div><div class="co">'+esc(coName)+'</div><div class="addr">'+esc(addr)+'</div></div><img src="'+logoAbs()+'"><div><div class="en">E-Novate</div><div class="en2">'+T('مجموعة إنوفيت للخدمات','Enovate Group')+'</div></div></div>';
+  h+='<h2>'+T('كشف حساب — تأكيد رصيد ومطابقة أرصدة','Accounts Receivable — Statement of Account & Balance Confirmation')+'</h2>';
+  h+='<div class="meta">'+T('التاريخ: ','Date: ')+'<b>'+todayStr()+'</b></div>';
+  h+='<div class="meta">'+T('عزيزي العميل الكريم /','Dear / ')+' <b>'+esc(curCust)+'</b></div>';
+  h+='<p>'+T('أولًا بدون إخلال بالذمة المالية، وبناءً على سجلاتنا المحاسبية، نود الإفادة بأن إجمالي المبالغ المستحقة عليكم لدى شركتنا حتى تاريخ <b>'+s.asOf+'</b> عن الفواتير المستحقة غير المسددة هي كما يلي:','First, without any prejudice to our financial position, and based on our accounting records, we hereby confirm that the total outstanding balance due to us as of <b>'+s.asOf+'</b> for unpaid invoices amounts to:')+'</p>';
+  h+='<div class="amt"><div class="n red">'+(ar?('('+num+') جنيه مصري'):('(EGP '+num+')'))+'</div><div class="red" style="font-size:12.5px">'+words+'</div></div>';
+  h+='<p>'+T('هذا الخطاب <b>ليس طلبًا للسداد</b> — بل مطابقة أرصدة. نرجو التكرم بالاطلاع على البيانات أعلاه، والإقرار بصحتها، أو إعلامنا بأي اختلافات تراها لديكم مع إرفاق كشف حسابكم التفصيلي، وذلك خلال مدة لا تتجاوز 15 يومًا من تاريخه.','This letter is <b>not a request for payment</b>. Kindly review the above statement, confirm its accuracy, or advise us of any differences you may find, enclosing your detailed statement, within 15 days from its date.')+'</p>';
+  h+='<div class="box">'+T('☐ المعلومات المذكورة أعلاه صحيحة.<br>☐ لا أقر بالبيانات المذكورة أعلاه — أرفق كشف حسابنا التفصيلي.<br>ملاحظات / تفاصيل الاختلافات، إن وجدت: ..........................................................................................','( ) The information stated above is correct.<br>( ) Not correct — (Please give details of differences, if any): .....................................................................')+'</div>';
+  h+='<p>'+T('شاكرين لكم حسن تعاونكم.','With best regards,')+'</p>';
+  h+='<div class="sig"><div><div class="l">'+T('توقيع وشعار الشركة','Letter Originator')+'</div><div class="s">'+T('الاسم / المسمى الوظيفي / التاريخ','Company / Signature / Title / Date')+'</div></div><div><div class="l">'+T('توقيع العميل — بالاطلاع والموافقة','Client Signature — Reviewed & Confirmed')+'</div><div class="s">'+T('الاسم / المسمى الوظيفي / الختم / التاريخ','Name / Title / Stamp / Date')+'</div></div></div>';
+  h+='<div class="foot">'+T('صدر هذا الخطاب إلكترونيًا من نظام E-Collect Pro','This letter was generated electronically by E-Collect Pro')+(coName?(' — '+esc(coName)):'')+' · © 2024 Axentro — All Rights Reserved</div>';
+  h+='<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print()},900)}<\/scr'+'ipt></body></html>';
+  const w=window.open('','_blank');
+  if(!w){toast('المتصفح منع النافذة المنبثقة — اسمح بها ثم أعد المحاولة','err');return;}
+  w.document.open();w.document.write(h);w.document.close();
 }
 
 /* ===== تأكيد عام ===== */
@@ -1116,7 +1188,7 @@ document.addEventListener('click',e=>{
   b.appendChild(r);setTimeout(()=>r.remove(),650);
 });
 
-/* ===== إقلاع: فتح لحظي من الكاش + نفس الصفحة بعد الريفريش ===== */
+/* ===== إقلاع ===== */
 (function(){
   $('sndBtn').textContent=soundOn?'🔊':'🔇';
   try{const sv=localStorage.getItem('ec_view');if(sv&&VIEWS[sv])VIEW=sv;}catch(e){}
