@@ -261,7 +261,7 @@ tr.click{cursor:pointer}
 
     <div id="stEmail" style="display:none">
       <label>البريد الإلكتروني الوظيفي</label>
-      <input id="lu" type="email" placeholder="name@company.com" onkeydown="if(event.key==='Enter')startLogin()">
+      <input id="lu" type="email" placeholder="name@company.com" onfocus="prewarm()" onkeydown="if(event.key==='Enter')startLogin()">
       <button id="loginBtn" class="btn-primary" style="width:100%;margin-top:14px" onclick="startLogin()">إرسال كود التحقق ←</button>
       <button class="btn-ghost" style="width:100%;margin-top:6px" onclick="loginState('quick')">رجوع للدخول السريع</button>
     </div>
@@ -274,8 +274,7 @@ tr.click{cursor:pointer}
       <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="beginOtp(loginEmail)">إعادة إرسال الكود</button>
       <button class="btn-ghost" style="width:100%;margin-top:6px" onclick="loginState('email')">تغيير البريد</button>
     </div>
-
-    <div id="stCreate" style="display:none">
+ <div id="stCreate" style="display:none">
       <div class="stateicon">✨</div>
       <p class="small mut" style="margin-bottom:8px">تم التحقق من <b id="cEmail" style="direction:ltr"></b><br>أنشئ اسم مستخدم سهل وكلمة مرور للدخول السريع</p>
       <label>اسم المستخدم (سهل ومختصر)</label>
@@ -291,7 +290,7 @@ tr.click{cursor:pointer}
     <div id="stPending" style="display:none">
       <div class="stateicon">⏳</div>
       <h3 style="margin-bottom:6px">بانتظار موافقة الإدارة</h3>
-      <p class="small mut" style="line-height:1.9">تم التحقق من بريدك وإنشاء حسابك، لكن هذا الجهاز جديد.<br>سيتمكن من الدخول أول ما توافق الإدارة على الجهاز من لوحة التحكم.</p>
+      <p class="small mut" style="line-height:1.9">تم التحقق من بريدك، لكن هذا الجهاز جديد على النظام.<br>سيتمكن من الدخول أول ما توافق الإدارة على الجهاز من لوحة التحكم.</p>
       <button class="btn-primary" style="width:100%;margin-top:14px" onclick="recheckDevice()">🔄 تحديث الحالة</button>
       <button class="btn-ghost" style="width:100%;margin-top:6px" onclick="doLogout()">تغيير الحساب</button>
     </div>
@@ -461,6 +460,16 @@ tr.click{cursor:pointer}
 
 <script src="firebase-config.js"></script>
 <script>
+/* ================================================================
+   E-Collect Pro v4.2 — الموقع الرئيسي
+   تغييرات v4.2:
+   1) مسار الأدمن: bypass كامل لفحص ملكية الجهاز + استحواذ فوري باللوج
+   2) تكملة ذكية بعد الـ OTP: مستخدم قديم يدخل مباشرة (مش شاشة إنشاء)
+   3) svc() محصّنة ضد الردود غير JSON + SVC_KEY
+   4) Pre-warm للـ Cold Start (ping صامت عند فتح شاشة الدخول)
+   5) فحص المحظور في الدخول التلقائي (تذكرني)
+   6) تنقية رقم الفاتورة من علامات الاقتباس
+   ================================================================ */
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 firebase.auth().signInAnonymously().catch(e=>console.log(e));
@@ -531,10 +540,18 @@ async function deviceInfo(){
   return d;
 }
 
-/* خدمة الإيميل/الملفات */
+/* ===== Pre-warm: إيقاظ خدمة Apps Script قبل طلب OTP (توفير 1-3 ثواني) ===== */
+let PREWARMED=false;
+function prewarm(){
+  if(PREWARMED)return;PREWARMED=true;
+  try{fetch(SVC_URL,{method:'GET',mode:'no-cors'}).catch(()=>{});}catch(e){}
+}
+
+/* خدمة الإيميل/الملفات — محصّنة ضد الردود غير JSON + SVC_KEY */
 async function svc(action,payload){
-  const r=await fetch(SVC_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:action},payload||{}))});
-  const d=await r.json();
+  const r=await fetch(SVC_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:action,svcKey:(typeof SVC_KEY!=='undefined'?SVC_KEY:'')},payload||{}))});
+  const txt=await r.text();let d;
+  try{d=JSON.parse(txt);}catch(e){throw new Error('خدمة الإيميل رجعت ردًا غير متوقع (HTTP '+r.status+') — راجع رابط النشر SVC_URL وتأكد من آخر إصدار منشور');}
   if(!d.ok)throw new Error(d.error||'خطأ في الخدمة');
   return d.data;
 }
@@ -546,7 +563,6 @@ function compressImage(file,sz){return new Promise(res=>{if(!/^image\//.test(fil
   const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{try{const max=sz||1600;let w=img.width,h=img.height;if(w>max||h>max){const k=max/Math.max(w,h);w=Math.round(w*k);h=Math.round(h*k);}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(b=>{if(b&&b.size<file.size)res(new File([b],file.name.replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg'}));else res(file);},'image/jpeg',.82);}catch(e){res(file);}};img.onerror=()=>res(file);img.src=r.result;};r.readAsDataURL(file);});}
 function saveCache(){try{localStorage.setItem('ec_cache',JSON.stringify({invoices:D.invoices,customers:D.customers,logs:D.logs,company:D.company}));}catch(e){}}
 function readCache(){try{const s=localStorage.getItem('ec_cache');return s?JSON.parse(s):null;}catch(e){return null;}}
-
 /* ===== شاشات الدخول ===== */
 function loginState(st,msg){
   ['stQuick','stEmail','stOtp','stCreate','stPending','stBlocked'].forEach(id=>$(id).style.display='none');
@@ -572,6 +588,22 @@ async function quickLogin(){
     if(u.status==='blocked'){showLoading(false);$('lerr').textContent='هذا الحساب موقوف — تواصل مع الإدارة';playSound('err');return;}
     if(u.passHash!==await hashPass_(uname,pass)){showLoading(false);$('lerr').textContent='كلمة المرور غير صحيحة';playSound('err');return;}
     const doc=await db.collection('devices').doc(FP).get();
+    /* ⭐ الأدمن: أولوية مطلقة على أي جهاز — استحواذ فوري باللوج */
+    if(u.role==='admin'){
+      const oldEmail=doc.exists?(doc.data().email||''):'';
+      if(!doc.exists||oldEmail!==u.email||doc.data().status!=='approved'){
+        const info=doc.exists?(doc.data().info||await deviceInfo()):await deviceInfo();
+        await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:u.email,name:navigator.userAgent.slice(0,90),info:info,status:'approved',requestedAt:(doc.exists&&doc.data().requestedAt)||new Date(),approvedAt:new Date(),approvedBy:'auto (مالك النظام)',lastUsed:new Date()});
+        if(oldEmail&&oldEmail!==u.email)log_(u.name||uname,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail+' — تم الاستحواذ تلقائيًا عند الدخول السريع');
+      }else{
+        await db.collection('devices').doc(FP).update({lastUsed:new Date()});
+      }
+      ME={email:u.email,username:u.username||uname,name:u.name||uname,role:'admin',avatarId:u.avatarId||'',pass:pass};
+      rememberMe($('q_rem'));
+      showLoading(false);
+      await enterApp(ME);
+      return;
+    }
     if(!doc.exists||doc.data().email!==u.email||doc.data().status!=='approved'){
       showLoading(false);
       loginEmail=u.email;OTP_OK_EMAIL='';
@@ -593,10 +625,16 @@ async function startLogin(){
   loginEmail=email;showLoading(true);
   try{
     FP=await deviceFp();
+    /* ⭐ الأدمن: bypass كامل لفحص ملكية الجهاز — أولوية مطلقة (إصلاح I1) */
+    if(ADMIN_EMAIL&&email===ADMIN_EMAIL.toLowerCase()){
+      showLoading(false);
+      await beginOtp(email);
+      return;
+    }
     const doc=await db.collection('devices').doc(FP).get();
     if(doc.exists){
       const d=doc.data();
-      if(d.email!==email){showLoading(false);loginState('email','هذا الجهاز مسجل بالفعل لمستخدم آخر — استخدم جهازك المعتاد أو تواصل مع الإدارة.');playSound('err');return;}
+      if(d.email!==email){showLoading(false);loginState('email','هذا الجهاز مسجل بالفعل للمستخدم: '+(d.email||'—')+' — الأجهزة تُربط بحساب واحد. لو انت مالك النظام سجّل بإيميل المالك، أو تواصل مع الإدارة لنقل الجهاز.');playSound('err');return;}
       if(d.status==='approved'){showLoading(false);loginState('quick','جهازك معتمد — سجّل باسم المستخدم وكلمة المرور');return;}
       if(d.status==='pending'){showLoading(false);loginState('pending');return;}
       showLoading(false);loginState('blocked');return;
@@ -628,10 +666,47 @@ async function verifyOtp(){
     await svc('verifyOtp',{email:loginEmail,code:code});
     OTP_OK_EMAIL=loginEmail;
     const isAdmin=(ADMIN_EMAIL&&loginEmail===ADMIN_EMAIL.toLowerCase());
+    const refU=await db.collection('users').doc(loginEmail).get();
+    /* ===== تكملة ذكية — مسار الأدمن: استحواذ فوري ودخول (إصلاح I1+I2) ===== */
+    if(isAdmin){
+      const au=await ensureAdminUser_(loginEmail);
+      const prev=await db.collection('devices').doc(FP).get();
+      const oldEmail=prev.exists?(prev.data().email||''):'';
+      const info=prev.exists?(prev.data().info||await deviceInfo()):await deviceInfo();
+      await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:loginEmail,name:navigator.userAgent.slice(0,90),info:info,status:'approved',requestedAt:(prev.exists&&prev.data().requestedAt)||new Date(),approvedAt:new Date(),approvedBy:'auto (مالك النظام)',lastUsed:new Date()});
+      if(oldEmail&&oldEmail!==loginEmail)log_(au.name,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail+' — تم الاستحواذ تلقائيًا بعد التحقق بالبريد');
+      const hasCred=refU.exists&&refU.data().passHash&&refU.data().passEnc;
+      if(!hasCred){
+        showLoading(false);$('cEmail').textContent=loginEmail;loginState('create');
+        toast('مرحبًا مالك النظام ⭐ — اخلق اسم مستخدم وكلمة مرور للدخول السريع','info');return;
+      }
+      ME={email:loginEmail,username:refU.data().username||'',name:refU.data().name||'Admin',role:'admin',avatarId:refU.data().avatarId||''};
+      showLoading(false);toast('مرحبًا مالك النظام ⭐','ok');await enterApp(ME);return;
+    }
+    /* ===== مستخدم قائم: توجيه حسب حالة الجهاز (إصلاح I2) ===== */
+    if(refU.exists){
+      const u=refU.data();
+      if(u.status==='blocked'){showLoading(false);loginState('blocked');return;}
+      const dev=await db.collection('devices').doc(FP).get();
+      if(dev.exists&&dev.data().email===loginEmail&&dev.data().status==='approved'){
+        await db.collection('devices').doc(FP).update({lastUsed:new Date()});
+        ME={email:loginEmail,username:u.username||'',name:u.name||loginEmail.split('@')[0],role:u.role||'user',avatarId:u.avatarId||''};
+        showLoading(false);await enterApp(ME);return;
+      }
+      if(dev.exists&&dev.data().email&&dev.data().email!==loginEmail){
+        showLoading(false);loginState('email','هذا الجهاز معتمد لمستخدم آخر ('+dev.data().email+') — الأجهزة لا تُنقل بين الحسابات إلا بموافقة الإدارة من لوحة التحكم.');playSound('err');return;
+      }
+      if(dev.exists&&dev.data().status==='pending'){showLoading(false);loginState('pending');return;}
+      if(dev.exists&&dev.data().status==='blocked'){showLoading(false);loginState('blocked');return;}
+      /* جهاز جديد لمستخدم قائم → تسجيل معلق */
+      const info=await deviceInfo();
+      await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:loginEmail,name:navigator.userAgent.slice(0,90),info:info,status:'pending',requestedAt:new Date(),lastUsed:new Date()});
+      showLoading(false);loginState('pending');toast('تم التحقق من بريدك — الجهاز الجديد بانتظار موافقة الإدارة','info');return;
+    }
+    /* ===== مستخدم جديد تمامًا → شاشة الإنشاء ===== */
     showLoading(false);
     $('cEmail').textContent=loginEmail;
     loginState('create');
-    if(isAdmin)toast('مرحبًا مالك النظام ⭐ — سيتم تعريفك أدمن تلقائيًا','ok');
   }catch(e){showLoading(false);$('lerr').textContent=e.message;playSound('err');}
 }
 async function createAccount(){
@@ -645,16 +720,29 @@ async function createAccount(){
   try{
     const email=OTP_OK_EMAIL;
     if(!email)throw new Error('انتهت الجلسة — سجل بالبريد من جديد');
-    const snap=await db.collection('users').where('username','==',uname).limit(2).get();
-    if(!snap.empty){showLoading(false);$('lerr').textContent='اسم المستخدم مستخدم — اختار اسمًا آخر';return;}
+    const snap=await db.collection('users').where('username','==',uname).limit(5).get();
+    let taken=false;snap.forEach(d=>{if(d.id!==email)taken=true;});
+    if(taken){showLoading(false);$('lerr').textContent='اسم المستخدم مستخدم — اختار اسمًا آخر';return;}
     const isAdmin=(ADMIN_EMAIL&&email===ADMIN_EMAIL.toLowerCase());
+    const refU=await db.collection('users').doc(email).get();
+    const prevData=refU.exists?refU.data():{};
     const passHash=await hashPass_(uname,pass);
-    await db.collection('users').doc(email).set({email:email,username:uname,name:uname,role:isAdmin?'admin':'user',status:'active',passHash:passHash,passEnc:btoa(unescape(encodeURIComponent(pass))),avatarId:'',createdAt:new Date()});
+    await db.collection('users').doc(email).set({
+      email:email,username:uname,name:uname,
+      role:isAdmin?'admin':(prevData.role||'user'),
+      status:'active',
+      passHash:passHash,passEnc:btoa(unescape(encodeURIComponent(pass))),
+      avatarId:prevData.avatarId||'',
+      createdAt:prevData.createdAt||new Date()
+    },{merge:true}); /* الحفاظ على createdAt/avatarId لو الحساب اتخلق من لوحة الأدمن */
+    const prev=await db.collection('devices').doc(FP).get();
+    const oldEmail=prev.exists?(prev.data().email||''):'';
     const status=isAdmin?'approved':'pending';
-    const info=await deviceInfo();
-    await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:email,name:navigator.userAgent.slice(0,90),info:info,status:status,requestedAt:new Date(),approvedAt:isAdmin?new Date():null,approvedBy:isAdmin?'auto (مالك النظام)':null,lastUsed:new Date()});
-    log_(uname,isAdmin?'إنشاء النظام (Admin)':'تسجيل مستخدم جديد',email+(status==='approved'?' — تمت الموافقة تلقائيًا':' — بانتظار موافقة الإدارة'),'');
-    ME={email:email,username:uname,name:uname,role:isAdmin?'admin':'user',avatarId:'',pass:pass};
+    const info=prev.exists?(prev.data().info||await deviceInfo()):await deviceInfo();
+    await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:email,name:navigator.userAgent.slice(0,90),info:info,status:status,requestedAt:(prev.exists&&prev.data().requestedAt)||new Date(),approvedAt:isAdmin?new Date():null,approvedBy:isAdmin?'auto (مالك النظام)':null,lastUsed:new Date()});
+    if(isAdmin&&oldEmail&&oldEmail!==email)log_(uname,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail);
+    log_(uname,isAdmin?'إنشاء/تحديث النظام (Admin)':'تسجيل مستخدم جديد',email+(status==='approved'?' — تمت الموافقة تلقائيًا':' — بانتظار موافقة الإدارة'),'');
+    ME={email:email,username:uname,name:uname,role:isAdmin?'admin':'user',avatarId:prevData.avatarId||'',pass:pass};
     if(status==='approved'){
       rememberMe($('n_rem'));
       showLoading(false);
@@ -693,6 +781,7 @@ async function enterApp(u){
   toast('أهلاً بيك يا '+u.name+' 👋','ok');
 }
 async function boot(){
+  prewarm(); /* إيقاظ الخدمة مبكرًا (I5) */
   /* تذكرني: فتح تلقائي بدون كتابة — يعمل بعد أي ريفريش */
   if(lsGet('ec_remember')==='1'){
     const nm=lsGet('ec_uname')||lsGet('ec_name'),pb=lsGet('ec_pass_b64');
@@ -704,6 +793,8 @@ async function boot(){
         const snap=await db.collection('users').where('username','==',nm).limit(2).get();
         if(!snap.empty){
           const u=snap.docs[0].data();
+          /* فحص الحساب المحظور في الدخول التلقائي (إصلاح I4) */
+          if(u.status==='blocked'){showLoading(false);loginState('quick');$('lerr').textContent='هذا الحساب موقوف — تواصل مع الإدارة';playSound('err');return;}
           const doc=await db.collection('devices').doc(FP).get();
           if(doc.exists&&doc.data().email===u.email&&doc.data().status==='approved'){
             await db.collection('devices').doc(FP).update({lastUsed:new Date()});
@@ -831,7 +922,7 @@ function delayChip(v){
   return '<span class="chip '+cls+'">'+ic+' متأخرة '+v.overdue+' يوم</span>';
 }
 function kpi(t,v,ic,cls,nav){return '<div class="kpi '+(cls||'')+'"'+(nav?(' onclick="navTo(\''+nav+'\')"'):'')+'><div class="k-ic">'+ic+'</div><div><div class="k-t">'+t+'</div><div class="k-v">'+v+'</div></div></div>';}
-function feedIcon(a){if(a.indexOf('حذف')===0)return'🗑️';if(a.indexOf('إضافة فاتورة')===0)return'🧾';if(a.indexOf('تعديل')===0)return'✏️';if(a.indexOf('دفعة')>-1)return'💵';if(a.indexOf('حركة')===0)return'🔖';if(a.indexOf('عميل')>-1)return'👤';if(a.indexOf('شعار')>-1)return'🖼️';if(a.indexOf('الصورة')>-1)return'📷';if(a.indexOf('استيراد')===0)return'📥';if(a.indexOf('النظام')===0)return'⭐';return'📌';}
+function feedIcon(a){if(a.indexOf('حذف')===0)return'🗑️';if(a.indexOf('إضافة فاتورة')===0)return'🧾';if(a.indexOf('تعديل')===0)return'✏️';if(a.indexOf('دفعة')>-1)return'💵';if(a.indexOf('حركة')===0)return'🔖';if(a.indexOf('عميل')>-1)return'👤';if(a.indexOf('شعار')>-1)return'🖼️';if(a.indexOf('الصورة')>-1)return'📷';if(a.indexOf('استيراد')===0)return'📥';if(a.indexOf('استحواذ')>-1)return'⭐';if(a.indexOf('النظام')===0)return'⭐';return'📌';}
 function fmtTs(ts){if(!ts)return'';try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString('ar-EG',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return'';}}
 function feed(list){return list.map(l=>'<div class="feed-item"><span class="fi-ic">'+feedIcon(l.action)+'</span><div><b>'+esc(l.action)+'</b> <span class="tiny">'+esc(l.detail)+'</span><br><span class="tiny mut">'+fmtTs(l.ts)+' — '+esc(l.user)+'</span></div></div>').join('');}
 function dcell(l,v){return '<div class="d-cell"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>';}
@@ -965,7 +1056,8 @@ async function submitInv(){
   const btn=$('i_save');btn.disabled=true;
   const b=Number($('i_before').value)||0,r=Number($('i_rate').value)||0;
   const total=b>0?Math.round(b*(1+r/100)*100)/100:Number($('i_total').value)||0;
-  const invNo=$('i_no').value.trim().replace(/\//g,'-');
+  /* تنقية رقم الفاتورة من رموز تكسر الـ onclick لاحقًا (إصلاح I6) */
+  const invNo=$('i_no').value.trim().replace(/[\/\\'"]/g,'-');
   const d={invNo:invNo,customer:$('i_cust').value.trim(),project:$('i_project').value.trim(),desc:$('i_desc').value.trim(),
     invDate:$('i_idate').value,dueDate:$('i_ddate').value,beforeTax:b,taxRate:r,amount:total,notes:$('i_notes').value};
   try{
@@ -1133,7 +1225,6 @@ function txDetail(id){
   '<div style="display:flex;gap:8px;margin-top:16px"><button class="btn-ghost" style="color:var(--red)" onclick="askDelTx(\''+t.id+'\')">🗑️ حذف الحركة</button></div>';
   openOv('m_txd');
 }
-
 /* الحركات */
 function renderTx(){
   $('v-tx').innerHTML=
@@ -1320,15 +1411,16 @@ async function migrateOld(){
   try{
     if(D.invoices.length)throw new Error('توجد بيانات بالفعل — الاستيراد للنظام الفاضي فقط');
     toast('جارٍ قراءة البيانات القديمة…','info');
-    const r=await fetch(SVC_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'exportAll',key:key})});
-    const res=await r.json();
+    const r=await fetch(SVC_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'exportAll',key:key,svcKey:(typeof SVC_KEY!=='undefined'?SVC_KEY:'')})});
+    const txt=await r.text();let res;
+    try{res=JSON.parse(txt);}catch(e){throw new Error('خدمة التصدير رجعت ردًا غير متوقع (HTTP '+r.status+') — راجع رابط النشر SVC_URL');}
     if(!res.ok)throw new Error(res.error||'فشل التصدير');
     const data=res.data;
     async function put(col,docs){
       for(let i=0;i<docs.length;i+=400){
         const batch=db.batch();
         docs.slice(i,i+400).forEach(d=>{
-          const id=col==='invoices'?String(d.invNo).replace(/\//g,'-'):(col==='customers'?d.name:d.id);
+          const id=col==='invoices'?String(d.invNo).replace(/[\/\\'"]/g,'-'):(col==='customers'?d.name:d.id);
           batch.set(db.collection(col).doc(id),d);
         });
         await batch.commit();
@@ -1462,6 +1554,7 @@ document.addEventListener('click',e=>{
 
 /* إقلاع */
 (function(){
+  prewarm();
   $('sndBtn').textContent=soundOn?'🔊':'🔇';
   try{const sv=lsGet('ec_view');if(sv&&VIEWS[sv])VIEW=sv;}catch(e){}
   boot();
