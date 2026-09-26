@@ -80,27 +80,28 @@ body.dark .msg{color:#f87171}
 .wrap{max-width:1150px;margin:0 auto;padding:16px 20px 40px}
 .card{background:var(--card);border-radius:16px;padding:16px;border:1px solid var(--line);margin-bottom:12px;box-shadow:0 1px 3px rgba(16,27,62,.06);transition:box-shadow .2s,transform .2s;animation:pop .25s}
 .card:hover{box-shadow:0 8px 22px rgba(16,27,62,.12);transform:translateY(-2px)}
-/* ⭐ شبكات الكروت المربعة — أجهزة + مستخدمون */
-.usrs-grid,.devs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;align-items:start}
-.usrs-grid .card,.devs-grid .card{margin-bottom:0}
-.dev{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.dev .ic{width:48px;height:48px;border-radius:13px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+/* ⭐ شبكات الكروت المربعة — أجهزة + مستخدمون — كل كارت بارتفاعه الطبيعي */
+.usrs-grid,.devs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;align-items:start}
+.usrs-grid .card,.devs-grid .card{margin-bottom:0;height:100%}
+/* ⭐ رأس الكارت: أيقونة + عمود نصي مرن — لا انضغاط أبدًا */
+.dev{display:flex;gap:12px;align-items:flex-start}
+.dev .ic{width:46px;height:46px;border-radius:13px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
 .dev .inf{flex:1;min-width:0}
-.nm{font-size:14.5px;font-weight:900;color:var(--head);word-break:break-word}
-.em{font-size:12px;color:var(--tl2);font-weight:700;direction:ltr;text-align:right;word-break:break-all}
-.meta{font-size:11px;color:var(--mut);margin-top:4px}
-.strow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
-.grid-4{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding:10px;background:var(--soft);border-radius:12px;border:1px solid var(--line)}
+.nm{font-size:14.5px;font-weight:900;color:var(--head);overflow-wrap:anywhere}
+.em{font-size:12px;color:var(--tl2);font-weight:700;direction:ltr;text-align:right;overflow-wrap:anywhere;word-break:normal}
+.meta{font-size:11px;color:var(--mut);margin-top:4px;line-height:1.8}
+.strow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+/* ⭐ شبكة البيانات الداخلية: مرنة تتكيف مع عرض الكارت */
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:12px;padding:10px;background:var(--soft);border-radius:12px;border:1px solid var(--line)}
 .g4{min-width:0}
-.g4 .l{font-size:9.5px;color:var(--mut);font-weight:800;display:flex;align-items:center;gap:4px}
-.g4 .v{font-size:11.5px;font-weight:800;color:var(--head);margin-top:2px;direction:ltr;text-align:right;word-break:break-all;white-space:normal;line-height:1.4}
-/* ⭐ الباسورد تحت اللابل — صف كامل مستقل */
 .g4-full{grid-column:1/-1}
-.pwval{display:flex;align-items:center;gap:8px;direction:ltr;justify-content:flex-start}
+.g4 .l{font-size:9.5px;color:var(--mut);font-weight:800;display:flex;align-items:center;gap:4px}
+.g4 .v{font-size:11.5px;font-weight:800;color:var(--head);margin-top:2px;direction:ltr;text-align:right;overflow-wrap:anywhere;word-break:normal;line-height:1.5}
 /* ⭐ لينك الموقع القابل للضغط */
-.loc-link{color:var(--tl2);font-weight:800;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;transition:.15s;cursor:pointer}
+.loc-link{color:var(--tl2);font-weight:800;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;transition:.15s}
 .loc-link:hover{color:var(--acc)}
-.pwrow{display:flex;align-items:center;gap:6px;direction:ltr;justify-content:flex-start}
+/* ⭐ الباسورد تحت اللابل — RTL سليم: النقط يمين والعين على شمالها */
+.pwrow{display:flex;align-items:center;gap:8px;justify-content:flex-start}
 .eye-in{border:none;background:none;color:var(--mut);padding:3px;display:flex;align-items:center;justify-content:center;border-radius:7px;transition:.15s;flex-shrink:0}
 .eye-in:hover{color:var(--tl);background:var(--soft)}
 .chip{padding:3px 11px;border-radius:99px;font-size:11px;font-weight:800;display:inline-block}
@@ -158,7 +159,7 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
  .tb-brand span{display:none}
  .btn-out .lg{display:none}.btn-out .sm{display:inline}.btn-out{padding:8px 12px}
  .ftr-txt b{font-size:10px}.qr-wrap img{width:46px;height:46px}
- .usrs-grid,.devs-grid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+ .usrs-grid,.devs-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
  .tb-left{gap:6px}.subbar{padding:8px 14px}
  .login-card input,.field input{font-size:16px}
 }
@@ -262,15 +263,15 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
 <script src="firebase-config.js"></script>
 <script>
 /* ================================================================
-   E-Collect Admin v4.2.7
-   إصلاحات هذه النسخة:
-   1) ⭐ كروت الأجهزة: شبكة مربعة جنب بعض (زي المستخدمين).
-   2) ⭐ كارت المستخدم: الباسورد صف كامل تحت اللابل مباشرة
-      (زي اليوزرنيم بالظبط) — والعين جنب النقط.
-   3) ⭐ مودال كلمة المرور: العين في الخانتين (جديدة + تأكيد).
-   4) ⭐ الموقع: تقاطع 3 مزودين (ipwho.is / ipapi.co / ipinfo.io)
-      واختيار الأكثر اتفاقًا — أعلى دقة ممكنة عبر IP بدون أي إذن
-      (الحد التقني لمزودي IP هو مستوى المدينة — GPS هو الوحيد 100%).
+   E-Collect Admin v4.2.8 — مبني على النسخة المرجعة + إصلاحات:
+   1) ⭐ كروت الأجهزة: شبكة مربعة + رأس الكارت مفصول (اسم سطر /
+      إيميل سطر مستقل) — نهاية انكسار الكلمات حرفًا حرفًا.
+   2) ⭐ شبكة البيانات الداخلية مرنة (auto-fit) تتكيف مع عرض الكارت.
+   3) ⭐ الباسورد في كارت المستخدم: صف كامل تحت اللابل مباشرة
+      (زي اليوزرنيم) — محاذاة RTL: النقط يمين والعين على شمالها.
+   4) ⭐ العين في خانتي كلمة المرور الجديدة وتأكيدها بالمودال.
+   5) الموقع: تقاطع 3 مزودين (ipwho.is / ipapi.co / ipinfo.io)
+      واختيار الأكثر اتفاقًا + لينك Google Maps قابل للضغط.
    ================================================================ */
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
@@ -302,7 +303,7 @@ function tone(f,t0,dur,type,vol){const o=audioCtx.createOscillator(),g=audioCtx.
 function playSound(k){if(!soundOn)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const t0=audioCtx.currentTime;if(k==='ok'){tone(523.25,t0,.22,'sine',.16);tone(659.25,t0+.09,.22,'sine',.16);tone(783.99,t0+.18,.3,'sine',.18);}else if(k==='err'){tone(196,t0,.18,'sawtooth',.08);tone(155.56,t0+.12,.28,'sawtooth',.09);}else{tone(880,t0,.1,'sine',.07);}}catch(e){}}
 function toggleSound(){soundOn=!soundOn;lsSet('ad_snd',soundOn?'1':'0');$('sndBtn').textContent=soundOn?'🔊':'🔇';if(soundOn)playSound('info');}
 
-/* ===== توست واحد نشط ===== */
+/* ===== توست واحد نشط — يستبدل القديم — بدون شريط — قصير ===== */
 let LANG=lsGet('ad_lang')||'ar';
 let _toastEl=null,_toastTimer=null;
 function toast(m,ty){
@@ -480,6 +481,7 @@ function draw(){
   if(TAB==='pend'){
     const pend=Object.values(DEVS).filter(d=>d.status==='pending');
     $('cnt').textContent=pend.length?'('+pend.length+')':'';
+    /* ⭐ شبكة مربعة للطلبات المعلقة */
     $('list').innerHTML=(pend.length?('<div class="devs-grid">'+pend.map(d=>card(d)).join('')+'</div>'):'<div class="empty">'+t('noPend')+'</div>');
   }else if(TAB==='devs'){
     const all=Object.values(DEVS).sort((a,b)=>((b.lastUsed&&b.lastUsed.seconds)||0)-((a.lastUsed&&a.lastUsed.seconds)||0));
@@ -501,11 +503,12 @@ function locHtml(info){
 }
 function card(d){
   const usr=USRS[d.email];
-  const nm=(usr&&usr.username)?(usr.username+' — '+d.email):d.email;
+  /* ⭐ الاسم والإيميل مفصولان — نهاية انكسار الكلمات حرفًا حرفًا */
+  const nm=(usr&&usr.username)?usr.username:(d.email||'—');
   const st=d.status==='approved'?'<span class="chip c-app">'+t('chApp')+'</span>':(d.status==='pending'?'<span class="chip c-pend">'+t('chPen')+'</span>':'<span class="chip c-blk">'+t('chBlk')+'</span>');
   const i=d.info||{};
   return '<div class="card"><div class="dev"><div class="ic">'+(d.status==='approved'?'💻':(d.status==='pending'?'⏳':'⛔'))+'</div>'+
-  '<div class="inf"><div class="nm">'+esc(nm||'—')+'</div>'+
+  '<div class="inf"><div class="nm">'+esc(nm)+'</div><div class="em">'+esc(d.email||'—')+'</div>'+
   '<div class="strow">'+st+(i.deviceType?'<span class="chip c-pend">'+esc(i.deviceType)+'</span>':'')+(i.os?'<span class="chip c-pend">'+esc(i.os)+'</span>':'')+(i.browser?'<span class="chip c-pend">'+esc(i.browser)+'</span>':'')+'</div>'+
   '<div class="meta">🕐 '+t('req')+': '+fmtD(d.requestedAt)+' · '+t('lastU')+': '+fmtD(d.lastUsed)+(d.approvedBy?(' · '+t('appBy')+': '+esc(d.approvedBy)):'')+'</div>'+
   '<div class="grid-4">'+g4('🌐 IP',i.ip||'—')+g4(t('locL'),locHtml(i),true)+g4(t('ispL'),i.isp||'—')+g4(t('mdlL'),i.model||'—')+g4(t('scrL'),i.screen||'—')+g4(t('lngL'),(i.lang||'—')+' / '+(i.tz||'—'))+g4(t('gpuL'),i.gpu||'—')+g4(t('ramL'),i.ram||'—')+g4(t('netL'),i.net||'—')+g4(t('corL'),i.cores||'—')+'</div></div>'+
@@ -518,6 +521,7 @@ function userCard(u){
   const key=safeId(u.email);
   const pw=u.passEnc?decodeURIComponent(escape(atob(u.passEnc))):'';
   PW_STORE[key]=pw;
+  /* ⭐ كارت الأدمن زي أي مستخدم: تعديل + كلمة مرور — لا حذف ولا حظر أبدًا */
   const acts=isAdm?
     ('<button class="b b-gr" onclick="editUser(\''+key+'\')">'+t('bEdit')+'</button>'+
      '<button class="b b-gr" onclick="resetPw(\''+key+'\')">'+t('bRst')+'</button>'+
@@ -531,10 +535,10 @@ function userCard(u){
   '<div class="strow"><span class="chip '+(isAdm?'c-app':(u.status==='blocked'?'c-blk':'c-pend'))+'">'+(isAdm?t('uAdm'):(u.status==='blocked'?t('uBlkC'):t('uEmp')))+'</span></div>'+
   '<div class="meta">📅 '+t('joined')+': '+fmtD(u.createdAt)+' · '+t('lastL')+': '+fmtD(u.lastLogin||u.createdAt)+'</div>'+
   '<div class="grid-4">'+
-  /* ⭐ اليوزرنيم صف كامل */
+  /* ⭐ اليوزرنيم: صف كامل — القيمة تحت اللابل مباشرة */
   '<div class="g4 g4-full"><div class="l">👤 '+(LANG==='ar'?'اسم المستخدم':'Username')+'</div><div class="v">'+esc(u.username||'—')+'</div></div>'+
-  /* ⭐ الباسورد صف كامل تحت اللابل بالظبط — القيمة والعين */
-  '<div class="g4 g4-full"><div class="l">'+t('pwL')+'</div><div class="v pwval"><span id="pw_'+key+'">'+(pw?'•'.repeat(Math.min(pw.length,12)):'—')+'</span><button type="button" class="eye-in" onclick="togglePw(\''+key+'\',this)" title="Show / Hide">'+SVG_EYEOFF+'</button></div></div>'+
+  /* ⭐ الباسورد: صف كامل تحت اللابل — النقط يمين والعين على شمالها */
+  '<div class="g4 g4-full"><div class="l">'+t('pwL')+'</div><div class="v"><div class="pwrow"><span id="pw_'+key+'">'+(pw?'•'.repeat(Math.min(pw.length,12)):'—')+'</span><button type="button" class="eye-in" onclick="togglePw(\''+key+'\',this)" title="Show / Hide">'+SVG_EYEOFF+'</button></div></div></div>'+
   '</div></div>'+
   '<div class="acts">'+acts+'</div></div></div>';
 }
@@ -558,7 +562,7 @@ function askOk(){
   closeOv('m_ask');if(askCb)askCb();
 }
 
-/* ===== تعديل مستخدم ===== */
+/* ===== تعديل مستخدم — الأدمن كذلك ===== */
 let editTarget='';
 function editUser(key){
   const u=Object.values(USRS).find(x=>safeId(x.email)===key);if(!u)return;
@@ -594,7 +598,7 @@ async function saveUser(){
   }catch(e){$('eu_err').textContent=e.message;}
   busyRel();
 }
-/* ===== إعادة تعيين كلمة المرور — عين في الخانتين ===== */
+/* ===== إعادة تعيين كلمة المرور — ⭐ عين في الخانتين ===== */
 let pwTarget='';
 function eye(id,btn){const el=$(id);const show=el.type==='password';el.type=show?'text':'password';btn.innerHTML=show?SVG_EYE:SVG_EYEOFF;}
 function resetPw(key){
@@ -625,7 +629,7 @@ async function saveNewPw(){
 }
 async function delUser(key){
   const u=Object.values(USRS).find(x=>safeId(x.email)===key);if(!u)return;
-  if(u.email===ADMIN)return;
+  if(u.email===ADMIN)return; /* الأدمن: لا حذف أبدًا */
   askConfirm(t('dUsrT'),t('dUsrM',{em:esc(u.email)}),t('okB'),true,async()=>{
     if(!busyGate())return;
     try{await db.collection('users').doc(u.email).delete();log_('حذف مستخدم',u.email);toast(t('mUDel'),'ok');}catch(e){toast(e.message,'err');}
@@ -634,7 +638,7 @@ async function delUser(key){
 }
 async function blockUser(key){
   const u=Object.values(USRS).find(x=>safeId(x.email)===key);if(!u)return;
-  if(u.email===ADMIN)return;
+  if(u.email===ADMIN)return; /* الأدمن: لا حظر أبدًا */
   askConfirm(t('blkT'),t('blkM',{em:esc(u.email)}),t('okB'),true,async()=>{
     try{await db.collection('users').doc(u.email).update({status:'blocked'});log_('حجب حساب',u.email);toast(t('mUBlk'),'err');}catch(e){toast(e.message,'err');}
   });
@@ -668,6 +672,7 @@ async function deviceInfo(){
   if(/Android/i.test(ua))dtype='📱 Android';else if(/iPhone|iPad|iPod/i.test(ua))dtype='📱 iPhone/iPad';else if(/Mac/i.test(ua))dtype='💻 Mac';else if(/Linux/i.test(ua))dtype='💻 Linux';
   let br='Browser';if(/Edg\//.test(ua))br='Microsoft Edge';else if(/OPR\//.test(ua))br='Opera';else if(/Chrome\//.test(ua))br='Google Chrome';else if(/Firefox\//.test(ua))br='Firefox';else if(/Safari\//.test(ua))br='Safari';
   let os='OS';if(/Windows NT 10/.test(ua))os='Windows 10/11';else if(/Windows/.test(ua))os='Windows';else if(/Android/.test(ua)){const m=ua.match(/Android (\d+)/);os='Android '+(m?m[1]:'');}else if(/iPhone OS (\d+_\d+)/.test(ua))os='iOS '+ua.match(/iPhone OS (\d+_\d+)/)[1].replace('_','.');else if(/Mac OS X/.test(ua))os='macOS';else if(/Linux/.test(ua))os='Linux';
+  /* طراز الجهاز: UA-CH → regex → fallback ذكي */
   let model='';
   try{
     if(navigator.userAgentData&&navigator.userAgentData.getHighEntropyValues){
@@ -696,7 +701,7 @@ async function deviceInfo(){
     screen:screen.width+'×'+screen.height,lang:navigator.language,
     tz:Intl.DateTimeFormat().resolvedOptions().timeZone||'',
     cores:(navigator.hardwareConcurrency||0)+(LANG==='ar'?' نواة':' cores')};
-  /* ⭐ تقاطع 3 مزودين — ناخد اللي أكتر نتيجة متفقة مع الباقي (majority vote) */
+  /* ⭐ تقاطع 3 مزودين — اختيار المدينة الأكثر اتفاقًا (majority vote) */
   const results=await Promise.allSettled([
     fetch('https://ipwho.is/',{signal:AbortSignal.timeout(4500)}).then(r=>r.json()),
     fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(4500)}).then(r=>r.json()),
@@ -723,7 +728,6 @@ async function deviceInfo(){
       isp:j.org||''});
   }
   if(norm.length){
-    /* اختيار النتيجة اللي مدينتها متطابقة مع أكبر عدد من الباقيين */
     let best=norm[0],bestScore=-1;
     norm.forEach(a=>{
       let score=0;
@@ -734,8 +738,6 @@ async function deviceInfo(){
     d.loc=[best.city,best.region,best.country].filter(Boolean).join(', ')||'—';
     d.isp=best.isp||'—';
     d.lat=best.lat;d.lon=best.lon;
-    /* لو النتيجتين اتفقوا على المدينة = ثقة أعلى (نوثيق فقط) */
-    if(bestScore>=2)d.locAcc='cross-checked';
   }else{
     d.ip='—';d.loc='—';d.isp='—';d.lat=null;d.lon=null;
   }
