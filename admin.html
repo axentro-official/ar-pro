@@ -458,8 +458,8 @@ async function goVerify(){
     showLoading(false);$('er').className='err';$('er').textContent=t('mPending');playSound('err');
   }catch(e){showLoading(false);$('er').className='err';$('er').textContent=e.message;playSound('err');}
 }
-function askLogout(){askConfirm(t('lT'),t('lM'),t('okB'),false,()=>{lsDel('ad_sess');lsDel('ad_email');location.reload();});}
-
+function askLogout(){askConfirm(t('lT'),t('lM'),t('okB'),true,()=>{lsDel('ad_sess');lsDel('ad_email');location.reload();});}
+ 
 function openApp(){
   $('login').style.display='none';$('app').style.display='block';
   $('who').textContent=ME.name+' · '+ME.email;
