@@ -78,14 +78,12 @@ body.dark .msg{color:#f87171}
 .tb-act:hover{border-color:var(--tl);color:var(--tl)}
 #app{padding-top:60px}
 .wrap{max-width:1150px;margin:0 auto;padding:16px 20px 40px}
+/* ⭐ الكروت رجعت مستطيلة بعرض كامل — الشكل القديم */
 .card{background:var(--card);border-radius:16px;padding:16px;border:1px solid var(--line);margin-bottom:12px;box-shadow:0 1px 3px rgba(16,27,62,.06);transition:box-shadow .2s,transform .2s;animation:pop .25s}
 .card:hover{box-shadow:0 8px 22px rgba(16,27,62,.12);transform:translateY(-2px)}
-/* ⭐ شبكات الكروت المربعة — أجهزة + مستخدمون */
-.usrs-grid,.devs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
-.usrs-grid .card,.devs-grid .card{margin-bottom:0}
 .dev{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .dev .ic{width:48px;height:48px;border-radius:13px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.dev .inf{flex:1;min-width:0}
+.dev .inf{flex:1;min-width:220px}
 .nm{font-size:14.5px;font-weight:900;color:var(--head);word-break:break-word}
 .em{font-size:12px;color:var(--tl2);font-weight:700;direction:ltr;text-align:right;overflow-wrap:anywhere;word-break:normal}
 .meta{font-size:11px;color:var(--mut);margin-top:4px}
@@ -93,7 +91,7 @@ body.dark .msg{color:#f87171}
 .grid-4{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding:10px;background:var(--soft);border-radius:12px;border:1px solid var(--line)}
 .g4 .l{font-size:9.5px;color:var(--mut);font-weight:800;display:flex;align-items:center;gap:4px}
 .g4 .v{font-size:11.5px;font-weight:800;color:var(--head);margin-top:2px;direction:ltr;text-align:right;word-break:break-all;white-space:normal;line-height:1.4}
-/* ⭐ صف كامل تحت اللابل — اليوزرنيم والباسورد */
+/* ⭐ صف كامل تحت اللابل — اليوزرنيم والباسورد في كارت المستخدم */
 .g4-full{grid-column:1/-1}
 /* ⭐ لينك الموقع القابل للضغط */
 .loc-link{color:var(--tl2);font-weight:800;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;transition:.15s}
@@ -157,7 +155,6 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
  .tb-brand span{display:none}
  .btn-out .lg{display:none}.btn-out .sm{display:inline}.btn-out{padding:8px 12px}
  .ftr-txt b{font-size:10px}.qr-wrap img{width:46px;height:46px}
- .usrs-grid,.devs-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
  .tb-left{gap:6px}.subbar{padding:8px 14px}
  .login-card input,.field input{font-size:16px}
 }
@@ -166,7 +163,6 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
  .otpbox input{width:38px;height:46px;font-size:18px}
  .login-card{padding:22px 16px 14px}
  .login-card h1{font-size:19px}
- .usrs-grid,.devs-grid{grid-template-columns:1fr}
  .subbar h2{font-size:15px}
  #tabs .nitem{padding:8px 9px;font-size:11.5px}
  .card{padding:13px}
@@ -261,13 +257,16 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
 <script src="firebase-config.js"></script>
 <script>
 /* ================================================================
-   E-Collect Admin v4.2.9
-   1) ⭐ الموقع الدقيق: GPS بصمت — فقط لو الإذن ممنوح مسبقًا من
-      الموقع الرئيسي (فحص Permissions API — بدون أي نافذة إذن هنا).
-      الموقع في الكارت بيتعلّم 🎯 لما يكون من GPS + لينك Maps.
-   2) ⭐ كارت المستخدم: اليوزرنيم والباسورد صفوف كاملة تحت اللابل.
-   3) ⭐ العين في خانتي كلمة المرور الجديدة وتأكيدها بالمودال.
-   4) شبكة كروت الأجهزة المربعة (رجعت من الطلب السابق).
+   E-Collect Admin v4.2.10
+   1) ⭐ الكروت رجعت مستطيلة بعرض كامل في كل التابات — الشكل القديم.
+   2) ⭐ إصلاح صوت الإشعارات: فتح قفل AudioContext من أول لمسة
+      (pointerdown) — بعدها كل الأصوات تشتغل حتى بعد عمليات async
+      (اعتماد/حظر/حذف). سياسة المتصفحات كانت تمنع الصوت في السياق
+      اللاإرادي، وده سبب "الصوت شغال في التنقل فقط".
+   3) ⭐ كارت المستخدم: اليوزرنيم والباسورد صفوف كاملة تحت اللابل
+      (زي ما طلبت) + العين في خانتي كلمة المرور وتأكيدها بالمودال.
+   4) ⭐ GPS الصامت: لو الإذن ممنوح مسبقًا من الموقع الرئيسي —
+      يُقرأ بدون أي نافذة إذن هنا + علامة 🎯 على الموقع الدقيق.
    ================================================================ */
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
@@ -293,10 +292,17 @@ function busyGate(){if(BUSY){return false;}BUSY=true;return true;}
 function busyRel(){BUSY=false;}
 function safeId(key){return String(key||'').replace(/[^a-zA-Z0-9]/g,'');}
 
-/* ===== أصوات ===== */
+/* ===== ⭐ الأصوات — فتح القفل من أول لمسة + تشغيل دائم بعدها ===== */
 try{soundOn=lsGet('ad_snd')!=='0';}catch(e){}
+function unlockAudio(){
+  try{
+    if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+  }catch(e){}
+}
+document.addEventListener('pointerdown',unlockAudio,{capture:true});
 function tone(f,t0,dur,type,vol){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.015);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g);g.connect(audioCtx.destination);o.start(t0);o.stop(t0+dur+.05);}
-function playSound(k){if(!soundOn)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const t0=audioCtx.currentTime;if(k==='ok'){tone(523.25,t0,.22,'sine',.16);tone(659.25,t0+.09,.22,'sine',.16);tone(783.99,t0+.18,.3,'sine',.18);}else if(k==='err'){tone(196,t0,.18,'sawtooth',.08);tone(155.56,t0+.12,.28,'sawtooth',.09);}else{tone(880,t0,.1,'sine',.07);}}catch(e){}}
+function playSound(k){if(!soundOn)return;try{unlockAudio();if(audioCtx.state!=='running')return;const t0=audioCtx.currentTime;if(k==='ok'){tone(523.25,t0,.22,'sine',.16);tone(659.25,t0+.09,.22,'sine',.16);tone(783.99,t0+.18,.3,'sine',.18);}else if(k==='err'){tone(196,t0,.18,'sawtooth',.08);tone(155.56,t0+.12,.28,'sawtooth',.09);}else{tone(880,t0,.1,'sine',.07);}}catch(e){}}
 function toggleSound(){soundOn=!soundOn;lsSet('ad_snd',soundOn?'1':'0');$('sndBtn').textContent=soundOn?'🔊':'🔇';if(soundOn)playSound('info');}
 
 /* ===== توست واحد نشط — يستبدل القديم — بدون شريط — قصير ===== */
@@ -471,25 +477,24 @@ function refreshNow(){
   _lastRefresh=n;
   draw();toast(t('mRef'),'ok');
 }
+/* ⭐ الكروت مستطيلة بعرض كامل — بدون أي شبكة */
 function draw(){
   const vt={pend:'vPend',devs:'vDevs',usrs:'vUsrs'}[TAB];
   $('vtitle').textContent=t(vt);
   if(TAB==='pend'){
     const pend=Object.values(DEVS).filter(d=>d.status==='pending');
     $('cnt').textContent=pend.length?'('+pend.length+')':'';
-    /* ⭐ شبكة مربعة للطلبات المعلقة */
-    $('list').innerHTML=(pend.length?('<div class="devs-grid">'+pend.map(d=>card(d)).join('')+'</div>'):'<div class="empty">'+t('noPend')+'</div>');
+    $('list').innerHTML=(pend.length?pend.map(d=>card(d)).join(''):'<div class="empty">'+t('noPend')+'</div>');
   }else if(TAB==='devs'){
     const all=Object.values(DEVS).sort((a,b)=>((b.lastUsed&&b.lastUsed.seconds)||0)-((a.lastUsed&&a.lastUsed.seconds)||0));
     $('cnt').textContent='';
-    /* ⭐ شبكة مربعة للأجهزة */
-    $('list').innerHTML=(all.length?('<div class="devs-grid">'+all.map(d=>card(d)).join('')+'</div>'):'<div class="empty">'+t('noDevs')+'</div>');
+    $('list').innerHTML=(all.length?all.map(d=>card(d)).join(''):'<div class="empty">'+t('noDevs')+'</div>');
   }else{
     const all=Object.values(USRS);
-    $('list').innerHTML=(all.length?('<div class="usrs-grid">'+all.map(u=>userCard(u)).join('')+'</div>'):'<div class="empty">'+t('noUsrs')+'</div>');
+    $('list').innerHTML=(all.length?all.map(u=>userCard(u)).join(''):'<div class="empty">'+t('noUsrs')+'</div>');
   }
 }
-/* ⭐ لينك الموقع — أولوية إحداثيات GPS الدقيقة ثم IP ثم بحث نصي */
+/* لينك الموقع — أولوية إحداثيات GPS الدقيقة ثم IP ثم بحث نصي */
 function locHtml(info){
   if(!info||!info.loc)return '—';
   let q='';
@@ -662,7 +667,7 @@ function devDel(did){
 }
 function log_(action,detail){db.collection('logs').add({ts:new Date(),user:(ME&&ME.name)||'Admin',action:action||'',detail:detail||'',invNo:''});}
 
-/* ===== بيانات الجهاز — تلقائي + GPS بصمت لو الإذن ممنوح مسبقًا ===== */
+/* ===== بيانات الجهاز — تلقائي + GPS الصامت لو الإذن ممنوح مسبقًا ===== */
 async function deviceInfo(){
   const ua=navigator.userAgent;
   let dtype='💻 '+(LANG==='ar'?'كمبيوتر':'PC');
@@ -697,8 +702,8 @@ async function deviceInfo(){
     screen:screen.width+'×'+screen.height,lang:navigator.language,
     tz:Intl.DateTimeFormat().resolvedOptions().timeZone||'',
     cores:(navigator.hardwareConcurrency||0)+(LANG==='ar'?' نواة':' cores')};
-  /* ⭐ GPS بصمت: نتأكد من الصلاحيات أولًا — لو ممنوح (من الموقع الرئيسي)
-     نقرأه مباشرة بدون أي نافذة إذن. لو مش ممنوح — مفيش أي حاجة تحصل. */
+  /* ⭐ GPS الصامت: فقط لو الإذن ممنوح مسبقًا من الموقع الرئيسي —
+     بدون أي نافذة إذن هنا أبدًا */
   let gpsP=Promise.resolve(null);
   try{
     if(navigator.permissions&&navigator.permissions.query&&navigator.geolocation){
@@ -732,7 +737,6 @@ async function deviceInfo(){
 
 /* ================================================================
    الإقلاع — جلسة محصّنة + تحديث ذكي صامت لبيانات الجهاز
-   (يتحدث لو ناقص gpu/model/gps — بدون توست ولا loading ولا إذن)
    ================================================================ */
 (async function(){
   applyTheme();applyLang();
