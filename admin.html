@@ -80,16 +80,22 @@ body.dark .msg{color:#f87171}
 .wrap{max-width:1150px;margin:0 auto;padding:16px 20px 40px}
 .card{background:var(--card);border-radius:16px;padding:16px;border:1px solid var(--line);margin-bottom:12px;box-shadow:0 1px 3px rgba(16,27,62,.06);transition:box-shadow .2s,transform .2s;animation:pop .25s}
 .card:hover{box-shadow:0 8px 22px rgba(16,27,62,.12);transform:translateY(-2px)}
+/* ⭐ شبكة كروت المستخدمين — مربعة جنب بعض */
+.usrs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+.usrs-grid .card{margin-bottom:0}
 .dev{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .dev .ic{width:48px;height:48px;border-radius:13px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.dev .inf{flex:1;min-width:220px}
+.dev .inf{flex:1;min-width:0}
 .nm{font-size:14.5px;font-weight:900;color:var(--head);word-break:break-word}
 .em{font-size:12px;color:var(--tl2);font-weight:700;direction:ltr;text-align:right;word-break:break-all}
 .meta{font-size:11px;color:var(--mut);margin-top:4px}
 .strow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
-.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:12px;padding:10px;background:var(--soft);border-radius:12px;border:1px solid var(--line)}
+.grid-4{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding:10px;background:var(--soft);border-radius:12px;border:1px solid var(--line)}
 .g4 .l{font-size:9.5px;color:var(--mut);font-weight:800;display:flex;align-items:center;gap:4px}
 .g4 .v{font-size:11.5px;font-weight:800;color:var(--head);margin-top:2px;direction:ltr;text-align:right;word-break:break-all;white-space:normal;line-height:1.4}
+/* ⭐ لينك الموقع القابل للضغط */
+.loc-link{color:var(--tl2);font-weight:800;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;transition:.15s}
+.loc-link:hover{color:var(--acc)}
 .pwrow{display:flex;align-items:center;gap:6px;direction:ltr;justify-content:flex-start}
 .eye-in{border:none;background:none;color:var(--mut);padding:3px;display:flex;align-items:center;justify-content:center;border-radius:7px;transition:.15s;flex-shrink:0}
 .eye-in:hover{color:var(--tl);background:var(--soft)}
@@ -102,7 +108,6 @@ body.dark .msg{color:#f87171}
 .b-gr{background:var(--soft);color:var(--txt);border:1px solid var(--line)}
 .mut{color:var(--mut)}.tiny{font-size:11px;color:var(--mut)}
 .empty{text-align:center;padding:40px;color:var(--mut);background:var(--card);border-radius:16px;border:1px dashed var(--line)}
-/* ⭐ توست واحد نشط — بدون شريط تقدم — مدة قصيرة */
 #toasts{position:fixed;top:74px;left:50%;transform:translateX(-50%);z-index:400;pointer-events:none;width:min(92vw,400px)}
 .tst{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--card);border-radius:13px;padding:11px 14px;box-shadow:0 10px 30px rgba(2,8,20,.28);border:1px solid var(--line);width:100%;position:relative;overflow:hidden;cursor:pointer;animation:tstIn .22s ease-out}
 .tst.out{animation:tstOut .18s ease-in forwards}
@@ -149,7 +154,8 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
  .tb-brand span{display:none}
  .btn-out .lg{display:none}.btn-out .sm{display:inline}.btn-out{padding:8px 12px}
  .ftr-txt b{font-size:10px}.qr-wrap img{width:46px;height:46px}
- .grid-4{grid-template-columns:1fr 1fr}.tb-left{gap:6px}.subbar{padding:8px 14px}
+ .usrs-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+ .tb-left{gap:6px}.subbar{padding:8px 14px}
  .login-card input,.field input{font-size:16px}
 }
 @media(min-width:921px){.btn-out .sm{display:none}}
@@ -157,7 +163,7 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
  .otpbox input{width:38px;height:46px;font-size:18px}
  .login-card{padding:22px 16px 14px}
  .login-card h1{font-size:19px}
- .grid-4{grid-template-columns:1fr 1fr}
+ .usrs-grid{grid-template-columns:1fr}
  .subbar h2{font-size:15px}
  #tabs .nitem{padding:8px 9px;font-size:11.5px}
  .card{padding:13px}
@@ -252,20 +258,14 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
 <script src="firebase-config.js"></script>
 <script>
 /* ================================================================
-   E-Collect Admin v4.2.5
-   إصلاحات هذه النسخة:
-   1) ⭐ نظام توست جديد بالكامل: توست واحد نشط فقط — الجديد يستبدل
-      القديم فورًا (بدون تراكم) + بدون شريط تقدم + مدة 2.2 ثانية
-      + دخول/خروج سريع.
-   2) ⭐ إزالة GPS نهائيًا: لا زر 📍 ولا نافذة إذن — البيانات تسحب
-      تلقائي وصامت من مزود IP فقط (ipwho.is أولًا لأنه أدق ثم ipapi.co
-      احتياطي). الموقع يعرض أدق صيغة متاحة: مدينة + محافظة + دولة.
-      (حد تقنية GeoIP هو المدينة — دون GPS لا يوجد أدق من ذلك)
-   3) ⭐ طراز الجهاز: سحب من UA-CH API الحديث (Chrome/Edge/أندرويد)
-      + regex احتياطي + fallback ذكي (Windows PC / Mac) — العمود
-      لا يبقى فاضي أبدًا.
-   4) التحديث الذكي لبيانات جهازي عند الفتح: صامت تمامًا بدون توست
-      ولا loading.
+   E-Collect Admin v4.2.6
+   إضافات هذه النسخة:
+   1) ⭐ الموقع قابل للضغط: لينك Google Maps — بالإحداثيات lat,lon
+      المسجلة (أدق) أو بحث نصي بالمدينة/الدولة كبديل — يفتح في تاب جديد.
+   2) ⭐ كروت المستخدمين: شبكة مربعة — الكروت جنب بعض حسب عرض الشاشة.
+   3) ⭐ كارت الأدمن زي أي مستخدم بالكامل: تعديل اليوزرنيم + إعادة
+      تعيين كلمة المرور متاحتان — أزرار الحذف والحظر غير موجودة أصلًا
+      (الحذف الوحيد عبر مسح قاعدة البيانات بالكامل).
    ================================================================ */
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
@@ -275,7 +275,6 @@ const authReady=firebase.auth().signInAnonymously().catch(err=>{
   toastQueue.push('المصادقة المجهولة غير مفعّلة في Firebase Console (Authentication ← Sign-in method ← Anonymous) — فعّلها ثم أعد المحاولة');
   return null;
 });
-
 /* ===== أدوات أساسية ===== */
 let ME=null,TAB='pend',DEVS={},USRS={},DID='',EMAIL='',audioCtx=null,BUSY=false,soundOn=true;
 const ADMIN=(typeof ADMIN_EMAIL==='string')?ADMIN_EMAIL.trim().toLowerCase():'';
@@ -298,14 +297,13 @@ function tone(f,t0,dur,type,vol){const o=audioCtx.createOscillator(),g=audioCtx.
 function playSound(k){if(!soundOn)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const t0=audioCtx.currentTime;if(k==='ok'){tone(523.25,t0,.22,'sine',.16);tone(659.25,t0+.09,.22,'sine',.16);tone(783.99,t0+.18,.3,'sine',.18);}else if(k==='err'){tone(196,t0,.18,'sawtooth',.08);tone(155.56,t0+.12,.28,'sawtooth',.09);}else{tone(880,t0,.1,'sine',.07);}}catch(e){}}
 function toggleSound(){soundOn=!soundOn;lsSet('ad_snd',soundOn?'1':'0');$('sndBtn').textContent=soundOn?'🔊':'🔇';if(soundOn)playSound('info');}
 
-/* ===== ⭐ توست واحد نشط — يستبدل القديم — بدون شريط — قصير وسريع ===== */
+/* ===== توست واحد نشط — يستبدل القديم — بدون شريط — قصير ===== */
 let LANG=lsGet('ad_lang')||'ar';
 let _toastEl=null,_toastTimer=null;
 function toast(m,ty){
   ty=ty==='ok'?'ok':(ty==='err'?'err':'info');
   playSound(ty);
   const box=$('toasts');
-  /* استبدال فوري لأي توست قائم */
   if(_toastTimer){clearTimeout(_toastTimer);_toastTimer=null;}
   if(_toastEl&&_toastEl.parentNode){_toastEl.remove();_toastEl=null;}
   const el=document.createElement('div');
@@ -322,8 +320,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('.btn-primary');i
 
 /* ===== i18n ===== */
 const I18N={
-ar:{sub:'لوحة إدارة الأجهزة والمستخدمين — للـ Admin فقط',emailLb:'البريد الإلكتروني الإداري',enter:'تسجيل الدخول',otpLb:'كود التحقق المرسل إلى:',verify:'تحقق ←',resend:'إعادة إرسال الكود',changeEmail:'تغيير البريد',tPend:'⏳ طلبات معلقة',tDevs:'💻 كل الأجهزة',tUsrs:'👤 المستخدمون',vPend:'طلبات أجهزة بانتظار الموافقة',vDevs:'كل الأجهزة المسجلة',vUsrs:'المستخدمون',noPend:'✅ لا توجد طلبات معلقة — كل الأجهزة تمت مراجعتها',noDevs:'لا توجد أجهزة بعد',noUsrs:'لا يوجد مستخدمون',chApp:'معتمد ✅',chPen:'معلق ⏳',chBlk:'محظور ⛔',req:'الطلب',lastU:'آخر استخدام',appBy:'اعتمده',locL:'📍 الموقع',ispL:'🏢 مزود الخدمة',scrL:'🖥️ الشاشة',lngL:'🌍 اللغة/المنطقة',corL:'⚙️ المعالج',mdlL:'📱 الجهاز',gpuL:'🎮 كرت الشاشة',ramL:'🧠 الذاكرة',netL:'📶 الشبكة',bApp:'✅ موافقة',bBlk:'🚫 حظر',bUnb:'رفع الحجب',bDelD:'🗑️ حذف الجهاز',pwL:'🔑 كلمة المرور',joined:'انضم',lastL:'آخر دخول',bEdit:'✏️ تعديل الاسم/اليوزر',bRst:'🔑 إعادة تعيين كلمة المرور',bBlkU:'🚫 حجب الحساب',bUnbU:'رفع الحجب',bDelU:'🗑️ حذف المستخدم',ownerN:'⭐ مالك النظام — لا يمكن تعديله',okB:'تأكيد',noB:'إلغاء',lBtn:'تسجيل الخروج',lBtnSm:'خروج',typeW:'للتأكيد اكتب بالحرف:',edT:'تعديل',uLb:'اسم المستخدم (للدخول السريع)',nLb:'الاسم المعروض',saveE:'حفظ التعديلات',npL:'كلمة المرور الجديدة (4 أحرف على الأقل)',cpL:'تأكيد كلمة المرور',saveP:'حفظ كلمة المرور الجديدة',dDevT:'حذف الجهاز',dDevM:'سيتم حذف الجهاز نهائيًا وسيحتاج صاحبه للتحقق بـ OTP من جديد.',dUsrT:'حذف المستخدم',dUsrM:'سيتم حذف حساب <b>{em}</b> نهائيًا وسيحتاج للتسجيل من جديد بالبريد.',blkT:'حجب الحساب',blkM:'لن يستطيع <b>{em}</b> الدخول من أي جهاز. متأكد؟',lT:'تسجيل الخروج',lM:'هل تريد تسجيل الخروج من اللوحة؟ سيلزمك تسجيل الدخول من جديد.',wDel:'حذف',mBusy:'لحظة…',mEmail:'اكتب بريدًا صحيحًا',mOnly:'هذه اللوحة للـ Admin فقط',mNotAdmin:'هذا البريد غير مصرح له بالدخول للوحة — اللوحة لمالك النظام والمدراء المعتمدين فقط، ولم يتم إرسال أي كود',mOtp:'تم إرسال كود التحقق إلى بريدك ✅',mCode:'اكتب الكود كاملًا',mPending:'جهازك الحالي معلق — اعتمده من طلبات معلقة باستخدام جهاز Admin معتمد',mSaved:'تم حفظ التعديلات ✅',mPwUp:'تم تحديث كلمة المرور ✅',mNoPw:'لا توجد كلمة مرور محفوظة لهذا الحساب',mUReq:'اسم المستخدم مطلوب',mUTaken:'اسم المستخدم مستخدم بالفعل',mMin4:'4 أحرف على الأقل',mMM:'كلمتا المرور غير متطابقتين',mNoDelOwner:'ممنوع تعديل أو حذف مالك النظام ⭐',mNoBlkOwner:'ممنوع حجب مالك النظام ⭐',mUBlk:'تم حجب الحساب',mUUn:'تم رفع الحجب ✅',mUDel:'تم حذف المستخدم',mDApp:'تم اعتماد الجهاز ✅',mDBlk:'تم حظر الجهاز',mDDel:'تم حذف الجهاز',mNoSnap:'تعذر تحميل البيانات المباشرة: ',mNoPwQuick:'تم التعديل ✅ — أعد تعيين كلمة المرور للدخول السريع بالاسم الجديد',mTake:'تم الدخول — الجهاز ملكك الآن ⭐',mRef:'تم التحديث ✅',mBlkT:'تم إيقاف الجلسة',mBlkU:'تم حجب هذا الحساب من لوحة الإدارة — تواصل مع مالك النظام.',mDevBlkT:'تم إيقاف الجلسة',mDevBlkM:'هذا الجهاز تم حظره من لوحة الإدارة.',ld:'جارٍ التحميل…',uAdm:'⭐ Admin',uBlkC:'⛔ محظور',uEmp:'👤 موظف',svcErr:'خدمة الإيميل رجعت ردًا غير متوقع (HTTP {s}) — راجع رابط النشر SVC_URL'},
-en:{sub:'Devices & Users management panel — Admin only',emailLb:'Admin email',enter:'Sign In',otpLb:'Verification code sent to:',verify:'Verify ←',resend:'Resend code',changeEmail:'Change email',tPend:'⏳ Pending requests',tDevs:'💻 All devices',tUsrs:'👤 Users',vPend:'Devices awaiting approval',vDevs:'All registered devices',vUsrs:'Users',noPend:'✅ No pending requests — all devices reviewed',noDevs:'No devices yet',noUsrs:'No users',chApp:'Approved ✅',chPen:'Pending ⏳',chBlk:'Blocked ⛔',req:'Requested',lastU:'Last used',appBy:'Approved by',locL:'📍 Location',ispL:'🏢 ISP',scrL:'🖥️ Screen',lngL:'🌍 Lang/TZ',corL:'⚙️ Cores',mdlL:'📱 Device',gpuL:'🎮 GPU',ramL:'🧠 RAM',netL:'📶 Network',bApp:'✅ Approve',bBlk:'🚫 Block',bUnb:'Unblock',bDelD:'🗑️ Delete device',pwL:'🔑 Password',joined:'Joined',lastL:'Last login',bEdit:'✏️ Edit name/username',bRst:'🔑 Reset password',bBlkU:'🚫 Block account',bUnbU:'Unblock',bDelU:'🗑️ Delete user',ownerN:'⭐ System owner — cannot be modified',okB:'Confirm',noB:'Cancel',lBtn:'Logout',lBtnSm:'Exit',typeW:'Type to confirm:',edT:'Edit',uLb:'Username (quick login)',nLb:'Display name',saveE:'Save changes',npL:'New password (min 4 chars)',cpL:'Confirm password',saveP:'Save new password',dDevT:'Delete device',dDevM:'The device will be deleted permanently and its owner must verify via OTP again.',dUsrT:'Delete user',dUsrM:'User <b>{em}</b> will be deleted permanently and must re-register by email.',blkT:'Block account',blkM:'<b>{em}</b> will not be able to sign in from any device. Are you sure?',lT:'Logout',lM:'Log out of the panel? You will need to sign in again.',wDel:'DELETE',mBusy:'One moment…',mEmail:'Enter a valid email',mOnly:'This panel is for Admin only',mNotAdmin:'This email is not authorized for the panel — no code was sent',mOtp:'Verification code sent to your email ✅',mCode:'Enter the full code',mPending:'This device is pending — approve it from Pending requests using an approved Admin device',mSaved:'Changes saved ✅',mPwUp:'Password updated ✅',mNoPw:'No saved password for this account',mUReq:'Username is required',mUTaken:'Username already taken',mMin4:'At least 4 characters',mMM:'Passwords do not match',mNoDelOwner:'System owner cannot be modified or deleted ⭐',mNoBlkOwner:'System owner cannot be blocked ⭐',mUBlk:'Account blocked',mUUn:'Account unblocked ✅',mUDel:'User deleted',mDApp:'Device approved ✅',mDBlk:'Device blocked',mDDel:'Device deleted',mNoSnap:'Live data failed to load: ',mNoPwQuick:'Saved ✅ — reset the password for quick login with the new name',mTake:'Signed in — this device is yours now ⭐',mRef:'Refreshed ✅',mBlkT:'Session stopped',mBlkU:'This account has been blocked from the admin panel — contact the system owner.',mDevBlkT:'Session stopped',mDevBlkM:'This device has been blocked from the admin panel.',ld:'Loading…',uAdm:'⭐ Admin',uBlkC:'⛔ Blocked',uEmp:'👤 Employee',svcErr:'Email service returned an unexpected response (HTTP {s}) — check SVC_URL deployment link'}
+ar:{sub:'لوحة إدارة الأجهزة والمستخدمين — للـ Admin فقط',emailLb:'البريد الإلكتروني الإداري',enter:'تسجيل الدخول',otpLb:'كود التحقق المرسل إلى:',verify:'تحقق ←',resend:'إعادة إرسال الكود',changeEmail:'تغيير البريد',tPend:'⏳ طلبات معلقة',tDevs:'💻 كل الأجهزة',tUsrs:'👤 المستخدمون',vPend:'طلبات أجهزة بانتظار الموافقة',vDevs:'كل الأجهزة المسجلة',vUsrs:'المستخدمون',noPend:'✅ لا توجد طلبات معلقة — كل الأجهزة تمت مراجعتها',noDevs:'لا توجد أجهزة بعد',noUsrs:'لا يوجد مستخدمون',chApp:'معتمد ✅',chPen:'معلق ⏳',chBlk:'محظور ⛔',req:'الطلب',lastU:'آخر استخدام',appBy:'اعتمده',locL:'📍 الموقع',ispL:'🏢 مزود الخدمة',scrL:'🖥️ الشاشة',lngL:'🌍 اللغة/المنطقة',corL:'⚙️ المعالج',mdlL:'📱 الجهاز',gpuL:'🎮 كرت الشاشة',ramL:'🧠 الذاكرة',netL:'📶 الشبكة',bApp:'✅ موافقة',bBlk:'🚫 حظر',bUnb:'رفع الحجب',bDelD:'🗑️ حذف الجهاز',pwL:'🔑 كلمة المرور',joined:'انضم',lastL:'آخر دخول',bEdit:'✏️ تعديل الاسم/اليوزر',bRst:'🔑 إعادة تعيين كلمة المرور',bBlkU:'🚫 حجب الحساب',bUnbU:'رفع الحجب',bDelU:'🗑️ حذف المستخدم',ownerN:'⭐ مالك النظام — محمي من الحذف والحظر',okB:'تأكيد',noB:'إلغاء',lBtn:'تسجيل الخروج',lBtnSm:'خروج',typeW:'للتأكيد اكتب بالحرف:',edT:'تعديل',uLb:'اسم المستخدم (للدخول السريع)',nLb:'الاسم المعروض',saveE:'حفظ التعديلات',npL:'كلمة المرور الجديدة (4 أحرف على الأقل)',cpL:'تأكيد كلمة المرور',saveP:'حفظ كلمة المرور الجديدة',dDevT:'حذف الجهاز',dDevM:'سيتم حذف الجهاز نهائيًا وسيحتاج صاحبه للتحقق بـ OTP من جديد.',dUsrT:'حذف المستخدم',dUsrM:'سيتم حذف حساب <b>{em}</b> نهائيًا وسيحتاج للتسجيل من جديد بالبريد.',blkT:'حجب الحساب',blkM:'لن يستطيع <b>{em}</b> الدخول من أي جهاز. متأكد؟',lT:'تسجيل الخروج',lM:'هل تريد تسجيل الخروج من اللوحة؟ سيلزمك تسجيل الدخول من جديد.',wDel:'حذف',mBusy:'لحظة…',mEmail:'اكتب بريدًا صحيحًا',mOnly:'هذه اللوحة للـ Admin فقط',mNotAdmin:'هذا البريد غير مصرح له بالدخول للوحة — اللوحة لمالك النظام والمدراء المعتمدين فقط، ولم يتم إرسال أي كود',mOtp:'تم إرسال كود التحقق إلى بريدك ✅',mCode:'اكتب الكود كاملًا',mPending:'جهازك الحالي معلق — اعتمده من طلبات معلقة باستخدام جهاز Admin معتمد',mSaved:'تم حفظ التعديلات ✅',mPwUp:'تم تحديث كلمة المرور ✅',mNoPw:'لا توجد كلمة مرور محفوظة لهذا الحساب',mUReq:'اسم المستخدم مطلوب',mUTaken:'اسم المستخدم مستخدم بالفعل',mMin4:'4 أحرف على الأقل',mMM:'كلمتا المرور غير متطابقتين',mUBlk:'تم حجب الحساب',mUUn:'تم رفع الحجب ✅',mUDel:'تم حذف المستخدم',mDApp:'تم اعتماد الجهاز ✅',mDBlk:'تم حظر الجهاز',mDDel:'تم حذف الجهاز',mNoSnap:'تعذر تحميل البيانات المباشرة: ',mNoPwQuick:'تم التعديل ✅ — أعد تعيين كلمة المرور للدخول السريع بالاسم الجديد',mTake:'تم الدخول — الجهاز ملكك الآن ⭐',mRef:'تم التحديث ✅',mBlkT:'تم إيقاف الجلسة',mBlkU:'تم حجب هذا الحساب من لوحة الإدارة — تواصل مع مالك النظام.',mDevBlkT:'تم إيقاف الجلسة',mDevBlkM:'هذا الجهاز تم حظره من لوحة الإدارة.',ld:'جارٍ التحميل…',uAdm:'⭐ Admin',uBlkC:'⛔ محظور',uEmp:'👤 موظف',svcErr:'خدمة الإيميل رجعت ردًا غير متوقع (HTTP {s}) — راجع رابط النشر SVC_URL'},
+en:{sub:'Devices & Users management panel — Admin only',emailLb:'Admin email',enter:'Sign In',otpLb:'Verification code sent to:',verify:'Verify ←',resend:'Resend code',changeEmail:'Change email',tPend:'⏳ Pending requests',tDevs:'💻 All devices',tUsrs:'👤 Users',vPend:'Devices awaiting approval',vDevs:'All registered devices',vUsrs:'Users',noPend:'✅ No pending requests — all devices reviewed',noDevs:'No devices yet',noUsrs:'No users',chApp:'Approved ✅',chPen:'Pending ⏳',chBlk:'Blocked ⛔',req:'Requested',lastU:'Last used',appBy:'Approved by',locL:'📍 Location',ispL:'🏢 ISP',scrL:'🖥️ Screen',lngL:'🌍 Lang/TZ',corL:'⚙️ Cores',mdlL:'📱 Device',gpuL:'🎮 GPU',ramL:'🧠 RAM',netL:'📶 Network',bApp:'✅ Approve',bBlk:'🚫 Block',bUnb:'Unblock',bDelD:'🗑️ Delete device',pwL:'🔑 Password',joined:'Joined',lastL:'Last login',bEdit:'✏️ Edit name/username',bRst:'🔑 Reset password',bBlkU:'🚫 Block account',bUnbU:'Unblock',bDelU:'🗑️ Delete user',ownerN:'⭐ System owner — protected from delete & block',okB:'Confirm',noB:'Cancel',lBtn:'Logout',lBtnSm:'Exit',typeW:'Type to confirm:',edT:'Edit',uLb:'Username (quick login)',nLb:'Display name',saveE:'Save changes',npL:'New password (min 4 chars)',cpL:'Confirm password',saveP:'Save new password',dDevT:'Delete device',dDevM:'The device will be deleted permanently and its owner must verify via OTP again.',dUsrT:'Delete user',dUsrM:'User <b>{em}</b> will be deleted permanently and must re-register by email.',blkT:'Block account',blkM:'<b>{em}</b> will not be able to sign in from any device. Are you sure?',lT:'Logout',lM:'Log out of the panel? You will need to sign in again.',wDel:'DELETE',mBusy:'One moment…',mEmail:'Enter a valid email',mOnly:'This panel is for Admin only',mNotAdmin:'This email is not authorized for the panel — no code was sent',mOtp:'Verification code sent to your email ✅',mCode:'Enter the full code',mPending:'This device is pending — approve it from Pending requests using an approved Admin device',mSaved:'Changes saved ✅',mPwUp:'Password updated ✅',mNoPw:'No saved password for this account',mUReq:'Username is required',mUTaken:'Username already taken',mMin4:'At least 4 characters',mMM:'Passwords do not match',mUBlk:'Account blocked',mUUn:'Account unblocked ✅',mUDel:'User deleted',mDApp:'Device approved ✅',mDBlk:'Device blocked',mDDel:'Device deleted',mNoSnap:'Live data failed to load: ',mNoPwQuick:'Saved ✅ — reset the password for quick login with the new name',mTake:'Signed in — this device is yours now ⭐',mRef:'Refreshed ✅',mBlkT:'Session stopped',mBlkU:'This account has been blocked from the admin panel — contact the system owner.',mDevBlkT:'Session stopped',mDevBlkM:'This device has been blocked from the admin panel.',ld:'Loading…',uAdm:'⭐ Admin',uBlkC:'⛔ Blocked',uEmp:'👤 Employee',svcErr:'Email service returned an unexpected response (HTTP {s}) — check SVC_URL deployment link'}
 };
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])||I18N.ar[k]||k;if(vars){Object.keys(vars).forEach(v=>{s=s.replace('{'+v+'}',vars[v]);});}return s;}
 function applyLang(){
@@ -484,8 +482,17 @@ function draw(){
     $('list').innerHTML=(all.length?all.map(d=>card(d)).join(''):'<div class="empty">'+t('noDevs')+'</div>');
   }else{
     const all=Object.values(USRS);
-    $('list').innerHTML=(all.length?all.map(u=>userCard(u)).join(''):'<div class="empty">'+t('noUsrs')+'</div>');
+    /* ⭐ شبكة مربعة — الكروت جنب بعض */
+    $('list').innerHTML=(all.length?('<div class="usrs-grid">'+all.map(u=>userCard(u)).join('')+'</div>'):'<div class="empty">'+t('noUsrs')+'</div>');
   }
+}
+/* لينك الموقع القابل للضغط — بالإحداثيات إن وجدت وإلا بحث نصي */
+function locHtml(info){
+  if(!info||!info.loc)return '—';
+  let q='';
+  if(typeof info.lat==='number'&&info.lat!=null&&typeof info.lon==='number'&&info.lon!=null&&info.lat!==0&&info.lon!==0){q=info.lat+','+info.lon;}
+  else{q=encodeURIComponent(info.loc);}
+  return '<a class="loc-link" href="https://www.google.com/maps?q='+q+'" target="_blank" rel="noopener" title="Open in Google Maps">'+esc(info.loc)+' ↗</a>';
 }
 function card(d){
   const usr=USRS[d.email];
@@ -496,7 +503,7 @@ function card(d){
   '<div class="inf"><div class="nm">'+esc(nm||'—')+'</div>'+
   '<div class="strow">'+st+(i.deviceType?'<span class="chip c-pend">'+esc(i.deviceType)+'</span>':'')+(i.os?'<span class="chip c-pend">'+esc(i.os)+'</span>':'')+(i.browser?'<span class="chip c-pend">'+esc(i.browser)+'</span>':'')+'</div>'+
   '<div class="meta">🕐 '+t('req')+': '+fmtD(d.requestedAt)+' · '+t('lastU')+': '+fmtD(d.lastUsed)+(d.approvedBy?(' · '+t('appBy')+': '+esc(d.approvedBy)):'')+'</div>'+
-  '<div class="grid-4">'+g4('🌐 IP',i.ip||'—')+g4(t('locL'),i.loc||'—')+g4(t('ispL'),i.isp||'—')+g4(t('mdlL'),i.model||'—')+g4(t('scrL'),i.screen||'—')+g4(t('lngL'),(i.lang||'—')+' / '+(i.tz||'—'))+g4(t('gpuL'),i.gpu||'—')+g4(t('ramL'),i.ram||'—')+g4(t('netL'),i.net||'—')+g4(t('corL'),i.cores||'—')+'</div></div>'+
+  '<div class="grid-4">'+g4('🌐 IP',i.ip||'—')+g4(t('locL'),locHtml(i),true)+g4(t('ispL'),i.isp||'—')+g4(t('mdlL'),i.model||'—')+g4(t('scrL'),i.screen||'—')+g4(t('lngL'),(i.lang||'—')+' / '+(i.tz||'—'))+g4(t('gpuL'),i.gpu||'—')+g4(t('ramL'),i.ram||'—')+g4(t('netL'),i.net||'—')+g4(t('corL'),i.cores||'—')+'</div></div>'+
   '<div class="acts">'+(d.status!=='approved'?'<button class="b b-ok" onclick="devAct(\''+d.did+'\',\'approved\')">'+t('bApp')+'</button>':'')+
   (d.status!=='blocked'?'<button class="b b-no" onclick="devAct(\''+d.did+'\',\'blocked\')">'+t('bBlk')+'</button>':'<button class="b b-ok" onclick="devAct(\''+d.did+'\',\'approved\')">'+t('bUnb')+'</button>')+
   '<button class="b b-gr" onclick="devDel(\''+d.did+'\')">'+t('bDelD')+'</button></div></div></div>';
@@ -506,6 +513,15 @@ function userCard(u){
   const key=safeId(u.email);
   const pw=u.passEnc?decodeURIComponent(escape(atob(u.passEnc))):'';
   PW_STORE[key]=pw;
+  /* ⭐ كارت الأدمن زي أي مستخدم: تعديل + كلمة مرور متاحان — لا حذف ولا حظر أبدًا */
+  const acts=isAdm?
+    ('<button class="b b-gr" onclick="editUser(\''+key+'\')">'+t('bEdit')+'</button>'+
+     '<button class="b b-gr" onclick="resetPw(\''+key+'\')">'+t('bRst')+'</button>'+
+     '<span class="tiny mut">'+t('ownerN')+'</span>'):
+    ('<button class="b b-gr" onclick="editUser(\''+key+'\')">'+t('bEdit')+'</button>'+
+     '<button class="b b-gr" onclick="resetPw(\''+key+'\')">'+t('bRst')+'</button>'+
+     (u.status==='blocked'?'<button class="b b-ok" onclick="unblockUser(\''+key+'\')">'+t('bUnbU')+'</button>':'<button class="b b-no" onclick="blockUser(\''+key+'\')">'+t('bBlkU')+'</button>')+
+     '<button class="b b-no" onclick="delUser(\''+key+'\')">'+t('bDelU')+'</button>');
   return '<div class="card"><div class="dev"><div class="ic">'+(isAdm?'⭐':'👤')+'</div>'+
   '<div class="inf"><div class="nm">'+esc(u.username||u.name||'')+'</div><div class="em">'+esc(u.email)+'</div>'+
   '<div class="strow"><span class="chip '+(isAdm?'c-app':(u.status==='blocked'?'c-blk':'c-pend'))+'">'+(isAdm?t('uAdm'):(u.status==='blocked'?t('uBlkC'):t('uEmp')))+'</span></div>'+
@@ -514,13 +530,9 @@ function userCard(u){
   g4('👤 '+(LANG==='ar'?'اسم المستخدم':'Username'),u.username||'—')+
   '<div class="g4"><div class="l">'+t('pwL')+'</div><div class="v"><div class="pwrow"><span id="pw_'+key+'">'+(pw?'•'.repeat(Math.min(pw.length,12)):'—')+'</span><button type="button" class="eye-in" onclick="togglePw(\''+key+'\',this)" title="Show / Hide">'+SVG_EYEOFF+'</button></div></div></div>'+
   '</div></div>'+
-  '<div class="acts">'+(u.email===ADMIN?'<span class="tiny mut">'+t('ownerN')+'</span>':
-  '<button class="b b-gr" onclick="editUser(\''+key+'\')">'+t('bEdit')+'</button>'+
-  '<button class="b b-gr" onclick="resetPw(\''+key+'\')">'+t('bRst')+'</button>'+
-  (u.status==='blocked'?'<button class="b b-ok" onclick="unblockUser(\''+key+'\')">'+t('bUnbU')+'</button>':'<button class="b b-no" onclick="blockUser(\''+key+'\')">'+t('bBlkU')+'</button>')+
-  '<button class="b b-no" onclick="delUser(\''+key+'\')">'+t('bDelU')+'</button>')+'</div></div></div>';
+  '<div class="acts">'+acts+'</div></div></div>';
 }
-function g4(l,v){return '<div class="g4"><div class="l">'+l+'</div><div class="v">'+esc(v)+'</div></div>';}
+function g4(l,v,raw){return '<div class="g4"><div class="l">'+l+'</div><div class="v">'+(raw?v:esc(v))+'</div></div>';}
 function fmtD(ts){if(!ts)return'—';try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString(LANG==='ar'?'ar-EG':'en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return'—';}}
 
 /* ===== مودال تأكيد بكلمة تأكيد ===== */
@@ -540,11 +552,10 @@ function askOk(){
   closeOv('m_ask');if(askCb)askCb();
 }
 
-/* ===== تعديل مستخدم ===== */
+/* ===== تعديل مستخدم — الأدمن كذلك (اليوزرنيم + الاسم) ===== */
 let editTarget='';
 function editUser(key){
   const u=Object.values(USRS).find(x=>safeId(x.email)===key);if(!u)return;
-  if(u.email===ADMIN){toast(t('mNoDelOwner'),'err');return;}
   editTarget=u.email;
   $('ed_title').textContent=t('edT')+' — '+esc(u.username||'');
   $('ed_body').innerHTML=
@@ -577,12 +588,11 @@ async function saveUser(){
   }catch(e){$('eu_err').textContent=e.message;}
   busyRel();
 }
-/* ===== إعادة تعيين كلمة المرور ===== */
+/* ===== إعادة تعيين كلمة المرور — الأدمن كذلك ===== */
 let pwTarget='';
 function eye(id,btn){const el=$(id);const show=el.type==='password';el.type=show?'text':'password';btn.innerHTML=show?SVG_EYE:SVG_EYEOFF;}
 function resetPw(key){
   const u=Object.values(USRS).find(x=>safeId(x.email)===key);if(!u)return;
-  if(u.email===ADMIN){toast(t('mNoDelOwner'),'err');return;}
   pwTarget=u.email;
   $('ed_title').textContent=t('edT')+' 🔑 — '+esc(u.username||'');
   $('ed_body').innerHTML=
@@ -609,7 +619,7 @@ async function saveNewPw(){
 }
 async function delUser(key){
   const u=Object.values(USRS).find(x=>safeId(x.email)===key);if(!u)return;
-  if(u.email===ADMIN){toast(t('mNoDelOwner'),'err');return;}
+  if(u.email===ADMIN)return; /* الأدمن: لا حذف أبدًا */
   askConfirm(t('dUsrT'),t('dUsrM',{em:esc(u.email)}),t('okB'),true,async()=>{
     if(!busyGate())return;
     try{await db.collection('users').doc(u.email).delete();log_('حذف مستخدم',u.email);toast(t('mUDel'),'ok');}catch(e){toast(e.message,'err');}
@@ -618,7 +628,7 @@ async function delUser(key){
 }
 async function blockUser(key){
   const u=Object.values(USRS).find(x=>safeId(x.email)===key);if(!u)return;
-  if(u.email===ADMIN){toast(t('mNoBlkOwner'),'err');return;}
+  if(u.email===ADMIN)return; /* الأدمن: لا حظر أبدًا */
   askConfirm(t('blkT'),t('blkM',{em:esc(u.email)}),t('okB'),true,async()=>{
     try{await db.collection('users').doc(u.email).update({status:'blocked'});log_('حجب حساب',u.email);toast(t('mUBlk'),'err');}catch(e){toast(e.message,'err');}
   });
@@ -652,7 +662,6 @@ async function deviceInfo(){
   if(/Android/i.test(ua))dtype='📱 Android';else if(/iPhone|iPad|iPod/i.test(ua))dtype='📱 iPhone/iPad';else if(/Mac/i.test(ua))dtype='💻 Mac';else if(/Linux/i.test(ua))dtype='💻 Linux';
   let br='Browser';if(/Edg\//.test(ua))br='Microsoft Edge';else if(/OPR\//.test(ua))br='Opera';else if(/Chrome\//.test(ua))br='Google Chrome';else if(/Firefox\//.test(ua))br='Firefox';else if(/Safari\//.test(ua))br='Safari';
   let os='OS';if(/Windows NT 10/.test(ua))os='Windows 10/11';else if(/Windows/.test(ua))os='Windows';else if(/Android/.test(ua)){const m=ua.match(/Android (\d+)/);os='Android '+(m?m[1]:'');}else if(/iPhone OS (\d+_\d+)/.test(ua))os='iOS '+ua.match(/iPhone OS (\d+_\d+)/)[1].replace('_','.');else if(/Mac OS X/.test(ua))os='macOS';else if(/Linux/.test(ua))os='Linux';
-  /* ⭐ طراز الجهاز: UA-CH الحديث → regex → fallback ذكي (لا يبقى فاضي) */
   let model='';
   try{
     if(navigator.userAgentData&&navigator.userAgentData.getHighEntropyValues){
@@ -681,7 +690,6 @@ async function deviceInfo(){
     screen:screen.width+'×'+screen.height,lang:navigator.language,
     tz:Intl.DateTimeFormat().resolvedOptions().timeZone||'',
     cores:(navigator.hardwareConcurrency||0)+(LANG==='ar'?' نواة':' cores')};
-  /* الموقع عبر IP فقط — بدون أي إذن: ipwho.is أولًا (أدق وأسرع) ثم ipapi.co احتياطي */
   try{
     const r=await fetch('https://ipwho.is/',{signal:AbortSignal.timeout(5000)});
     const j=await r.json();
@@ -705,7 +713,6 @@ async function deviceInfo(){
 
 /* ================================================================
    الإقلاع — جلسة محصّنة + تحديث ذكي صامت لبيانات الجهاز
-   (بدون توست ولا loading ولا أي إذن)
    ================================================================ */
 (async function(){
   applyTheme();applyLang();
