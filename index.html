@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
 <base target="_top">
@@ -207,7 +207,11 @@ body.dark .st-late{background:#3a1420;color:#f87171}
 .att-n b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
 .att-act{display:flex;gap:6px}
 .mrow{display:flex;gap:8px;margin-top:10px}
-.mrow .btn-primary,.mrow .btn-ghost{flex:1 1 0;min-width:0;margin-top:0}
+/* ⭐ M2: أزرار رسائل التأكيد متساوية — بما فيها الخطرة الحمراء */
+.mrow .btn-primary,.mrow .btn-ghost,.mrow .btn-danger{flex:1 1 0;min-width:0;margin-top:0}
+/* ⭐ M5: حقول كلمة المرور في الإعدادات — العين داخل الحقل */
+.pwwrap{position:relative}
+.pwwrap input{padding-left:42px;width:100%}
 /* ⭐ توست واحد نشط — بدون شريط — قصير */
 #toasts{position:fixed;top:74px;left:50%;transform:translateX(-50%);z-index:400;pointer-events:none;width:min(92vw,410px)}
 .tst{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--card);border-radius:13px;padding:11px 14px;box-shadow:0 10px 30px rgba(2,8,20,.28);border:1px solid var(--line);width:100%;position:relative;overflow:hidden;cursor:pointer;animation:tstIn .22s ease-out}
@@ -251,7 +255,7 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
  #foot{gap:12px;padding:6px 10px}.ftr-txt b{font-size:10px}.qr-wrap img{width:46px;height:46px}
  .btn-out .lg{display:none}.btn-out .sm{display:inline}.btn-out{padding:8px 12px}
  .content{padding:14px 12px}
- .login-card input,.field input,.field select,.inp{font-size:16px}
+ .login-card input,.field input,.field select,.inp,.pwwrap input{font-size:16px}
  .otpbox input{width:38px;height:46px;font-size:18px}
  .login-card{padding:22px 16px 14px}
 }
@@ -279,7 +283,6 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
     <img id="loginLogo" class="co-logo" src="enovate.png" alt="logo" onerror="this.style.display='none'">
     <h1>E-Collect Pro</h1>
     <div class="sub" data-i18n="sub"></div>
-
     <div id="stQuick">
       <label data-i18n="luser"></label>
       <input id="q_user" data-i18np="phUser" onkeydown="if(event.key==='Enter')$('q_pass').focus()">
@@ -499,14 +502,19 @@ body.dark #loading{background:rgba(10,15,35,.82);color:#8fa8e8}
 <script src="firebase-config.js"></script>
 <script>
 /* ================================================================
-   E-Collect Pro v4.3 — الموقع الرئيسي
-   مطابق للوحة admin.html v4.2.10:
-   1) ⭐ 🌙 دارك مود + 🌐 عربي/إنجليزي كامل (RTL ثابت) — محفوظان
-   2) ⭐ توست واحد نشط — يستبدل القديم — بدون شريط — 2.2 ثانية + ✕
-   3) ⭐ فتح قفل الصوت من أول لمسة (pointerdown) — كل الأصوات تشتغل
-   4) ⭐ زر الخروج بنص أحمر مطابق + authReady (جلسة لا تنكسر)
-   5) ⭐ استجابة كاملة: لابتوب/تابلت/موبايل + iOS (16px ضد الزوم)
-      + سكرول سلس + GPS الصامت عند أول تسجيل جهاز
+   E-Collect Pro v4.3.3 — الموقع الرئيسي
+   مبني على النسخة المستقرة v4.3 + التعديلات M1→M9:
+   M1) إصلاح زر تفاصيل الفاتورة في الجدول (كان يكسر الصفوف)
+   M2) أزرار رسائل التأكيد متساوية — بما فيها الخطرة الحمراء
+   M3) جلسة الجهاز: الريفريش يرجعك لنفس الصفحة — الخروج يمسحها
+   M4) فتح تسجيل الموظفين من أي جهاز — الجهاز يتحول "معلق"
+       بعد OTP وموافقة الإدارة إلزامية (حماية سرقة البيانات)
+   M5) كارت "حسابي" للجميع: تغيير كلمة المرور (عين بكل الخانات)
+       + تغيير اليوزرنيم (بالباسورد + إعادة حساب الهاش تلقائيًا)
+   M6) هوية الشركة/الترحيل/التهيئة: أدمن فقط
+   M7) السجل الكامل: دخول/خروج/تغييرات/كل الحركات بمستخدمها ووقتها
+   M8) توست المرفقات بنفس الأسلوب الموحد
+   M9) تسجيل الخروج في السجل قبل المسح
    ================================================================ */
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
@@ -537,6 +545,9 @@ function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsDel(k){try{localStorage.removeItem(k);}catch(e){}}
 function clr(id){$(id).value='';}
+/* ⭐ M3: جلسة الجهاز — الريفريش يرجعك لنفس الصفحة بدون باسورد */
+function saveSession(){lsSet('ec_sess','1');lsSet('ec_sess_email',ME.email||'');}
+function clearSession(){lsDel('ec_sess');lsDel('ec_sess_email');}
 const SVG_EYE='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 const SVG_EYEOFF='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 function eye(id,btn){const el=$(id);const show=el.type==='password';el.type=show?'text':'password';btn.innerHTML=show?SVG_EYE:SVG_EYEOFF;}
@@ -545,13 +556,16 @@ function rememberMe(box){
   if(rem){lsSet('ec_remember','1');lsSet('ec_name',ME.name);lsSet('ec_uname',ME.username||'');lsSet('ec_pass_b64',btoa(unescape(encodeURIComponent(ME.pass||''))));lsSet('ec_email',ME.email);}
   else{lsDel('ec_remember');lsDel('ec_name');lsDel('ec_uname');lsDel('ec_pass_b64');lsDel('ec_email');}
 }
-function doLogout(){
+/* ⭐ M9: الخروج يسجل في السجل أولاً ثم يمسح الجلسة والتذكر */
+async function doLogout(){
+  try{await log_(ME.name||'—','تسجيل خروج',(ME.email||'—'),'');}catch(e){}
   lsDel('ec_remember');lsDel('ec_name');lsDel('ec_uname');lsDel('ec_pass_b64');lsDel('ec_email');
+  clearSession();
   location.reload();
 }
 function askLogout(){askConfirm(t('lT'),t('lM'),t('lYes'),true,()=>doLogout());}
 
-/* ===== ⭐ الأصوات — فتح القفل من أول لمسة ===== */
+/* ===== الأصوات — فتح القفل من أول لمسة ===== */
 let audioCtx=null,soundOn=true;
 try{soundOn=lsGet('ec_snd')!=='0';}catch(e){}
 function unlockAudio(){try{if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
@@ -561,7 +575,7 @@ function playSound(k){if(!soundOn)return;try{unlockAudio();if(!audioCtx||audioCt
 function setSndBtns(){const ic=soundOn?'🔊':'🔇';['sndBtn','sndBtn2'].forEach(id=>{const el=$(id);if(el)el.textContent=ic;});}
 function toggleSound(){soundOn=!soundOn;lsSet('ec_snd',soundOn?'1':'0');setSndBtns();if(soundOn)playSound('info');}
 
-/* ===== ⭐ توست واحد نشط — يستبدل القديم — بدون شريط — قصير ===== */
+/* ===== توست واحد نشط — يستبدل القديم — بدون شريط — قصير ===== */
 let LANG=lsGet('ec_lang')||'ar';
 let _toastEl=null,_toastTimer=null;
 function toast(m,ty){
@@ -581,10 +595,11 @@ function toast(m,ty){
   _toastTimer=setTimeout(kill,2200);
 }
 document.addEventListener('click',e=>{const b=e.target.closest('.btn-primary');if(!b)return;const r=document.createElement('span');r.className='ripple';const rc=b.getBoundingClientRect();r.style.left=(e.clientX-rc.left)+'px';r.style.top=(e.clientY-rc.top)+'px';b.appendChild(r);setTimeout(()=>r.remove(),650);});
-/* ===== 🌐 i18n — عربي/إنجليزي (RTL ثابت) ===== */
+
+/* ===== i18n — عربي/إنجليزي (RTL ثابت) ===== */
 const I18N={
-ar:{sub:'نظام إدارة التحصيل والفواتير',luser:'اسم المستخدم',lpass:'كلمة المرور',phUser:'مثال: Hamouda',remember:'تذكرني — دخول تلقائيًا في المرات الجاية',btnQuick:'دخول النظام',btnEmail:'🔐 أول مرة؟ تسجيل بالبريد الإلكتروني',emailLb:'البريد الإلكتروني الوظيفي',btnSend:'إرسال كود التحقق ←',btnBack:'رجوع للدخول السريع',otpMsg:'اكتب كود التحقق المرسل إلى',btnVerify:'تحقق ←',btnResend:'إعادة إرسال الكود',btnChEmail:'تغيير البريد',crMsg1:'تم التحقق من',crMsg2:'أنشئ اسم مستخدم سهل وكلمة مرور للدخول السريع',crUser:'اسم المستخدم (سهل ومختصر)',phMin4:'4 أحرف على الأقل',crPass2:'تأكيد كلمة المرور',phRePass:'أعد كتابة كلمة المرور',crRem:'تذكرني على هذا الجهاز',btnCreate:'إنشاء الحساب والدخول',pTitle:'بانتظار موافقة الإدارة',pMsg:'تم التحقق من بريدك، لكن هذا الجهاز جديد على النظام. سيتمكن من الدخول أول ما توافق الإدارة على الجهاز من لوحة التحكم.',btnRecheck:'🔄 تحديث الحالة',btnChAcc:'تغيير الحساب',bTitle:'تم رفض الوصول',bMsg:'هذا الجهاز محظور أو الحساب موقوف — تواصل مع الإدارة.',btnBack2:'رجوع',eUserPass:'اكتب اسم المستخدم وكلمة المرور',eUserNo:'اسم المستخدم غير موجود — سجل أول مرة بالبريد الإلكتروني',eBlocked:'هذا الحساب موقوف — تواصل مع الإدارة',ePassBad:'كلمة المرور غير صحيحة',eEmail:'اكتب بريدًا إلكترونيًا صحيحًا',eCode:'اكتب الكود المكوّن من 6 أرقام',eUMin4:'كلمة المرور 4 أحرف على الأقل',eUMM:'كلمتا المرور غير متطابقتين',eUName:'اكتب اسم مستخدم',eUTaken:'اسم المستخدم مستخدم — اختار اسمًا آخر',eSess:'انتهت الجلسة — سجل بالبريد من جديد',conn:'متصل',logout:'تسجيل الخروج',logoutSm:'خروج',lT:'تسجيل الخروج',lM:'هل تريد تسجيل الخروج من النظام؟',lYes:'نعم، خروج',navDash:'🏠 الرئيسية',navInv:'🧾 الفواتير',navTx:'🔖 الحركات',navCust:'👥 العملاء',navRep:'📊 التقارير',navLog:'🕘 السجل',navSet:'⚙️ الإعدادات',roleAdmin:'Admin',roleEmp:'Employee',btnMyPhoto:'📷 تغيير صورتي',btnDelPhoto:'🗑️ حذف صورتي',mBusy:'يوجد عملية جارية — لحظة…',welcome:'أهلاً بيك يا',refreshed:'تم تحديث البيانات ✅',newDev:'جهاز جديد — يلزم تحقق بالبريد',pendNew:'تم التحقق من بريدك — الجهاز الجديد بانتظار موافقة الإدارة',takeOk:'مرحبًا مالك النظام ⭐',takeCreate:'مرحبًا مالك النظام ⭐ — أنشئ اسم مستخدم وكلمة مرور للدخول السريع',devOther:'هذا الجهاز مسجل بالفعل للمستخدم: {em} — الأجهزة تُربط بحساب واحد. لو انت مالك النظام سجّل بإيميل المالك، أو تواصل مع الإدارة.',devOther2:'هذا الجهاز معتمد لمستخدم آخر ({em}) — الأجهزة لا تُنقل بين الحسابات إلا بموافقة الإدارة.',devApproved:'جهازك معتمد — سجّل باسم المستخدم وكلمة المرور',avUpd:'تم تحديث صورتك الشخصية ✅',avBig:'اختر صورة أقل من 5MB',delAvT:'حذف الصورة الشخصية',delAvM:'سيتم حذف صورتك والرجوع للحرف الأول من اسمك. متأكد؟',delBtn:'حذف',avDel:'تم حذف الصورة ✅',kTotal:'إجمالي قيمة الفواتير',kCollected:'إجمالي المحصل',kRem:'المتبقي للتحصيل',kLate:'إجمالي المتأخرات',kCount:'عدد الفواتير',kPct:'نسبة التحصيل',dAging:'📅 التقادم (Aging) للمتبقي',dMonth:'📈 الفواتير مقابل التحصيل — آخر 6 شهور',dLateT:'🔥 أعلى الفواتير المتأخرة',dFeed:'🕘 آخر الأنشطة',dEmptyT:'ابدأ رحلة التحصيل',dEmptyP:'أضف أول فاتورة أو استورد بياناتك القديمة من الإعدادات',dEmptyAdd:'＋ إضافة أول فاتورة',dEmptyImp:'📥 استيراد',noLate:'لا توجد متأخرات 🎉',invSearch:'🔍 بحث: رقم فاتورة / عميل / مشروع / وصف / مرجع…',fAllCust:'كل العملاء',fAllSt:'كل الحالات',fOpen:'قيد التحصيل',fLateS:'متأخرة',fPaidS:'مسددة',fAllBk:'كل الفئات العمرية',btnExcel:'⬇️ Excel',btnNewInv:'＋ فاتورة جديدة',thNo:'رقم الفاتورة',thCust:'العميل',thProj:'المشروع',thIDate:'تاريخ الفاتورة',thDDate:'الاستحقاق',thTot:'الإجمالي',thTax:'ضريبة%',thCol:'المحصل',thRem:'المتبقي',thColl:'التحصيل',thSt:'الحالة',thL8:'التأخير',thAct:'',noMatch:'لا توجد فواتير مطابقة',totInv:'الإجمالي — {n} فاتورة',bk_b0:'لم تستحق',bk_b30:'0-30',bk_b60:'31-60',bk_b90:'61-90',bk_b180:'91-180',bk_b360:'181-360',bk_b365:'أكثر من سنة',stOpen:'قيد التحصيل',stPaid:'مسددة بالكامل',stLate:'متأخرة',stOverP:'⚠️ زيادة ',stDueN:'بدون تاريخ استحقاق',dToday:'🟢 تستحق اليوم',dFuture:'🟢 لم تستحق — باقي {n} يوم',dLateD:'{ic} متأخرة {n} يوم',mInvNew:'فاتورة جديدة',mInvEdit:'تعديل الفاتورة {n}',fInvNo:'رقم الفاتورة *',phInvNo:'مثال: 1001',fCust:'العميل *',phCust:'اكتب أو اختر العميل',fProj:'المشروع',phProj:'مثال: مشروع كروت بنك مصر',fDesc:'وصف الخدمة (الخدمة / الشهر)',phDesc:'مثال: رسوم إدارة كروت — شهر يناير 2026',fIDate:'تاريخ الفاتورة (اختياري)',fDDate:'تاريخ الاستحقاق (اختياري)',fBefore:'القيمة قبل الضريبة *',fRate:'نسبة الضريبة %',fTotal:'الإجمالي بعد الضريبة (تلقائي)',fTotalH:'الإجمالي = القيمة قبل الضريبة + الضريبة — وبه يُحسب المتبقي والتحصيل',fNotes:'ملاحظات',btnSaveInv:'حفظ الفاتورة',eInvNo:'رقم الفاتورة مطلوب',eInvCust:'اسم العميل مطلوب',eInvAmt:'قيمة الفاتورة يجب أن تكون أكبر من صفر',eInvDup:'رقم الفاتورة موجود بالفعل: {n}',invSaved:'تم حفظ الفاتورة ✅',invEdited:'تم تعديل الفاتورة ✅',detT:'تفاصيل الفاتورة',lbProj:'المشروع',lbDesc:'وصف الخدمة',lbLate:'أيام التأخير',lbBy:'أُضيفت بواسطة',lbBefore:'قبل الضريبة',lbTax:'الضريبة',lbTotal:'الإجمالي',lbCol:'المحصل',lbRem:'المتبقي',lbPct:'التحصيل',lbNotes:'ملاحظات',day:' يوم',btnTx:'💵 تسجيل حركة',btnEdit:'✏️ تعديل',btnDelInv:'🗑️ حذف الفاتورة',txOf:'🔖 حركات الفاتورة ({n})',noTxS:'لا توجد حركات بعد — الفاتورة لم يُحصَّل عليها شيء',invLog:'🕘 سجل الفاتورة',noLogS:'لا يوجد سجل',delInvT:'حذف الفاتورة',delInvM:'سيتم حذف الفاتورة <b>{n}</b> وكل حركاتها نهائيًا. متأكد؟',delInvBtn:'حذف نهائي',delInvOk:'تم حذف الفاتورة',delTxT:'حذف حركة',delTxM:'هل تريد حذف هذه الحركة نهائيًا؟ سيُعدَّل المتبقي تلقائيًا.',delTxOk:'تم حذف الحركة',confType:'للتأكيد اكتب بالحرف: {w}',confTypeP:'للتأكيد اكتب العبارة',confErr:'العبارة غير مطابقة — اكتب: {w}',confOkB:'تأكيد',confCancel:'إلغاء',mTxT:'تسجيل حركة على الفاتورة',fTxType:'نوع الحركة *',fTxAmt:'المبلغ *',fTxDate:'التاريخ',fTxMethod:'طريقة الدفع',fTxRef:'المرجع',refReceipt:'رقم الإيصال / الحوالة',refWHT:'رقم إشعار الخصم',refRef:'المرجع / الرقم',fTxNotes:'ملاحظات',fTxAtts:'المرفقات — صور / PDF (إثبات تحويل، كشف حساب، إشعار خصم…)',btnAttach:'📎 إرفاق ملفات',noAtts:'لا مرفقات بعد — يمكنك إرفاق أي عدد من الصور أو ملفات PDF (حتى 8MB للملف)',btnSaveTx:'حفظ الحركة',txMax:'الحد الأقصى للمبلغ: {n}',eTxAmt:'اكتب مبلغ صحيح',eTxOver:'المبلغ أكبر من المتبقي على الفاتورة — المتبقي: {n}',uploading:'جارٍ رفع المرفقات ({n})…',txSaved:'تم تسجيل الحركة ✅ المتبقي الآن: {n}',detTxT:'تفاصيل الحركة',onInv:'على فاتورة',lbMethod:'طريقة الدفع',lbRef:'المرجع',lbUserL:'المستخدم',lbTs:'وقت التسجيل',attsOf:'📎 المرفقات ({n})',noAttsS:'لا توجد مرفقات على هذه الحركة',btnPrev:'👁 معاينة',btnDl:'⬇️ تحميل',btnDelTx:'🗑️ حذف الحركة',btnDlM:'⬇️ تحميل الملف',mediaNoPrev:'لا تتوفر معاينة لهذا النوع',thTxDate:'التاريخ',thTxInv:'الفاتورة',thTxCust:'العميل',thTxType:'النوع',thTxAmt:'المبلغ',thTxMethod:'الطريقة',thTxRef:'المرجع',thTxAtt:'مرفقات',thTxUser:'المستخدم',thTxAct:'',noTx:'لا توجد حركات',totTx:'الإجمالي — {n} حركة',txSearch:'🔍 بحث…',fAllTypes:'كل الأنواع',from:'إلى',custSearch:'🔍 بحث عن عميل…',phNewCust:'اسم عميل جديد',btnAddCust:'＋ إضافة عميل',thCustN:'العميل',thInvs:'الفواتير',thTotC:'الإجمالي',thColC:'المحصل',thRemC:'المتبقي',thLateC:'متأخرات',thPct:'نسبة التحصيل',thActs:'إجراءات',noCust:'لا يوجد عملاء',btnStmt:'📑 كشف حساب',eCustName:'اكتب اسم العميل',eCustEx:'العميل موجود بالفعل',custAdded:'تمت إضافة العميل ✅',stmtT:'📑 كشف حساب عميل',stmtP:'اختر العميل لعرض كشف رسمي جاهز للطباعة والتسليم',stmtSearch:'🔍 ابحث باسم العميل…',btnShow:'عرض الكشف',pickCust:'اختر عميلًا من القائمة',btnBackC:'← رجوع للعملاء',pdfAr:'📄 PDF عربي',pdfEn:'📄 PDF English',lbClient:'العميل:',lbIssue:'تاريخ الإصدار:',lbPeriod:'الفترة:',lbPrep:'أُعد بواسطة:',perAll:'كل الفترات',perThis:'عام {y}',perLast:'عام {y}',s1:'أولًا: الفواتير ({n})',s2:'ثانيًا: سجل المدفوعات والخصومات ({n})',noInvP:'لا توجد فواتير في هذه الفترة',noTxP:'لا توجد حركات في هذه الفترة',thM:'م',thProjS:'المشروع / الخدمة',thBayan:'البيان',totW:'الإجمالي',stmtS1:'كشف حساب عميل — مطابقة أرصدة',repAgingT:'📅 ملخص التقادم — المتبقي {n} ج.م',repDonut:'🥧 توزيع المتأخرات',repTop:'👥 أكبر 10 عملاء مديونية',thBucket:'الفئة العمرية',thCount:'عدد الفواتير',thRemR:'المتبقي',thPctR:'النسبة',logSearch:'🔍 بحث في السجل…',thTime:'الوقت',thUserA:'المستخدم',thAct:'الإجراء',thDet:'التفاصيل',thInvL:'الفاتورة',noLogL:'لا يوجد سجل',setCoT:'🏢 هوية الشركة',coAr:'اسم الشركة — عربي (يظهر في الخطاب العربي وكشوف الحساب)',coEn:'Company Name — English (يظهر في الخطاب الإنجليزي)',coAddrAr:'عنوان الشركة — عربي (رأس الخطاب العربي)',coAddrEn:'Company Address — English (رأس الخطاب الإنجليزي)',coLogoT:'شعار الشركة',btnUpLogo:'📤 رفع شعار جديد',btnRmLogo:'إزالة الشعار',btnSaveCo:'حفظ هوية الشركة',setMigT:'📥 ترحيل البيانات من النظام القديم',setMigP:'استيراد الفواتير والحركات والعملاء من Google Sheet القديم — للنظام الفاضي فقط، ومرة واحدة.',migKey:'مفتاح الترحيل (Migration Key)',phMigKey:'المفتاح اللي حطيته في Code.gs',btnMig:'📥 استيراد البيانات الآن',setPermT:'🛡️ الصلاحيات والأجهزة',setPermP:'إدارة الأجهزة والموافقات والحجب من لوحة: admin.html — متاحة لـ Admin فقط.',setDataT:'🗂️ مركز البيانات',cInv:'عدد الفواتير',cTx:'عدد الحركات',cCust:'عدد العملاء',cLog:'سجلات النظام',btnWipe:'🗑️ إعادة تهيئة قاعدة البيانات',wipeHint:'إجراء حساس جدًا — يتطلب تأكيدًا كتابيًا.',wipeUser:'🔒 إعادة التهيئة متاحة لـ Admin فقط.',eLogoBig:'حجم الشعار كبير — اختر صورة أقل من 3MB',logoUpd:'تم تحديث شعار الشركة ✅',rmLogoT:'إزالة الشعار',rmLogoM:'سيتم الرجوع للشعار الافتراضي. متأكد؟',rmBtn:'إزالة',logoRm:'تمت الإزالة',coSaved:'تم الحفظ ✅',migRead:'جارٍ قراءة البيانات القديمة…',migStep:'استيراد… {n} سجل',migDone:'تم الاستيراد بنجاح 🎉',migLog:'من النظام القديم: {i} فاتورة، {t} حركة',wipeT:'إعادة تهيئة قاعدة البيانات',wipeM:'سيتم مسح <b>كل</b> الفواتير والحركات والعملاء والسجل نهائيًا ولا يمكن التراجع.<br><br>للتأكيد اكتب بالحرف: <b>مسح نهائي</b>',wipeBtn:'تنفيذ المسح',wipeWord:'مسح نهائي',wipeOk:'تمت إعادة التهيئة',roleAdminL:'Admin',roleUserL:'Employee',popBlocked:'المتصفح منع النافذة المنبثقة — اسمح بها ثم أعد المحاولة',eHasData:'توجد بيانات بالفعل — الاستيراد للنظام الفاضي فقط',svcErr:'خدمة الإيميل رجعت ردًا غير متوقع (HTTP {s}) — راجع رابط النشر SVC_URL'},
-en:{sub:'Collection & Invoices Management System',luser:'Username',lpass:'Password',phUser:'e.g. Hamouda',remember:'Remember me — automatic sign-in next time',btnQuick:'Sign In',btnEmail:'🔐 First time? Register by email',emailLb:'Work email',btnSend:'Send verification code ←',btnBack:'Back to quick sign-in',otpMsg:'Enter the code sent to',btnVerify:'Verify ←',btnResend:'Resend code',btnChEmail:'Change email',crMsg1:'Verified',crMsg2:'Create an easy username and password for quick sign-in',crUser:'Username (short & easy)',phMin4:'At least 4 characters',crPass2:'Confirm password',phRePass:'Re-type password',crRem:'Remember me on this device',btnCreate:'Create account & sign in',pTitle:'Awaiting admin approval',pMsg:'Your email is verified, but this device is new. You will gain access once the admin approves it from the control panel.',btnRecheck:'🔄 Check status',btnChAcc:'Change account',bTitle:'Access denied',bMsg:'This device is blocked or the account is suspended — contact the admin.',btnBack2:'Back',eUserPass:'Enter username and password',eUserNo:'Username not found — register by email first',eBlocked:'This account is suspended — contact the admin',ePassBad:'Incorrect password',eEmail:'Enter a valid email',eCode:'Enter the 6-digit code',eUMin4:'Password must be at least 4 characters',eUMM:'Passwords do not match',eUName:'Enter a username',eUTaken:'Username already taken — choose another',eSess:'Session expired — register by email again',conn:'Online',logout:'Logout',logoutSm:'Exit',lT:'Logout',lM:'Sign out of the system?',lYes:'Yes, logout',navDash:'🏠 Home',navInv:'🧾 Invoices',navTx:'🔖 Transactions',navCust:'👥 Customers',navRep:'📊 Reports',navLog:'🕘 Log',navSet:'⚙️ Settings',roleAdmin:'Admin',roleEmp:'Employee',btnMyPhoto:'📷 Change my photo',btnDelPhoto:'🗑️ Delete my photo',mBusy:'Operation in progress — one moment…',welcome:'Welcome',refreshed:'Data refreshed ✅',newDev:'New device — email verification required',pendNew:'Email verified — the new device is awaiting admin approval',takeOk:'Welcome, system owner ⭐',takeCreate:'Welcome, system owner ⭐ — create a username and password for quick sign-in',devOther:'This device is already registered to: {em} — devices are bound to one account. If you are the system owner, sign in with the owner email, or contact the admin.',devOther2:'This device is approved for another user ({em}) — devices cannot be moved between accounts without admin approval.',devApproved:'Device approved — sign in with username and password',avUpd:'Your photo has been updated ✅',avBig:'Choose an image under 5MB',delAvT:'Delete profile photo',delAvM:'Your photo will be deleted and replaced by your initial. Sure?',delBtn:'Delete',avDel:'Photo deleted ✅',kTotal:'Total invoices value',kCollected:'Total collected',kRem:'Outstanding',kLate:'Total overdue',kCount:'Invoice count',kPct:'Collection rate',dAging:'📅 Aging of outstanding',dMonth:'📈 Invoices vs collections — last 6 months',dLateT:'🔥 Top overdue invoices',dFeed:'🕘 Recent activity',dEmptyT:'Start your collection journey',dEmptyP:'Add your first invoice or import your old data from Settings',dEmptyAdd:'＋ Add first invoice',dEmptyImp:'📥 Import',noLate:'No overdue 🎉',invSearch:'🔍 Search: invoice no / customer / project / desc / ref…',fAllCust:'All customers',fAllSt:'All statuses',fOpen:'Outstanding',fLateS:'Overdue',fPaidS:'Paid',fAllBk:'All aging buckets',btnExcel:'⬇️ Excel',btnNewInv:'＋ New invoice',thNo:'Invoice #',thCust:'Customer',thProj:'Project',thIDate:'Invoice date',thDDate:'Due date',thTot:'Total',thTax:'Tax%',thCol:'Collected',thRem:'Remaining',thColl:'Progress',thSt:'Status',thL8:'Delay',thAct:'',noMatch:'No matching invoices',totInv:'Total — {n} invoices',bk_b0:'Not due',bk_b30:'0-30',bk_b60:'31-60',bk_b90:'61-90',bk_b180:'91-180',bk_b360:'181-360',bk_b365:'Over a year',stOpen:'Outstanding',stPaid:'Fully paid',stLate:'Overdue',stOverP:'⚠️ Over by ',stDueN:'No due date',dToday:'🟢 Due today',dFuture:'🟢 Not due — {n} days left',dLateD:'{ic} overdue {n} days',mInvNew:'New invoice',mInvEdit:'Edit invoice {n}',fInvNo:'Invoice number *',phInvNo:'e.g. 1001',fCust:'Customer *',phCust:'Type or pick a customer',fProj:'Project',phProj:'e.g. Bank cards project',fDesc:'Service description (service / month)',phDesc:'e.g. Card management fees — Jan 2026',fIDate:'Invoice date (optional)',fDDate:'Due date (optional)',fBefore:'Amount before tax *',fRate:'Tax rate %',fTotal:'Total after tax (auto)',fTotalH:'Total = before-tax + tax — used for remaining & collection',fNotes:'Notes',btnSaveInv:'Save invoice',eInvNo:'Invoice number is required',eInvCust:'Customer name is required',eInvAmt:'Invoice value must be greater than zero',eInvDup:'Invoice number already exists: {n}',invSaved:'Invoice saved ✅',invEdited:'Invoice updated ✅',detT:'Invoice details',lbProj:'Project',lbDesc:'Service description',lbLate:'Days overdue',lbBy:'Created by',lbBefore:'Before tax',lbTax:'Tax',lbTotal:'Total',lbCol:'Collected',lbRem:'Remaining',lbPct:'Progress',lbNotes:'Notes',day:' days',btnTx:'💵 Record transaction',btnEdit:'✏️ Edit',btnDelInv:'🗑️ Delete invoice',txOf:'🔖 Invoice transactions ({n})',noTxS:'No transactions yet — nothing collected',invLog:'🕘 Invoice log',noLogS:'No log',delInvT:'Delete invoice',delInvM:'Invoice <b>{n}</b> and all its transactions will be deleted permanently. Sure?',delInvBtn:'Delete permanently',delInvOk:'Invoice deleted',delTxT:'Delete transaction',delTxM:'Delete this transaction permanently? Remaining adjusts automatically.',delTxOk:'Transaction deleted',confType:'Type to confirm: {w}',confTypeP:'Type the phrase',confErr:'Phrase does not match — type: {w}',confOkB:'Confirm',confCancel:'Cancel',mTxT:'Record transaction on invoice',fTxType:'Transaction type *',fTxAmt:'Amount *',fTxDate:'Date',fTxMethod:'Payment method',fTxRef:'Reference',refReceipt:'Receipt / transfer no.',refWHT:'WHT notice no.',refRef:'Reference / number',fTxNotes:'Notes',fTxAtts:'Attachments — images / PDF (transfer proof, statement, deduction notice…)',btnAttach:'📎 Attach files',noAtts:'No attachments yet — you may attach any number of images or PDFs (up to 8MB each)',btnSaveTx:'Save transaction',txMax:'Maximum amount: {n}',eTxAmt:'Enter a valid amount',eTxOver:'Amount exceeds invoice remaining — remaining: {n}',uploading:'Uploading attachments ({n})…',txSaved:'Transaction saved ✅ Remaining now: {n}',detTxT:'Transaction details',onInv:'on invoice',lbMethod:'Payment method',lbRef:'Reference',lbUserL:'User',lbTs:'Recorded at',attsOf:'📎 Attachments ({n})',noAttsS:'No attachments on this transaction',btnPrev:'👁 Preview',btnDl:'⬇️ Download',btnDelTx:'🗑️ Delete transaction',btnDlM:'⬇️ Download file',mediaNoPrev:'No preview available for this type',thTxDate:'Date',thTxInv:'Invoice',thTxCust:'Customer',thTxType:'Type',thTxAmt:'Amount',thTxMethod:'Method',thTxRef:'Reference',thTxAtt:'Atts',thTxUser:'User',thTxAct:'',noTx:'No transactions',totTx:'Total — {n} transactions',txSearch:'🔍 Search…',fAllTypes:'All types',from:'to',custSearch:'🔍 Search customer…',phNewCust:'New customer name',btnAddCust:'＋ Add customer',thCustN:'Customer',thInvs:'Invoices',thTotC:'Total',thColC:'Collected',thRemC:'Remaining',thLateC:'Overdue',thPct:'Collection rate',thActs:'Actions',noCust:'No customers',btnStmt:'📑 Statement',eCustName:'Enter customer name',eCustEx:'Customer already exists',custAdded:'Customer added ✅',stmtT:'📑 Customer statement',stmtP:'Pick a customer to view a print-ready official statement',stmtSearch:'🔍 Search by customer…',btnShow:'Show statement',pickCust:'Pick a customer from the list',btnBackC:'← Back to customers',pdfAr:'📄 PDF عربي',pdfEn:'📄 PDF English',lbClient:'Customer:',lbIssue:'Issue date:',lbPeriod:'Period:',lbPrep:'Prepared by:',perAll:'All periods',perThis:'Year {y}',perLast:'Year {y}',s1:'First: Invoices ({n})',s2:'Second: Payments & deductions log ({n})',noInvP:'No invoices in this period',noTxP:'No transactions in this period',thM:'#',thProjS:'Project / Service',thBayan:'Description',totW:'Total',stmtS1:'Customer statement — balance confirmation',repAgingT:'📅 Aging summary — outstanding {n} EGP',repDonut:'🥧 Overdue distribution',repTop:'👥 Top 10 indebted customers',thBucket:'Aging bucket',thCount:'Invoices',thRemR:'Outstanding',thPctR:'Share',logSearch:'🔍 Search log…',thTime:'Time',thUserA:'User',thAct:'Action',thDet:'Details',thInvL:'Invoice',noLogL:'No log',setCoT:'🏢 Company identity',coAr:'Company name — Arabic (Arabic letterhead & statements)',coEn:'Company Name — English (English letterhead)',coAddrAr:'Company address — Arabic',coAddrEn:'Company address — English',coLogoT:'Company logo',btnUpLogo:'📤 Upload new logo',btnRmLogo:'Remove logo',btnSaveCo:'Save company identity',setMigT:'📥 Migrate data from the old system',setMigP:'Import invoices, transactions and customers from the old Google Sheet — empty system only, once.',migKey:'Migration key',phMigKey:'The key you set in Code.gs',btnMig:'📥 Import data now',setPermT:'🛡️ Permissions & devices',setPermP:'Manage devices, approvals and blocks from the panel: admin.html — Admin only.',setDataT:'🗂️ Data center',cInv:'Invoices',cTx:'Transactions',cCust:'Customers',cLog:'System logs',btnWipe:'🗑️ Reset database',wipeHint:'Very sensitive action — requires written confirmation.',wipeUser:'🔒 Reset is available to Admin only.',eLogoBig:'Logo too large — choose an image under 3MB',logoUpd:'Company logo updated ✅',rmLogoT:'Remove logo',rmLogoM:'Will revert to the default logo. Sure?',rmBtn:'Remove',logoRm:'Removed',coSaved:'Saved ✅',migRead:'Reading old data…',migStep:'Importing… {n} records',migDone:'Import completed 🎉',migLog:'From old system: {i} invoices, {t} transactions',wipeT:'Reset database',wipeM:'<b>ALL</b> invoices, transactions, customers and logs will be deleted permanently. Type to confirm: <b>مسح نهائي</b>',wipeBtn:'Execute wipe',wipeWord:'مسح نهائي',wipeOk:'Database reset',roleAdminL:'Admin',roleUserL:'Employee',popBlocked:'The browser blocked the popup — allow it and retry',eHasData:'Data already exists — import is for an empty system only',svcErr:'Email service returned an unexpected response (HTTP {s}) — check SVC_URL deployment link'}
+ar:{sub:'نظام إدارة التحصيل والفواتير',luser:'اسم المستخدم',lpass:'كلمة المرور',phUser:'مثال: Hamouda',remember:'تذكرني — دخول تلقائيًا في المرات الجاية',btnQuick:'دخول النظام',btnEmail:'🔐 أول مرة؟ تسجيل بالبريد الإلكتروني',emailLb:'البريد الإلكتروني الوظيفي',btnSend:'إرسال كود التحقق ←',btnBack:'رجوع للدخول السريع',otpMsg:'اكتب كود التحقق المرسل إلى',btnVerify:'تحقق ←',btnResend:'إعادة إرسال الكود',btnChEmail:'تغيير البريد',crMsg1:'تم التحقق من',crMsg2:'أنشئ اسم مستخدم سهل وكلمة مرور للدخول السريع',crUser:'اسم المستخدم (سهل ومختصر)',phMin4:'4 أحرف على الأقل',crPass2:'تأكيد كلمة المرور',phRePass:'أعد كتابة كلمة المرور',crRem:'تذكرني على هذا الجهاز',btnCreate:'إنشاء الحساب والدخول',pTitle:'بانتظار موافقة الإدارة',pMsg:'تم التحقق من بريدك، لكن هذا الجهاز جديد على النظام. سيتمكن من الدخول أول ما توافق الإدارة على الجهاز من لوحة التحكم.',btnRecheck:'🔄 تحديث الحالة',btnChAcc:'تغيير الحساب',bTitle:'تم رفض الوصول',bMsg:'هذا الجهاز محظور أو الحساب موقوف — تواصل مع الإدارة.',btnBack2:'رجوع',eUserPass:'اكتب اسم المستخدم وكلمة المرور',eUserNo:'اسم المستخدم غير موجود — سجل أول مرة بالبريد الإلكتروني',eBlocked:'هذا الحساب موقوف — تواصل مع الإدارة',ePassBad:'كلمة المرور غير صحيحة',eEmail:'اكتب بريدًا إلكترونيًا صحيحًا',eCode:'اكتب الكود المكوّن من 6 أرقام',eUMin4:'كلمة المرور 4 أحرف على الأقل',eUMM:'كلمتا المرور غير متطابقتين',eUName:'اكتب اسم مستخدم',eUTaken:'اسم المستخدم مستخدم — اختار اسمًا آخر',eSess:'انتهت الجلسة — سجل بالبريد من جديد',conn:'متصل',logout:'تسجيل الخروج',logoutSm:'خروج',lT:'تسجيل الخروج',lM:'هل تريد تسجيل الخروج من النظام؟',lYes:'نعم، خروج',navDash:'🏠 الرئيسية',navInv:'🧾 الفواتير',navTx:'🔖 الحركات',navCust:'👥 العملاء',navRep:'📊 التقارير',navLog:'🕘 السجل',navSet:'⚙️ الإعدادات',roleAdmin:'Admin',roleEmp:'Employee',btnMyPhoto:'📷 تغيير صورتي',btnDelPhoto:'🗑️ حذف صورتي',mBusy:'يوجد عملية جارية — لحظة…',welcome:'أهلاً بيك يا',refreshed:'تم تحديث البيانات ✅',newDev:'جهاز جديد — يلزم تحقق بالبريد',pendNew:'تم التحقق من بريدك — الجهاز الجديد بانتظار موافقة الإدارة',takeOk:'مرحبًا مالك النظام ⭐',takeCreate:'مرحبًا مالك النظام ⭐ — أنشئ اسم مستخدم وكلمة مرور للدخول السريع',devOther:'هذا الجهاز مسجل بالفعل للمستخدم: {em} — الأجهزة تُربط بحساب واحد. لو انت مالك النظام سجّل بإيميل المالك، أو تواصل مع الإدارة.',devOther2:'هذا الجهاز معتمد لمستخدم آخر ({em}) — الأجهزة لا تُنقل بين الحسابات إلا بموافقة الإدارة.',devApproved:'جهازك معتمد — سجّل باسم المستخدم وكلمة المرور',avUpd:'تم تحديث صورتك الشخصية ✅',avBig:'اختر صورة أقل من 5MB',delAvT:'حذف الصورة الشخصية',delAvM:'سيتم حذف صورتك والرجوع للحرف الأول من اسمك. متأكد؟',delBtn:'حذف',avDel:'تم حذف الصورة ✅',logLogin:'دخول النظام',logLoginQ:'دخول سريع',logLoginM:'دخول بالبريد الإلكتروني',acctPwT:'🔑 تغيير كلمة المرور',oldPw:'كلمة المرور الحالية',newPw:'كلمة المرور الجديدة',confPw:'تأكيد كلمة المرور الجديدة',btnPwSave:'حفظ كلمة المرور الجديدة',acctUT:'✏️ تغيير اسم المستخدم',newU:'اسم المستخدم الجديد',oldPwC:'كلمة المرور الحالية (للتأكيد)',btnUSave:'حفظ اسم المستخدم',eOldPw:'كلمة المرور الحالية غير صحيحة',eNewMin:'كلمة المرور الجديدة 4 أحرف على الأقل',eNewMM:'كلمتا المرور الجديدتان غير متطابقتين',pwChanged:'تم تغيير كلمة المرور ✅',uChanged:'تم تغيير اسم المستخدم ✅',eUNew:'اكتب اسم المستخدم الجديد',eUOld:'اكتب كلمة المرور الحالية للتأكيد',attBig:'مرفق أكبر من 8MB: {n}',kTotal:'إجمالي قيمة الفواتير',kCollected:'إجمالي المحصل',kRem:'المتبقي للتحصيل',kLate:'إجمالي المتأخرات',kCount:'عدد الفواتير',kPct:'نسبة التحصيل',dAging:'📅 التقادم (Aging) للمتبقي',dMonth:'📈 الفواتير مقابل التحصيل — آخر 6 شهور',dLateT:'🔥 أعلى الفواتير المتأخرة',dFeed:'🕘 آخر الأنشطة',dEmptyT:'ابدأ رحلة التحصيل',dEmptyP:'أضف أول فاتورة أو استورد بياناتك القديمة من الإعدادات',dEmptyAdd:'＋ إضافة أول فاتورة',dEmptyImp:'📥 استيراد',noLate:'لا توجد متأخرات 🎉',invSearch:'🔍 بحث: رقم فاتورة / عميل / مشروع / وصف / مرجع…',fAllCust:'كل العملاء',fAllSt:'كل الحالات',fOpen:'قيد التحصيل',fLateS:'متأخرة',fPaidS:'مسددة',fAllBk:'كل الفئات العمرية',btnExcel:'⬇️ Excel',btnNewInv:'＋ فاتورة جديدة',thNo:'رقم الفاتورة',thCust:'العميل',thProj:'المشروع',thIDate:'تاريخ الفاتورة',thDDate:'الاستحقاق',thTot:'الإجمالي',thTax:'ضريبة%',thCol:'المحصل',thRem:'المتبقي',thColl:'التحصيل',thSt:'الحالة',thL8:'التأخير',noMatch:'لا توجد فواتير مطابقة',totInv:'الإجمالي — {n} فاتورة',bk_b0:'لم تستحق',bk_b30:'0-30',bk_b60:'31-60',bk_b90:'61-90',bk_b180:'91-180',bk_b360:'181-360',bk_b365:'أكثر من سنة',stOpen:'قيد التحصيل',stPaid:'مسددة بالكامل',stLate:'متأخرة',stOverP:'⚠️ زيادة ',stDueN:'بدون تاريخ استحقاق',dToday:'🟢 تستحق اليوم',dFuture:'🟢 لم تستحق — باقي {n} يوم',dLateD:'{ic} متأخرة {n} يوم',mInvNew:'فاتورة جديدة',mInvEdit:'تعديل الفاتورة {n}',fInvNo:'رقم الفاتورة *',phInvNo:'مثال: 1001',fCust:'العميل *',phCust:'اكتب أو اختر العميل',fProj:'المشروع',phProj:'مثال: مشروع كروت بنك مصر',fDesc:'وصف الخدمة (الخدمة / الشهر)',phDesc:'مثال: رسوم إدارة كروت — شهر يناير 2026',fIDate:'تاريخ الفاتورة (اختياري)',fDDate:'تاريخ الاستحقاق (اختياري)',fBefore:'القيمة قبل الضريبة *',fRate:'نسبة الضريبة %',fTotal:'الإجمالي بعد الضريبة (تلقائي)',fTotalH:'الإجمالي = القيمة قبل الضريبة + الضريبة — وبه يُحسب المتبقي والتحصيل',fNotes:'ملاحظات',btnSaveInv:'حفظ الفاتورة',eInvNo:'رقم الفاتورة مطلوب',eInvCust:'اسم العميل مطلوب',eInvAmt:'قيمة الفاتورة يجب أن تكون أكبر من صفر',eInvDup:'رقم الفاتورة موجود بالفعل: {n}',invSaved:'تم حفظ الفاتورة ✅',invEdited:'تم تعديل الفاتورة ✅',detT:'تفاصيل الفاتورة',lbProj:'المشروع',lbDesc:'وصف الخدمة',lbLate:'أيام التأخير',lbBy:'أُضيفت بواسطة',lbBefore:'قبل الضريبة',lbTax:'الضريبة',lbTotal:'الإجمالي',lbCol:'المحصل',lbRem:'المتبقي',lbPct:'التحصيل',lbNotes:'ملاحظات',day:' يوم',btnTx:'💵 تسجيل حركة',btnEdit:'✏️ تعديل',btnDelInv:'🗑️ حذف الفاتورة',txOf:'🔖 حركات الفاتورة ({n})',noTxS:'لا توجد حركات بعد — الفاتورة لم يُحصَّل عليها شيء',invLog:'🕘 سجل الفاتورة',noLogS:'لا يوجد سجل',delInvT:'حذف الفاتورة',delInvM:'سيتم حذف الفاتورة <b>{n}</b> وكل حركاتها نهائيًا. متأكد؟',delInvBtn:'حذف نهائي',delInvOk:'تم حذف الفاتورة',delTxT:'حذف حركة',delTxM:'هل تريد حذف هذه الحركة نهائيًا؟ سيُعدَّل المتبقي تلقائيًا.',delTxOk:'تم حذف الحركة',confType:'للتأكيد اكتب بالحرف: {w}',confTypeP:'للتأكيد اكتب العبارة',confErr:'العبارة غير مطابقة — اكتب: {w}',confOkB:'تأكيد',confCancel:'إلغاء',mTxT:'تسجيل حركة على الفاتورة',fTxType:'نوع الحركة *',fTxAmt:'المبلغ *',fTxDate:'التاريخ',fTxMethod:'طريقة الدفع',fTxRef:'المرجع',refReceipt:'رقم الإيصال / الحوالة',refWHT:'رقم إشعار الخصم',refRef:'المرجع / الرقم',fTxNotes:'ملاحظات',fTxAtts:'المرفقات — صور / PDF (إثبات تحويل، كشف حساب، إشعار خصم…)',btnAttach:'📎 إرفاق ملفات',noAtts:'لا مرفقات بعد — يمكنك إرفاق أي عدد من الصور أو ملفات PDF (حتى 8MB للملف)',btnSaveTx:'حفظ الحركة',txMax:'الحد الأقصى للمبلغ: {n}',eTxAmt:'اكتب مبلغ صحيح',eTxOver:'المبلغ أكبر من المتبقي على الفاتورة — المتبقي: {n}',uploading:'جارٍ رفع المرفقات ({n})…',txSaved:'تم تسجيل الحركة ✅ المتبقي الآن: {n}',detTxT:'تفاصيل الحركة',onInv:'على فاتورة',lbMethod:'طريقة الدفع',lbRef:'المرجع',lbUserL:'المستخدم',lbTs:'وقت التسجيل',attsOf:'📎 المرفقات ({n})',noAttsS:'لا توجد مرفقات على هذه الحركة',btnPrev:'👁 معاينة',btnDl:'⬇️ تحميل',btnDelTx:'🗑️ حذف الحركة',btnDlM:'⬇️ تحميل الملف',mediaNoPrev:'لا تتوفر معاينة لهذا النوع',thTxDate:'التاريخ',thTxInv:'الفاتورة',thTxCust:'العميل',thTxType:'النوع',thTxAmt:'المبلغ',thTxMethod:'الطريقة',thTxRef:'المرجع',thTxAtt:'مرفقات',thTxUser:'المستخدم',noTx:'لا توجد حركات',totTx:'الإجمالي — {n} حركة',txSearch:'🔍 بحث…',fAllTypes:'كل الأنواع',from:'إلى',custSearch:'🔍 بحث عن عميل…',phNewCust:'اسم عميل جديد',btnAddCust:'＋ إضافة عميل',thCustN:'العميل',thInvs:'الفواتير',thTotC:'الإجمالي',thColC:'المحصل',thRemC:'المتبقي',thLateC:'متأخرات',thPct:'نسبة التحصيل',thActs:'إجراءات',noCust:'لا يوجد عملاء',btnStmt:'📑 كشف حساب',eCustName:'اكتب اسم العميل',eCustEx:'العميل موجود بالفعل',custAdded:'تمت إضافة العميل ✅',stmtT:'📑 كشف حساب عميل',stmtP:'اختر العميل لعرض كشف رسمي جاهز للطباعة والتسليم',stmtSearch:'🔍 ابحث باسم العميل…',btnShow:'عرض الكشف',pickCust:'اختر عميلًا من القائمة',btnBackC:'← رجوع للعملاء',pdfAr:'📄 PDF عربي',pdfEn:'📄 PDF English',lbClient:'العميل:',lbIssue:'تاريخ الإصدار:',lbPeriod:'الفترة:',lbPrep:'أُعد بواسطة:',perAll:'كل الفترات',perThis:'عام {y}',perLast:'عام {y}',s1:'أولًا: الفواتير ({n})',s2:'ثانيًا: سجل المدفوعات والخصومات ({n})',noInvP:'لا توجد فواتير في هذه الفترة',noTxP:'لا توجد حركات في هذه الفترة',thM:'م',thProjS:'المشروع / الخدمة',thBayan:'البيان',totW:'الإجمالي',stmtS1:'كشف حساب عميل — مطابقة أرصدة',repAgingT:'📅 ملخص التقادم — المتبقي {n} ج.م',repDonut:'🥧 توزيع المتأخرات',repTop:'👥 أكبر 10 عملاء مديونية',thBucket:'الفئة العمرية',thCount:'عدد الفواتير',thRemR:'المتبقي',thPctR:'النسبة',logSearch:'🔍 بحث في السجل…',thTime:'الوقت',thUserA:'المستخدم',thAct:'الإجراء',thDet:'التفاصيل',thInvL:'الفاتورة',noLogL:'لا يوجد سجل',setCoT:'🏢 هوية الشركة',coAr:'اسم الشركة — عربي (يظهر في الخطاب العربي وكشوف الحساب)',coEn:'Company Name — English (يظهر في الخطاب الإنجليزي)',coAddrAr:'عنوان الشركة — عربي (رأس الخطاب العربي)',coAddrEn:'Company Address — English (رأس الخطاب الإنجليزي)',coLogoT:'شعار الشركة',btnUpLogo:'📤 رفع شعار جديد',btnRmLogo:'إزالة الشعار',btnSaveCo:'حفظ هوية الشركة',setMigT:'📥 ترحيل البيانات من النظام القديم',setMigP:'استيراد الفواتير والحركات والعملاء من Google Sheet القديم — للنظام الفاضي فقط، ومرة واحدة.',migKey:'مفتاح الترحيل (Migration Key)',phMigKey:'المفتاح اللي حطيته في Code.gs',btnMig:'📥 استيراد البيانات الآن',setPermT:'🛡️ الصلاحيات والأجهزة',setPermP:'إدارة الأجهزة والموافقات والحجب من لوحة: admin.html — متاحة لـ Admin فقط.',setDataT:'🗂️ مركز البيانات',cInv:'عدد الفواتير',cTx:'عدد الحركات',cCust:'عدد العملاء',cLog:'سجلات النظام',btnWipe:'🗑️ إعادة تهيئة قاعدة البيانات',wipeHint:'إجراء حساس جدًا — يتطلب تأكيدًا كتابيًا.',wipeUser:'🔒 إعادة التهيئة متاحة لـ Admin فقط.',eLogoBig:'حجم الشعار كبير — اختر صورة أقل من 3MB',logoUpd:'تم تحديث شعار الشركة ✅',rmLogoT:'إزالة الشعار',rmLogoM:'سيتم الرجوع للشعار الافتراضي. متأكد؟',rmBtn:'إزالة',logoRm:'تمت الإزالة',coSaved:'تم الحفظ ✅',migRead:'جارٍ قراءة البيانات القديمة…',migStep:'استيراد… {n} سجل',migDone:'تم الاستيراد بنجاح 🎉',migLog:'من النظام القديم: {i} فاتورة، {t} حركة',wipeT:'إعادة تهيئة قاعدة البيانات',wipeM:'سيتم مسح <b>كل</b> الفواتير والحركات والعملاء والسجل نهائيًا ولا يمكن التراجع.<br><br>للتأكيد اكتب بالحرف: <b>مسح نهائي</b>',wipeBtn:'تنفيذ المسح',wipeWord:'مسح نهائي',wipeOk:'تمت إعادة التهيئة',popBlocked:'المتصفح منع النافذة المنبثقة — اسمح بها ثم أعد المحاولة',eHasData:'توجد بيانات بالفعل — الاستيراد للنظام الفاضي فقط',svcErr:'خدمة الإيميل رجعت ردًا غير متوقع (HTTP {s}) — راجع رابط النشر SVC_URL'},
+en:{sub:'Collection & Invoices Management System',luser:'Username',lpass:'Password',phUser:'e.g. Hamouda',remember:'Remember me — automatic sign-in next time',btnQuick:'Sign In',btnEmail:'🔐 First time? Register by email',emailLb:'Work email',btnSend:'Send verification code ←',btnBack:'Back to quick sign-in',otpMsg:'Enter the code sent to',btnVerify:'Verify ←',btnResend:'Resend code',btnChEmail:'Change email',crMsg1:'Verified',crMsg2:'Create an easy username and password for quick sign-in',crUser:'Username (short & easy)',phMin4:'At least 4 characters',crPass2:'Confirm password',phRePass:'Re-type password',crRem:'Remember me on this device',btnCreate:'Create account & sign in',pTitle:'Awaiting admin approval',pMsg:'Your email is verified, but this device is new. You will gain access once the admin approves it from the control panel.',btnRecheck:'🔄 Check status',btnChAcc:'Change account',bTitle:'Access denied',bMsg:'This device is blocked or the account is suspended — contact the admin.',btnBack2:'Back',eUserPass:'Enter username and password',eUserNo:'Username not found — register by email first',eBlocked:'This account is suspended — contact the admin',ePassBad:'Incorrect password',eEmail:'Enter a valid email',eCode:'Enter the 6-digit code',eUMin4:'Password must be at least 4 characters',eUMM:'Passwords do not match',eUName:'Enter a username',eUTaken:'Username already taken — choose another',eSess:'Session expired — register by email again',conn:'Online',logout:'Logout',logoutSm:'Exit',lT:'Logout',lM:'Sign out of the system?',lYes:'Yes, logout',navDash:'🏠 Home',navInv:'🧾 Invoices',navTx:'🔖 Transactions',navCust:'👥 Customers',navRep:'📊 Reports',navLog:'🕘 Log',navSet:'⚙️ Settings',roleAdmin:'Admin',roleEmp:'Employee',btnMyPhoto:'📷 Change my photo',btnDelPhoto:'🗑️ Delete my photo',mBusy:'Operation in progress — one moment…',welcome:'Welcome',refreshed:'Data refreshed ✅',newDev:'New device — email verification required',pendNew:'Email verified — the new device is awaiting admin approval',takeOk:'Welcome, system owner ⭐',takeCreate:'Welcome, system owner ⭐ — create a username and password for quick sign-in',devOther:'This device is already registered to: {em} — devices are bound to one account. If you are the system owner, sign in with the owner email, or contact the admin.',devOther2:'This device is approved for another user ({em}) — devices cannot be moved between accounts without admin approval.',devApproved:'Device approved — sign in with username and password',avUpd:'Your photo has been updated ✅',avBig:'Choose an image under 5MB',delAvT:'Delete profile photo',delAvM:'Your photo will be deleted and replaced by your initial. Sure?',delBtn:'Delete',avDel:'Photo deleted ✅',logLogin:'System sign-in',logLoginQ:'Quick sign-in',logLoginM:'Email sign-in',acctPwT:'🔑 Change password',oldPw:'Current password',newPw:'New password',confPw:'Confirm new password',btnPwSave:'Save new password',acctUT:'✏️ Change username',newU:'New username',oldPwC:'Current password (to confirm)',btnUSave:'Save username',eOldPw:'Current password is incorrect',eNewMin:'New password must be at least 4 characters',eNewMM:'New passwords do not match',pwChanged:'Password changed ✅',uChanged:'Username changed ✅',eUNew:'Enter the new username',eUOld:'Enter current password to confirm',attBig:'Attachment over 8MB: {n}',kTotal:'Total invoices value',kCollected:'Total collected',kRem:'Outstanding',kLate:'Total overdue',kCount:'Invoice count',kPct:'Collection rate',dAging:'📅 Aging of outstanding',dMonth:'📈 Invoices vs collections — last 6 months',dLateT:'🔥 Top overdue invoices',dFeed:'🕘 Recent activity',dEmptyT:'Start your collection journey',dEmptyP:'Add your first invoice or import your old data from Settings',dEmptyAdd:'＋ Add first invoice',dEmptyImp:'📥 Import',noLate:'No overdue 🎉',invSearch:'🔍 Search: invoice no / customer / project / desc / ref…',fAllCust:'All customers',fAllSt:'All statuses',fOpen:'Outstanding',fLateS:'Overdue',fPaidS:'Paid',fAllBk:'All aging buckets',btnExcel:'⬇️ Excel',btnNewInv:'＋ New invoice',thNo:'Invoice #',thCust:'Customer',thProj:'Project',thIDate:'Invoice date',thDDate:'Due date',thTot:'Total',thTax:'Tax%',thCol:'Collected',thRem:'Remaining',thColl:'Progress',thSt:'Status',thL8:'Delay',noMatch:'No matching invoices',totInv:'Total — {n} invoices',bk_b0:'Not due',bk_b30:'0-30',bk_b60:'31-60',bk_b90:'61-90',bk_b180:'91-180',bk_b360:'181-360',bk_b365:'Over a year',stOpen:'Outstanding',stPaid:'Fully paid',stLate:'Overdue',stOverP:'⚠️ Over by ',stDueN:'No due date',dToday:'🟢 Due today',dFuture:'🟢 Not due — {n} days left',dLateD:'{ic} overdue {n} days',mInvNew:'New invoice',mInvEdit:'Edit invoice {n}',fInvNo:'Invoice number *',phInvNo:'e.g. 1001',fCust:'Customer *',phCust:'Type or pick a customer',fProj:'Project',phProj:'e.g. Bank cards project',fDesc:'Service description (service / month)',phDesc:'e.g. Card management fees — Jan 2026',fIDate:'Invoice date (optional)',fDDate:'Due date (optional)',fBefore:'Amount before tax *',fRate:'Tax rate %',fTotal:'Total after tax (auto)',fTotalH:'Total = before-tax + tax — used for remaining & collection',fNotes:'Notes',btnSaveInv:'Save invoice',eInvNo:'Invoice number is required',eInvCust:'Customer name is required',eInvAmt:'Invoice value must be greater than zero',eInvDup:'Invoice number already exists: {n}',invSaved:'Invoice saved ✅',invEdited:'Invoice updated ✅',detT:'Invoice details',lbProj:'Project',lbDesc:'Service description',lbLate:'Days overdue',lbBy:'Created by',lbBefore:'Before tax',lbTax:'Tax',lbTotal:'Total',lbCol:'Collected',lbRem:'Remaining',lbPct:'Progress',lbNotes:'Notes',day:' days',btnTx:'💵 Record transaction',btnEdit:'✏️ Edit',btnDelInv:'🗑️ Delete invoice',txOf:'🔖 Invoice transactions ({n})',noTxS:'No transactions yet — nothing collected',invLog:'🕘 Invoice log',noLogS:'No log',delInvT:'Delete invoice',delInvM:'Invoice <b>{n}</b> and all its transactions will be deleted permanently. Sure?',delInvBtn:'Delete permanently',delInvOk:'Invoice deleted',delTxT:'Delete transaction',delTxM:'Delete this transaction permanently? Remaining adjusts automatically.',delTxOk:'Transaction deleted',confType:'Type to confirm: {w}',confTypeP:'Type the phrase',confErr:'Phrase does not match — type: {w}',confOkB:'Confirm',confCancel:'Cancel',mTxT:'Record transaction on invoice',fTxType:'Transaction type *',fTxAmt:'Amount *',fTxDate:'Date',fTxMethod:'Payment method',fTxRef:'Reference',refReceipt:'Receipt / transfer no.',refWHT:'WHT notice no.',refRef:'Reference / number',fTxNotes:'Notes',fTxAtts:'Attachments — images / PDF (transfer proof, statement, deduction notice…)',btnAttach:'📎 Attach files',noAtts:'No attachments yet — you may attach any number of images or PDFs (up to 8MB each)',btnSaveTx:'Save transaction',txMax:'Maximum amount: {n}',eTxAmt:'Enter a valid amount',eTxOver:'Amount exceeds invoice remaining — remaining: {n}',uploading:'Uploading attachments ({n})…',txSaved:'Transaction saved ✅ Remaining now: {n}',detTxT:'Transaction details',onInv:'on invoice',lbMethod:'Payment method',lbRef:'Reference',lbUserL:'User',lbTs:'Recorded at',attsOf:'📎 Attachments ({n})',noAttsS:'No attachments on this transaction',btnPrev:'👁 Preview',btnDl:'⬇️ Download',btnDelTx:'🗑️ Delete transaction',btnDlM:'⬇️ Download file',mediaNoPrev:'No preview available for this type',thTxDate:'Date',thTxInv:'Invoice',thTxCust:'Customer',thTxType:'Type',thTxAmt:'Amount',thTxMethod:'Method',thTxRef:'Reference',thTxAtt:'Atts',thTxUser:'User',noTx:'No transactions',totTx:'Total — {n} transactions',txSearch:'🔍 Search…',fAllTypes:'All types',from:'to',custSearch:'🔍 Search customer…',phNewCust:'New customer name',btnAddCust:'＋ Add customer',thCustN:'Customer',thInvs:'Invoices',thTotC:'Total',thColC:'Collected',thRemC:'Remaining',thLateC:'Overdue',thPct:'Collection rate',thActs:'Actions',noCust:'No customers',btnStmt:'📑 Statement',eCustName:'Enter customer name',eCustEx:'Customer already exists',custAdded:'Customer added ✅',stmtT:'📑 Customer statement',stmtP:'Pick a customer to view a print-ready official statement',stmtSearch:'🔍 Search by customer…',btnShow:'Show statement',pickCust:'Pick a customer from the list',btnBackC:'← Back to customers',pdfAr:'📄 PDF عربي',pdfEn:'📄 PDF English',lbClient:'Customer:',lbIssue:'Issue date:',lbPeriod:'Period:',lbPrep:'Prepared by:',perAll:'All periods',perThis:'Year {y}',perLast:'Year {y}',s1:'First: Invoices ({n})',s2:'Second: Payments & deductions log ({n})',noInvP:'No invoices in this period',noTxP:'No transactions in this period',thM:'#',thProjS:'Project / Service',thBayan:'Description',totW:'Total',stmtS1:'Customer statement — balance confirmation',repAgingT:'📅 Aging summary — outstanding {n} EGP',repDonut:'🥧 Overdue distribution',repTop:'👥 Top 10 indebted customers',thBucket:'Aging bucket',thCount:'Invoices',thRemR:'Outstanding',thPctR:'Share',logSearch:'🔍 Search log…',thTime:'Time',thUserA:'User',thAct:'Action',thDet:'Details',thInvL:'Invoice',noLogL:'No log',setCoT:'🏢 Company identity',coAr:'Company name — Arabic (Arabic letterhead & statements)',coEn:'Company Name — English (English letterhead)',coAddrAr:'Company address — Arabic',coAddrEn:'Company address — English',coLogoT:'Company logo',btnUpLogo:'📤 Upload new logo',btnRmLogo:'Remove logo',btnSaveCo:'Save company identity',setMigT:'📥 Migrate data from the old system',setMigP:'Import invoices, transactions and customers from the old Google Sheet — empty system only, once.',migKey:'Migration key',phMigKey:'The key you set in Code.gs',btnMig:'📥 Import data now',setPermT:'🛡️ Permissions & devices',setPermP:'Manage devices, approvals and blocks from the panel: admin.html — Admin only.',setDataT:'🗂️ Data center',cInv:'Invoices',cTx:'Transactions',cCust:'Customers',cLog:'System logs',btnWipe:'🗑️ Reset database',wipeHint:'Very sensitive action — requires written confirmation.',wipeUser:'🔒 Reset is available to Admin only.',eLogoBig:'Logo too large — choose an image under 3MB',logoUpd:'Company logo updated ✅',rmLogoT:'Remove logo',rmLogoM:'Will revert to the default logo. Sure?',rmBtn:'Remove',logoRm:'Removed',coSaved:'Saved ✅',migRead:'Reading old data…',migStep:'Importing… {n} records',migDone:'Import completed 🎉',migLog:'From old system: {i} invoices, {t} transactions',wipeT:'Reset database',wipeM:'<b>ALL</b> invoices, transactions, customers and logs will be deleted permanently. Type to confirm: <b>مسح نهائي</b>',wipeBtn:'Execute wipe',wipeWord:'مسح نهائي',wipeOk:'Database reset',popBlocked:'The browser blocked the popup — allow it and retry',eHasData:'Data already exists — import is for an empty system only',svcErr:'Email service returned an unexpected response (HTTP {s}) — check SVC_URL deployment link'}
 };
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])||I18N.ar[k]||k;if(vars){Object.keys(vars).forEach(v=>{s=s.replace('{'+v+'}',vars[v]);});}return s;}
 function loc(){return LANG==='ar'?'ar-EG':'en-GB';}
@@ -610,7 +625,7 @@ function deviceFp(){
   if(!did){did='D'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);lsSet('ec_did',did);}
   return Promise.resolve(did);
 }
-/* ⭐ موقع GPS دقيق — نافذة الإذن تظهر مرة واحدة تلقائيًا عند أول تسجيل جهاز */
+/* GPS — نافذة الإذن مرة واحدة عند أول تسجيل جهاز */
 function getGps_(){
   return new Promise(res=>{
     if(!navigator.geolocation)return res(null);
@@ -651,7 +666,7 @@ async function deviceInfo(){
   const d={deviceType:dtype,browser:br,os:os,model:model,gpu:gpu,ram:ram,net:net,
     screen:screen.width+'×'+screen.height,lang:navigator.language,tz:Intl.DateTimeFormat().resolvedOptions().timeZone||'',
     cores:(navigator.hardwareConcurrency||0)+(LANG==='ar'?' نواة':' cores')};
-  const gpsP=getGps_(); /* GPS بالتوازي مع IP — التسجيل ما يتعطلش */
+  const gpsP=getGps_();
   try{const r=await fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(5000)});const j=await r.json();d.ip=j.ip||'—';d.loc=(j.city?j.city+', ':'')+(j.country_name||'');d.isp=j.org||'—';d.lat=(typeof j.latitude==='number')?j.latitude:null;d.lon=(typeof j.longitude==='number')?j.longitude:null;}catch(e){d.ip='—';d.loc='—';d.isp='—';d.lat=null;d.lon=null;}
   try{const g=await gpsP;if(g&&typeof g.latitude==='number'){d.gpsLat=Math.round(g.latitude*1e6)/1e6;d.gpsLon=Math.round(g.longitude*1e6)/1e6;d.gpsAcc=Math.round(g.accuracy);}}catch(e){}
   return d;
@@ -699,6 +714,11 @@ async function ensureAdminUser_(email){
   if(d.status==='blocked'){await ref.update({status:'active'});d.status='active';}
   return {email:email,name:d.name||email.split('@')[0],role:'admin'};
 }
+/* ⭐ M7: السجل — كل حركة بمستخدمها وتفاصيلها والوقت — لا يعطل العملية أبدًا */
+function log_(user,action,detail,invNo){
+  return db.collection('logs').add({ts:new Date(),user:user||'—',action:action||'',detail:detail||'',invNo:invNo||''}).catch(e=>console.warn('[ECP] log:',e));
+}
+/* دخول سريع */
 async function quickLogin(){
   const uname=$('q_user').value.trim();
   const pass=$('q_pass').value;
@@ -718,13 +738,14 @@ async function quickLogin(){
       if(!doc.exists||oldEmail!==u.email||doc.data().status!=='approved'){
         const info=doc.exists?(doc.data().info||await deviceInfo()):await deviceInfo();
         await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:u.email,name:navigator.userAgent.slice(0,90),info:info,status:'approved',requestedAt:(doc.exists&&doc.data().requestedAt)||new Date(),approvedAt:new Date(),approvedBy:'auto (مالك النظام)',lastUsed:new Date()});
-        if(oldEmail&&oldEmail!==u.email)log_(u.name||uname,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail+' — تم الاستحواذ تلقائيًا عند الدخول السريع');
+        if(oldEmail&&oldEmail!==u.email)await log_(u.name||uname,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail+' — تم الاستحواذ تلقائيًا عند الدخول السريع','');
       }else{
         await db.collection('devices').doc(FP).update({lastUsed:new Date()});
       }
       ME={email:u.email,username:u.username||uname,name:u.name||uname,role:'admin',avatarId:u.avatarId||'',pass:pass};
       rememberMe($('q_rem'));
       showLoading(false);
+      await log_(ME.name,t('logLogin'),t('logLoginQ')+' — '+ME.email,'');
       await enterApp(ME);
       return;
     }
@@ -739,9 +760,11 @@ async function quickLogin(){
     ME={email:u.email,username:u.username||uname,name:u.name||uname,role:u.role||'user',avatarId:u.avatarId||'',pass:pass};
     rememberMe($('q_rem'));
     showLoading(false);
+    await log_(ME.name,t('logLogin'),t('logLoginQ')+' — '+ME.email,'');
     await enterApp(ME);
   }catch(e){showLoading(false);$('lerr').textContent=e.message;playSound('err');}
 }
+/* أول مرة: إيميل + OTP — ⭐ M4: الجهاز لمستخدم آخر يكمل التحقق ويتحول "معلق" بموافقة إلزامية */
 async function startLogin(){
   const email=$('lu').value.trim().toLowerCase();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$('lerr').textContent=t('eEmail');return;}
@@ -757,10 +780,11 @@ async function startLogin(){
     const doc=await db.collection('devices').doc(FP).get();
     if(doc.exists){
       const d=doc.data();
-      if(d.email!==email){showLoading(false);loginState('email',t('devOther',{em:(d.email||'—')}));playSound('err');return;}
-      if(d.status==='approved'){showLoading(false);loginState('quick',t('devApproved'));return;}
-      if(d.status==='pending'){showLoading(false);loginState('pending');return;}
-      showLoading(false);loginState('blocked');return;
+      if(d.email===email&&d.status==='approved'){showLoading(false);loginState('quick',t('devApproved'));return;}
+      if(d.email===email&&d.status==='pending'){showLoading(false);loginState('pending');return;}
+      if(d.email===email&&d.status==='blocked'){showLoading(false);loginState('blocked');return;}
+      /* الجهاز لمستخدم آخر → نكمل التحقق بالبريد عادي:
+         بعد OTP يتحول الجهاز لطلب "معلق" — وموافقة الإدارة إلزامية قبل أي دخول */
     }
     showLoading(false);beginOtp(email);
   }catch(e){showLoading(false);loginState('email',e.message);playSound('err');}
@@ -796,14 +820,16 @@ async function verifyOtp(){
       const oldEmail=prev.exists?(prev.data().email||''):'';
       const info=prev.exists?(prev.data().info||await deviceInfo()):await deviceInfo();
       await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:loginEmail,name:navigator.userAgent.slice(0,90),info:info,status:'approved',requestedAt:(prev.exists&&prev.data().requestedAt)||new Date(),approvedAt:new Date(),approvedBy:'auto (مالك النظام)',lastUsed:new Date()});
-      if(oldEmail&&oldEmail!==loginEmail)log_(au.name,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail+' — تم الاستحواذ تلقائيًا بعد التحقق بالبريد');
+      if(oldEmail&&oldEmail!==loginEmail)await log_(au.name,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail+' — تم الاستحواذ تلقائيًا بعد التحقق بالبريد','');
       const hasCred=refU.exists&&refU.data().passHash&&refU.data().passEnc;
       if(!hasCred){
         showLoading(false);$('cEmail').textContent=loginEmail;loginState('create');
         toast(t('takeCreate'),'info');return;
       }
       ME={email:loginEmail,username:refU.data().username||'',name:refU.data().name||'Admin',role:'admin',avatarId:refU.data().avatarId||''};
-      showLoading(false);toast(t('takeOk'),'ok');await enterApp(ME);return;
+      showLoading(false);toast(t('takeOk'),'ok');
+      await log_(ME.name,t('logLogin'),t('logLoginM')+' — '+ME.email,'');
+      await enterApp(ME);return;
     }
     if(refU.exists){
       const u=refU.data();
@@ -812,15 +838,22 @@ async function verifyOtp(){
       if(dev.exists&&dev.data().email===loginEmail&&dev.data().status==='approved'){
         await db.collection('devices').doc(FP).update({lastUsed:new Date()});
         ME={email:loginEmail,username:u.username||'',name:u.name||loginEmail.split('@')[0],role:u.role||'user',avatarId:u.avatarId||''};
-        showLoading(false);await enterApp(ME);return;
+        showLoading(false);
+        await log_(ME.name,t('logLogin'),t('logLoginM')+' — '+ME.email,'');
+        await enterApp(ME);return;
       }
-      if(dev.exists&&dev.data().email&&dev.data().email!==loginEmail){
-        showLoading(false);loginState('email',t('devOther2',{em:dev.data().email}));playSound('err');return;
+      if(dev.exists&&dev.data().status==='blocked'&&(dev.data().email===loginEmail||!dev.data().email)){
+        showLoading(false);loginState('blocked');return;
       }
-      if(dev.exists&&dev.data().status==='pending'){showLoading(false);loginState('pending');return;}
-      if(dev.exists&&dev.data().status==='blocked'){showLoading(false);loginState('blocked');return;}
+      if(dev.exists&&dev.data().status==='pending'&&dev.data().email===loginEmail){
+        showLoading(false);loginState('pending');return;
+      }
+      /* ⭐ M4: جهاز جديد أو جهاز كان لمستخدم آخر → طلب معلق بموافقة إلزامية
+         (حتى لو الحرامي معاه الإيميل والـ OTP — عمره ما يدخل غير بموافقة الإدارة) */
       const info=await deviceInfo();
-      await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:loginEmail,name:navigator.userAgent.slice(0,90),info:info,status:'pending',requestedAt:new Date(),lastUsed:new Date()});
+      const wasOther=dev.exists&&dev.data().email&&dev.data().email!==loginEmail;
+      await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:loginEmail,name:navigator.userAgent.slice(0,90),info:info,status:'pending',requestedAt:(dev.exists&&dev.data().requestedAt)||new Date(),approvedAt:null,approvedBy:null,lastUsed:new Date()},{merge:true});
+      if(wasOther)await log_(u.username||loginEmail,'تحويل جهاز لطلب موافقة','الجهاز '+FP+' كان معتمدًا لـ '+dev.data().email+' — أصبح طلبًا معلقًا لـ '+loginEmail,'');
       showLoading(false);loginState('pending');toast(t('pendNew'),'info');return;
     }
     showLoading(false);
@@ -859,12 +892,13 @@ async function createAccount(){
     const status=isAdmin?'approved':'pending';
     const info=prev.exists?(prev.data().info||await deviceInfo()):await deviceInfo();
     await db.collection('devices').doc(FP).set({did:FP,fp:FP,email:email,name:navigator.userAgent.slice(0,90),info:info,status:status,requestedAt:(prev.exists&&prev.data().requestedAt)||new Date(),approvedAt:isAdmin?new Date():null,approvedBy:isAdmin?'auto (مالك النظام)':null,lastUsed:new Date()});
-    if(isAdmin&&oldEmail&&oldEmail!==email)log_(uname,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail);
-    log_(uname,isAdmin?'إنشاء/تحديث النظام (Admin)':'تسجيل مستخدم جديد',email+(status==='approved'?' — تمت الموافقة تلقائيًا':' — بانتظار موافقة الإدارة'),'');
+    if(isAdmin&&oldEmail&&oldEmail!==email)await log_(uname,'استحواذ مالك النظام على جهاز','الجهاز '+FP+' كان مسجلًا لـ '+oldEmail,'');
+    await log_(uname,isAdmin?'إنشاء/تحديث النظام (Admin)':'تسجيل مستخدم جديد',email+(status==='approved'?' — تمت الموافقة تلقائيًا':' — بانتظار موافقة الإدارة'),'');
     ME={email:email,username:uname,name:uname,role:isAdmin?'admin':'user',avatarId:prevData.avatarId||'',pass:pass};
     if(status==='approved'){
       rememberMe($('n_rem'));
       showLoading(false);
+      await log_(ME.name,t('logLogin'),t('logLoginM')+' — '+ME.email,'');
       await enterApp(ME);
     }else{
       showLoading(false);
@@ -879,6 +913,7 @@ async function recheckDevice(){
     showLoading(false);
     if(doc.exists&&doc.data().status==='approved'){
       const u=await ensureUser_(doc.data().email);
+      await log_(u.name,t('logLogin'),t('logLoginM')+' — '+u.email,'');
       await enterApp(u);
     }else{loginState('pending');toast(t('pTitle'),'info');}
   }catch(e){showLoading(false);toast(e.message,'err');}
@@ -893,12 +928,14 @@ async function ensureUser_(email){
 async function enterApp(u){
   $('login').style.display='none';$('topbar').style.display='flex';
   applyMe();startLive();applyLang();
+  saveSession();
   const c=readCache();
   if(c&&c.invoices){D.invoices=c.invoices;D.customers=c.customers||[];D.logs=c.logs||[];D.company=c.company||{};applyData();navTo(VIEW);}
   toast(t('welcome')+' '+u.name+' 👋','ok');
 }
 async function boot(){
-  prewarm();applyTheme();
+  prewarm();applyTheme();applyLang();
+  /* 1) تذكرني: دخول تلقائي كامل بالباسورد المحفوظ */
   if(lsGet('ec_remember')==='1'){
     const nm=lsGet('ec_uname')||lsGet('ec_name'),pb=lsGet('ec_pass_b64');
     if(nm&&pb){
@@ -910,7 +947,7 @@ async function boot(){
         const snap=await db.collection('users').where('username','==',nm).limit(2).get();
         if(!snap.empty){
           const u=snap.docs[0].data();
-          if(u.status==='blocked'){showLoading(false);loginState('quick');$('lerr').textContent=t('eBlocked');playSound('err');return;}
+          if(u.status==='blocked'){showLoading(false);loginState('quick');$('lerr').textContent=t('eBlocked');playSound('err');clearSession();return;}
           const doc=await db.collection('devices').doc(FP).get();
           if(doc.exists&&doc.data().email===u.email&&doc.data().status==='approved'){
             await db.collection('devices').doc(FP).update({lastUsed:new Date()});
@@ -920,9 +957,32 @@ async function boot(){
             return;
           }
         }
-      }catch(e){}
+      }catch(e){console.warn('[ECP] remember skipped:',e&&e.message);}
       showLoading(false);
     }
+  }
+  /* 2) ⭐ M3: جلسة الجهاز — الريفريش يرجعك لنفس الصفحة
+     الجهاز المعتمد للإيميل يكفي لاستعادة الجلسة بدون باسورد */
+  const ss=lsGet('ec_sess'),se=lsGet('ec_sess_email');
+  if(ss==='1'&&se){
+    showLoading(true);
+    try{
+      await authReady;
+      FP=await deviceFp();
+      const doc=await db.collection('devices').doc(FP).get();
+      if(doc.exists&&doc.data().email===se&&doc.data().status==='approved'){
+        const u=await db.collection('users').doc(se).get();
+        if(u.exists&&u.data().status!=='blocked'){
+          const ud=u.data();
+          ME={email:se,username:ud.username||'',name:ud.name||se.split('@')[0],role:ud.role||'user',avatarId:ud.avatarId||''};
+          await db.collection('devices').doc(FP).update({lastUsed:new Date()});
+          showLoading(false);
+          await enterApp(ME);
+          return;
+        }
+      }
+    }catch(e){console.warn('[ECP] session skipped:',e&&e.message);}
+    showLoading(false);
   }
   loginState('quick');
 }
@@ -937,8 +997,8 @@ function startLive(){
 function rebuild(){
   const invoices=[];const today=new Date();today.setHours(0,0,0,0);
   Object.values(RAW.inv).forEach(r=>{
-    const txs=Object.values(RAW.tx).filter(t=>t.invNo===r.invNo).sort((a,b)=>(a.date||'')<(b.date||'')?-1:1);
-    const amount=Number(r.amount)||0,collected=txs.reduce((s,t)=>s+(Number(t.amount)||0),0),remaining=amount-collected;
+    const txs=Object.values(RAW.tx).filter(tx=>tx.invNo===r.invNo).sort((a,b)=>(a.date||'')<(b.date||'')?-1:1);
+    const amount=Number(r.amount)||0,collected=txs.reduce((s,tx)=>s+(Number(tx.amount)||0),0),remaining=amount-collected;
     let overdue=null;
     if(r.dueDate&&remaining>0.005){const due=new Date(r.dueDate+'T00:00:00');if(!isNaN(due))overdue=Math.floor((today-due)/86400000);}
     invoices.push({invNo:r.invNo,customer:r.customer||'',invDate:r.invDate||'',dueDate:r.dueDate||'',amount:amount,
@@ -958,7 +1018,6 @@ function bucket_(d){if(d===null||d===undefined)return '';
   if(d<=0)return 'b0';if(d<=30)return 'b30';if(d<=60)return 'b60';
   if(d<=90)return 'b90';if(d<=180)return 'b180';if(d<=360)return 'b360';return 'b365';}
 function bkLb(b){return b?t('bk_'+b):'';}
-function log_(user,action,detail,invNo){db.collection('logs').add({ts:new Date(),user:user||'—',action:action||'',detail:detail||'',invNo:invNo||''});}
 function manualRefresh(){rebuild();toast(t('refreshed'),'ok');}
 
 function roleLabel(r){return r==='admin'?t('roleAdmin'):t('roleEmp');}
@@ -1000,6 +1059,7 @@ async function uploadAvatarFile(inp){
     const m=await svc('uploadMedia',{name:'avatar-'+ME.email,type:cf.type,data:await fileToB64(cf)});
     ME.avatarId=m.id;
     await db.collection('users').doc(ME.email).update({avatarId:m.id});
+    await log_(ME.name,'تغيير الصورة الشخصية',ME.email,'');
     toast(t('avUpd'),'ok');applyAvatars();
   }catch(e){toast(e.message,'err');}
   inp.value='';busyRel();
@@ -1007,7 +1067,7 @@ async function uploadAvatarFile(inp){
 function delAvatar(){
   askConfirm(t('delAvT'),t('delAvM'),t('delBtn'),false,async()=>{
     if(!busyGate())return;
-    try{ME.avatarId='';await db.collection('users').doc(ME.email).update({avatarId:''});toast(t('avDel'),'ok');applyAvatars();}catch(e){toast(e.message,'err');}
+    try{ME.avatarId='';await db.collection('users').doc(ME.email).update({avatarId:''});await log_(ME.name,'حذف الصورة الشخصية',ME.email,'');toast(t('avDel'),'ok');applyAvatars();}catch(e){toast(e.message,'err');}
     busyRel();
   });
 }
@@ -1028,6 +1088,7 @@ function statusOf(v){
   return{k:'open'};}
 function stTxt(v){const k=statusOf(v).k;if(k==='over')return t('stOverP')+fmt(-v.remaining);return t('st'+k.charAt(0).toUpperCase()+k.slice(1));}
 function chipStatus(v){return '<span class="chip st-'+statusOf(v).k+'">'+stTxt(v)+'</span>';}
+/* شريحة التأخير: بدون تاريخ → رمادي / 🟢 حتى 60 يوم / 🟠 61-180 / 🔴 بعدها */
 function delayChip(v){
   if(v.overdue==null)return '<span class="chip st-due">'+t('stDueN')+'</span>';
   if(v.overdue<=0){const left=Math.abs(v.overdue);return '<span class="chip st-g1">'+(left===0?t('dToday'):t('dFuture',{n:left}))+'</span>';}
@@ -1036,7 +1097,7 @@ function delayChip(v){
   return '<span class="chip '+cls+'">'+t('dLateD',{ic:ic,n:v.overdue})+'</span>';
 }
 function kpi(tt,v,ic,cls,nav){return '<div class="kpi '+(cls||'')+'"'+(nav?(' onclick="navTo(\''+nav+'\')"'):'')+'><div class="k-ic">'+ic+'</div><div><div class="k-t">'+tt+'</div><div class="k-v">'+v+'</div></div></div>';}
-function feedIcon(a){if(a.indexOf('حذف')===0)return'🗑️';if(a.indexOf('إضافة فاتورة')===0)return'🧾';if(a.indexOf('تعديل')===0)return'✏️';if(a.indexOf('دفعة')>-1)return'💵';if(a.indexOf('حركة')===0)return'🔖';if(a.indexOf('عميل')>-1)return'👤';if(a.indexOf('شعار')>-1)return'🖼️';if(a.indexOf('الصورة')>-1)return'📷';if(a.indexOf('استيراد')===0)return'📥';if(a.indexOf('استحواذ')>-1)return'⭐';if(a.indexOf('النظام')===0)return'⭐';return'📌';}
+function feedIcon(a){if(a.indexOf('حذف')===0)return'🗑️';if(a.indexOf('إضافة فاتورة')===0)return'🧾';if(a.indexOf('تعديل')===0)return'✏️';if(a.indexOf('دخول')>-1)return'🔑';if(a.indexOf('خروج')>-1)return'🚪';if(a.indexOf('كلمة المرور')>-1)return'🔑';if(a.indexOf('اسم المستخدم')>-1)return'✏️';if(a.indexOf('دفعة')>-1)return'💵';if(a.indexOf('حركة')===0)return'🔖';if(a.indexOf('عميل')>-1)return'👤';if(a.indexOf('شعار')>-1)return'🖼️';if(a.indexOf('الصورة')>-1)return'📷';if(a.indexOf('استيراد')===0)return'📥';if(a.indexOf('استحواذ')>-1)return'⭐';if(a.indexOf('النظام')===0)return'⭐';return'📌';}
 function fmtTs(ts){if(!ts)return'';try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString(loc(),{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return'';}}
 function feed(list){return list.map(l=>'<div class="feed-item"><span class="fi-ic">'+feedIcon(l.action)+'</span><div><b>'+esc(l.action)+'</b> <span class="tiny">'+esc(l.detail)+'</span><br><span class="tiny mut">'+fmtTs(l.ts)+' — '+esc(l.user)+'</span></div></div>').join('');}
 function dcell(l,v){return '<div class="d-cell"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>';}
@@ -1125,11 +1186,12 @@ function invFiltered(){
     if(q){const hay=(v.invNo+' '+v.customer+' '+(v.project||'')+' '+(v.desc||'')+' '+v.notes+' '+v.txs.map(tx=>(tx.ref||'')+' '+(tx.method||'')+' '+(tx.notes||'')).join(' ')).toLowerCase();if(hay.indexOf(q)<0)return false;}
     return true;}).sort((a,b)=>(a.invDate||'9999')<(b.invDate||'9999')?1:-1);
 }
+/* ⭐ M1: زر التفاصيل ⋯ — سطر نظيف بدون ||'' الذي كان يكسر الصفوف */
 function renderInvTbl(){
   const rows=invFiltered();
   let sA=0,sC=0,sR=0;rows.forEach(v=>{sA+=v.amount;sC+=v.collected;if(v.remaining>0)sR+=v.remaining;});
   $('invTbl').innerHTML='<table><thead><tr><th>'+t('thNo')+'</th><th>'+t('thCust')+'</th><th>'+t('thProj')+'</th><th>'+t('thIDate')+'</th><th>'+t('thDDate')+'</th><th>'+t('thTot')+'</th><th>'+t('thTax')+'</th><th>'+t('thCol')+'</th><th>'+t('thRem')+'</th><th>'+t('thColl')+'</th><th>'+t('thSt')+'</th><th>'+t('thL8')+'</th><th></th></tr></thead><tbody>'+
-  (rows.length?rows.map(v=>'<tr class="click" onclick="openDetail(\''+esc(v.invNo)+'\')"><td><b>'+esc(v.invNo)+'</b></td><td>'+esc(v.customer)+'</td><td>'+esc(v.project||'—')+'</td><td>'+(v.invDate||'—')+'</td><td>'+(v.dueDate||'—')+'</td><td class="num">'+fmt(v.amount)+'</td><td>'+(v.taxRate?v.taxRate+'%':'—')+'</td><td class="num ok">'+fmt(v.collected)+'</td><td class="num '+(v.remaining>0.005?'bad':'ok')+'">'+fmt(v.remaining)+'</td><td style="min-width:110px"><div class="pbar"><i style="width:'+v.pct+'%"></i></div><span class="tiny mut">'+v.pct.toFixed(0)+'%</span></td><td>'+chipStatus(v)+'</td><td>'+delayChip(v)+'</td><td class="noprint"><button class="btn-sm" onclick="event.stopPropagation();openDetail(\''+esc(v.invNo)+'\')">'+t('thAct')||''+'</button></td></tr>').join('')
+  (rows.length?rows.map(v=>'<tr class="click" onclick="openDetail(\''+esc(v.invNo)+'\')"><td><b>'+esc(v.invNo)+'</b></td><td>'+esc(v.customer)+'</td><td>'+esc(v.project||'—')+'</td><td>'+(v.invDate||'—')+'</td><td>'+(v.dueDate||'—')+'</td><td class="num">'+fmt(v.amount)+'</td><td>'+(v.taxRate?v.taxRate+'%':'—')+'</td><td class="num ok">'+fmt(v.collected)+'</td><td class="num '+(v.remaining>0.005?'bad':'ok')+'">'+fmt(v.remaining)+'</td><td style="min-width:110px"><div class="pbar"><i style="width:'+v.pct+'%"></i></div><span class="tiny mut">'+v.pct.toFixed(0)+'%</span></td><td>'+chipStatus(v)+'</td><td>'+delayChip(v)+'</td><td class="noprint"><button class="btn-sm" onclick="event.stopPropagation();openDetail(\''+esc(v.invNo)+'\')">⋯</button></td></tr>').join('')
   :'<tr><td colspan="13" style="text-align:center;padding:30px" class="mut">'+t('noMatch')+'</td></tr>')+
   '<tr class="tot"><td colspan="5">'+t('totInv',{n:rows.length})+'</td><td class="num">'+fmt(sA)+'</td><td></td><td class="num">'+fmt(sC)+'</td><td class="num">'+fmt(sR)+'</td><td colspan="4"></td></tr>'+
   '</tbody></table>';
@@ -1190,13 +1252,13 @@ async function submitInv(){
       }
       await db.collection('invoices').doc(invNo).set(d,{merge:true});
       if(!D.customers.includes(d.customer))await db.collection('customers').doc(d.customer).set({name:d.customer});
-      log_(ME.name,'تعديل فاتورة',invNo+' — '+d.customer+(ch.length?(' — التغييرات: '+ch.join('؛ ')):' — بدون تغييرات'),invNo);
+      await log_(ME.name,'تعديل فاتورة',invNo+' — '+d.customer+(ch.length?(' — التغييرات: '+ch.join('؛ ')):' — بدون تغييرات'),invNo);
       closeOv('m_inv');toast(t('invEdited'),'ok');
     }else{
       if(D.invoices.some(x=>x.invNo===invNo))throw new Error(t('eInvDup',{n:invNo}));
       await db.collection('invoices').doc(invNo).set(Object.assign({},d,{createdAt:todayStr(),createdBy:ME.name,cid:invCidV}));
       if(!D.customers.includes(d.customer))await db.collection('customers').doc(d.customer).set({name:d.customer});
-      log_(ME.name,'إضافة فاتورة',invNo+' — '+d.customer+(d.project?(' — '+d.project):'')+' — إجمالي '+fmt(total),invNo);
+      await log_(ME.name,'إضافة فاتورة',invNo+' — '+d.customer+(d.project?(' — '+d.project):'')+' — إجمالي '+fmt(total),invNo);
       closeOv('m_inv');toast(t('invSaved'),'ok');
     }
   }catch(e){$('i_err').textContent=e.message;}
@@ -1239,7 +1301,7 @@ function askDelInvoice(){
       batch.delete(db.collection('invoices').doc(curInv));
       if(v)v.txs.forEach(tx=>batch.delete(db.collection('transactions').doc(tx.id)));
       await batch.commit();
-      log_(ME.name,'حذف فاتورة',curInv+' (مع كل حركاتها)',curInv);
+      await log_(ME.name,'حذف فاتورة',curInv+' (مع كل حركاتها)',curInv);
       closeOv('m_detail');curInv=null;toast(t('delInvOk'),'ok');
     }catch(e){toast(e.message,'err');}
     busyRel();
@@ -1251,7 +1313,7 @@ function askDelTx(id){
     try{
       const f=findTx(id);
       await db.collection('transactions').doc(id).delete();
-      if(f)log_(ME.name,'حذف حركة',(f.t.type||'')+' — '+f.t.invNo+' — '+fmt(f.t.amount),f.t.invNo);
+      if(f)await log_(ME.name,'حذف حركة',(f.t.type||'')+' — '+f.t.invNo+' — '+fmt(f.t.amount),f.t.invNo);
       closeOv('m_txd');closeOv('m_detail');toast(t('delTxOk'),'ok');
     }catch(e){toast(e.message,'err');}
     busyRel();
@@ -1268,9 +1330,10 @@ function openTxForm(invNo){
   txTypeChange();openOv('m_tx');setTimeout(()=>$('t_amount').focus(),100);
 }
 function txTypeChange(){const tt=$('t_type').value;$('t_method_row').style.display=(tt==='دفعة')?'block':'none';$('t_ref_label').textContent=tt==='دفعة'?t('refReceipt'):(tt.indexOf('WHT')>-1?t('refWHT'):t('refRef'));}
+/* ⭐ M8: توست المرفقات بنفس الأسلوب الموحد */
 function filesPicked(inp){
   for(const f of inp.files){
-    if(f.size>8*1024*1024){toast('8MB+ '+f.name,'err');continue;}
+    if(f.size>8*1024*1024){toast(t('attBig',{n:f.name}),'err');continue;}
     picked.push({file:f});
   }
   inp.value='';drawPicked();
@@ -1303,7 +1366,7 @@ async function submitTx(){
     const id='T'+Date.now().toString(36)+Math.floor(Math.random()*900+100);
     await db.collection('transactions').doc(id).set({id:id,invNo:curInv,date:d.date,type:d.type,amount:d.amount,
       method:d.type==='دفعة'?d.method:'',ref:d.ref,notes:d.notes,user:ME.name,atts:atts,ts:new Date().toISOString().slice(0,16).replace('T',' '),cid:txCidV});
-    log_(ME.name,'تسجيل حركة: '+d.type,curInv+' — '+inv.customer+' — '+fmt(d.amount)+(d.ref?(' — مرجع: '+d.ref):'')+(atts.length?(' — مرفقات: '+atts.length):''),curInv);
+    await log_(ME.name,'تسجيل حركة: '+d.type,curInv+' — '+inv.customer+' — '+fmt(d.amount)+(d.ref?(' — مرجع: '+d.ref):'')+(atts.length?(' — مرفقات: '+atts.length):''),curInv);
     closeOv('m_tx');
     toast(t('txSaved',{n:fmt(inv.remaining-d.amount)}),'ok');
   }catch(e){$('t_err').textContent=e.message;}
@@ -1377,7 +1440,7 @@ async function addCust(){
   try{
     if(D.customers.includes(n))throw new Error(t('eCustEx'));
     await db.collection('customers').doc(n).set({name:n});
-    log_(ME.name,'إضافة عميل',n);
+    await log_(ME.name,'إضافة عميل',n,'');
     $('c_new').value='';toast(t('custAdded'),'ok');
   }catch(e){toast(e.message,'err');}
   busyRel();
@@ -1421,7 +1484,7 @@ function renderStmt(){
 }
 function stmtFilterPick(){const q=($('stmtSearch')?$('stmtSearch').value:'').trim().toLowerCase();const sel=$('stmtPick');[...sel.options].forEach(o=>{o.style.display=(!q||o.text.toLowerCase().indexOf(q)>-1)?'':'none';});}
 function renderRep(){
-const invs=D.invoices;let totalRem=0;
+  const invs=D.invoices;let totalRem=0;
   const ag=BUCKETS.map(b=>{let c=0,a=0;invs.forEach(v=>{if(v.remaining>0.005&&v.bucket===b){c++;a+=v.remaining;}});totalRem+=a;return{b:b,c:c,a:a};});
   const m={};invs.forEach(v=>{if(v.remaining>0.005){m[v.customer]=(m[v.customer]||0)+v.remaining;}});
   const top=Object.entries(m).map(([c,r])=>({c:c,r:r})).sort((a,b)=>b.r-a.r).slice(0,10);
@@ -1447,10 +1510,26 @@ function renderLogTbl(){
   (rows.length?rows.map(l=>'<tr><td class="tiny">'+fmtTs(l.ts)+'</td><td><b>'+esc(l.user)+'</b></td><td>'+feedIcon(l.action)+' '+esc(l.action)+'</td><td class="small">'+esc(l.detail)+'</td><td>'+(l.invNo?'<button class="btn-sm" onclick="openDetail(\''+esc(l.invNo)+'\')">'+esc(l.invNo)+'</button>':'')+'</td></tr>').join('')
   :'<tr><td colspan="5" class="mut" style="text-align:center;padding:30px">'+t('noLogL')+'</td></tr>')+'</tbody></table>';
 }
+/* ⭐ M5+M6: حسابي للجميع (كلمة مرور + يوزرنيم بعين في كل الخانات)
+   هوية الشركة/الترحيل/التهيئة: أدمن فقط */
 function renderSet(){
   const txCount=D.invoices.reduce((s,v)=>s+v.txs.length,0);
   const isAdmin=ME.role==='admin';
-  $('v-set').innerHTML=
+  const acctCard=
+  '<div class="grid-2">'+
+  '<div class="card"><h3>'+t('acctPwT')+'</h3>'+
+  '<div class="field"><label>'+t('oldPw')+'</label><div class="pwwrap"><input id="pw_old" type="password" placeholder="••••••"><button type="button" class="eye" onclick="eye(\'pw_old\',this)">'+SVG_EYEOFF+'</button></div></div>'+
+  '<div class="field"><label>'+t('newPw')+'</label><div class="pwwrap"><input id="pw_new" type="password" placeholder="••••••"><button type="button" class="eye" onclick="eye(\'pw_new\',this)">'+SVG_EYEOFF+'</button></div></div>'+
+  '<div class="field"><label>'+t('confPw')+'</label><div class="pwwrap"><input id="pw_new2" type="password" placeholder="••••••"><button type="button" class="eye" onclick="eye(\'pw_new2\',this)">'+SVG_EYEOFF+'</button></div></div>'+
+  '<div class="msg" id="pw_err"></div>'+
+  '<button class="btn-primary" onclick="changeMyPassword()">'+t('btnPwSave')+'</button></div>'+
+  '<div class="card"><h3>'+t('acctUT')+'</h3>'+
+  '<div class="field"><label>'+t('newU')+'</label><input id="un_new" value="'+esc(ME.username||'')+'"></div>'+
+  '<div class="field"><label>'+t('oldPwC')+'</label><div class="pwwrap"><input id="un_pass" type="password" placeholder="••••••"><button type="button" class="eye" onclick="eye(\'un_pass\',this)">'+SVG_EYEOFF+'</button></div></div>'+
+  '<div class="msg" id="un_err"></div>'+
+  '<button class="btn-primary" onclick="changeMyUsername()">'+t('btnUSave')+'</button></div>'+
+  '</div>';
+  const adminCards=isAdmin?(
   '<div class="grid-2">'+
   '<div class="card"><h3>'+t('setCoT')+'</h3>'+
   '<div class="field"><label>'+t('coAr')+'</label><input id="co_inp" value="'+esc(D.company.name||'')+'"></div>'+
@@ -1467,13 +1546,69 @@ function renderSet(){
   '<p class="hint" style="margin-bottom:10px">'+t('setMigP')+'</p>'+
   '<div class="field"><label>'+t('migKey')+'</label><input id="mig_key" placeholder="'+t('phMigKey')+'"></div>'+
   '<button class="btn-primary" id="mig_btn" onclick="migrateOld()">'+t('btnMig')+'</button></div>'+
+  '</div>':'');
+  $('v-set').innerHTML=
+  acctCard+
+  adminCards+
+  '<div class="grid-2">'+
   '<div class="card"><h3>'+t('setPermT')+'</h3><div class="d-grid">'+
   dcell(t('lbUserL'),esc(ME.email))+dcell(t('thSt'),roleLabel(ME.role))+'</div>'+
   '<p class="hint">'+t('setPermP')+'</p></div>'+
   '<div class="card"><h3>'+t('setDataT')+'</h3><div class="d-grid">'+
   dcell(t('cInv'),fmt0(D.invoices.length))+dcell(t('cTx'),fmt0(txCount))+dcell(t('cCust'),fmt0(D.customers.length))+dcell(t('cLog'),fmt0(D.logs.length))+'</div>'+
-  (isAdmin?'<button class="btn-danger" onclick="askWipe()">'+t('btnWipe')+'</button><p class="hint" style="margin-top:8px">'+t('wipeHint')+'</p>'
-  :'<p class="hint">'+t('wipeUser')+'</p>')+'</div>';
+  (isAdmin?'<button class="btn-danger" onclick="askWipe()">'+t('btnWipe')+'</button><p class="hint" style="margin-top:8px">'+t('wipeHint')+'</p>':'')+'</div>'+
+  '</div>';
+}
+/* ⭐ M5: تغيير كلمة المرور — التحقق من القديمة + عين في كل الخانات + تحديث التذكرني */
+async function changeMyPassword(){
+  if(!busyGate())return;
+  try{
+    const oldP=$('pw_old').value,newP=$('pw_new').value,newP2=$('pw_new2').value;
+    if(!oldP){$('pw_err').textContent=t('eUOld');busyRel();return;}
+    if(newP.length<4){$('pw_err').textContent=t('eNewMin');playSound('err');busyRel();return;}
+    if(newP!==newP2){$('pw_err').textContent=t('eNewMM');playSound('err');busyRel();return;}
+    const ref=db.collection('users').doc(ME.email);
+    const doc=await ref.get();
+    const d=doc.exists?doc.data():{};
+    const curU=ME.username||ME.email.split('@')[0];
+    if(d.passHash!==await hashPass_(curU,oldP)){$('pw_err').textContent=t('eOldPw');playSound('err');busyRel();return;}
+    const ph=await hashPass_(curU,newP);
+    await ref.update({passHash:ph,passEnc:btoa(unescape(encodeURIComponent(newP)))});
+    ME.pass=newP;
+    if(lsGet('ec_remember')==='1'){lsSet('ec_pass_b64',btoa(unescape(encodeURIComponent(newP))));lsSet('ec_uname',ME.username||'');}
+    await log_(ME.name,'تغيير كلمة المرور',ME.email,'');
+    $('pw_old').value='';$('pw_new').value='';$('pw_new2').value='';$('pw_err').textContent='';
+    toast(t('pwChanged'),'ok');
+  }catch(e){$('pw_err').textContent=e.message;}
+  busyRel();
+}
+/* ⭐ M5: تغيير اليوزرنيم — تأكيد بالباسورد + فحص تكرار + إعادة حساب passHash تلقائيًا */
+async function changeMyUsername(){
+  if(!busyGate())return;
+  try{
+    const newU=$('un_new').value.trim(),oldP=$('un_pass').value;
+    if(!newU){$('un_err').textContent=t('eUNew');busyRel();return;}
+    if(!oldP){$('un_err').textContent=t('eUOld');playSound('err');busyRel();return;}
+    const ref=db.collection('users').doc(ME.email);
+    const doc=await ref.get();
+    const d=doc.exists?doc.data():{};
+    const curU=ME.username||ME.email.split('@')[0];
+    if(d.passHash!==await hashPass_(curU,oldP)){$('un_err').textContent=t('eOldPw');playSound('err');busyRel();return;}
+    if(newU!==curU){
+      const dup=await db.collection('users').where('username','==',newU).limit(5).get();
+      let taken=false;dup.forEach(x=>{if(x.id!==ME.email)taken=true;});
+      if(taken){$('un_err').textContent=t('eUTaken');playSound('err');busyRel();return;}
+    }
+    const ph=await hashPass_(newU,oldP);
+    await ref.update({username:newU,passHash:ph});
+    ME.username=newU;
+    if(lsGet('ec_remember')==='1'){lsSet('ec_uname',newU);}
+    await log_(ME.name,'تغيير اسم المستخدم',ME.email+' → '+newU,'');
+    applyMe();
+    $('un_err').textContent='';
+    toast(t('uChanged'),'ok');
+  }catch(e){$('un_err').textContent=e.message;}
+  busyRel();
 }
 async function uploadLogoFile(inp){
   const f=inp.files&&inp.files[0];if(!f)return;
@@ -1482,16 +1617,17 @@ async function uploadLogoFile(inp){
   try{
     const m=await svc('uploadMedia',{name:'company-logo',type:f.type||'image/png',data:await fileToB64(f)});
     await db.collection('settings').doc('company').set({logoId:m.id},{merge:true});
+    await log_(ME.name,'تحديث شعار الشركة','','');
     toast(t('logoUpd'),'ok');
   }catch(e){toast(e.message,'err');}
   inp.value='';busyRel();
 }
-function removeLogoNow(){askConfirm(t('rmLogoT'),t('rmLogoM'),t('rmBtn'),false,async()=>{try{await db.collection('settings').doc('company').update({logoId:''});toast(t('logoRm'),'ok');}catch(e){toast(e.message,'err');}});}
+function removeLogoNow(){askConfirm(t('rmLogoT'),t('rmLogoM'),t('rmBtn'),false,async()=>{try{await db.collection('settings').doc('company').update({logoId:''});await log_(ME.name,'إزالة شعار الشركة','','');toast(t('logoRm'),'ok');}catch(e){toast(e.message,'err');}});}
 async function saveCo(){
   if(!busyGate())return;
   try{
     await db.collection('settings').doc('company').set({name:$('co_inp').value,nameEn:$('co_en').value,addrAr:$('co_addr_ar').value,addrEn:$('co_addr_en').value},{merge:true});
-    log_(ME.name,'تعديل هوية الشركة',$('co_inp').value);
+    await log_(ME.name,'تعديل هوية الشركة',$('co_inp').value,'');
     toast(t('coSaved'),'ok');
   }catch(e){toast(e.message,'err');}
   busyRel();
@@ -1524,7 +1660,7 @@ async function migrateOld(){
     await put('transactions',data.transactions||[]);
     await put('customers',data.customers||[]);
     if(data.company&&(data.company.name||data.company.logoId))await db.collection('settings').doc('company').set(data.company,{merge:true});
-    log_(ME.name,'استيراد بيانات',t('migLog',{i:(data.invoices||[]).length,t:(data.transactions||[]).length}));
+    await log_(ME.name,'استيراد بيانات',t('migLog',{i:(data.invoices||[]).length,t:(data.transactions||[]).length}),'');
     toast(t('migDone'),'ok');
   }catch(e){toast(e.message,'err');}
   btn.disabled=false;busyRel();
@@ -1543,7 +1679,7 @@ async function wipeAllData(){
 function askWipe(){
   askConfirm(t('wipeT'),t('wipeM'),t('wipeBtn'),true,async()=>{
     if(!busyGate())return;
-    try{await wipeAllData();log_(ME.name,'مسح قاعدة البيانات','إعادة تهيئة كاملة');toast(t('wipeOk'),'ok');}catch(e){toast(e.message,'err');}
+    try{await wipeAllData();await log_(ME.name,'مسح قاعدة البيانات','إعادة تهيئة كاملة','');toast(t('wipeOk'),'ok');}catch(e){toast(e.message,'err');}
     busyRel();
   },t('wipeWord'));
 }
@@ -1631,6 +1767,7 @@ function confOk(){
   if(confReq&&$('c_input').value.trim()!==confReq){$('c_err').textContent=t('confErr',{w:confReq});return;}
   closeOv('m_confirm');if(confCb)confCb();
 }
+/* إقلاع */
 (function(){
   applyTheme();applyLang();
   setSndBtns();
